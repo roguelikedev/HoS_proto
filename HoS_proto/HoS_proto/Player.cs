@@ -69,6 +69,18 @@ namespace HoS_proto
                     case Keys.N:
                         moveDir |= RIGHT | DOWN;
                         break;
+                    case Keys.Up:
+                        moveDir |= UP;
+                        break;
+                    case Keys.Down:
+                        moveDir |= DOWN;
+                        break;
+                    case Keys.Left:
+                        moveDir |= LEFT;
+                        break;
+                    case Keys.Right:
+                        moveDir |= RIGHT;
+                        break;
                 }
             }
             #endregion

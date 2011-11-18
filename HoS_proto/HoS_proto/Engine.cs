@@ -20,6 +20,7 @@ namespace HoS_proto
         public Random rand = new Random();
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont font;
 
         public Engine()
         {
@@ -33,13 +34,18 @@ namespace HoS_proto
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            font = Content.Load<SpriteFont>("SpriteFont1");
             for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
                 {
                     new Environment(x, y, rand.Next(2) == 0 ? Environment.DIRT : Environment.GRASS);
                 }
 
             new Player(rand.Next(12), rand.Next(12));
+            new NPC(rand.Next(12), rand.Next(12));
+            NPC.Instance.addOption("Talk.");
+            NPC.Instance.addOption("Kick.");
+            NPC.Instance.addOption("Punch.");
+            NPC.Instance.addOption("Kiss.");
         }
 
         protected override void Update(GameTime gameTime)
@@ -55,7 +61,28 @@ namespace HoS_proto
 
             Environment.DrawAll();
             Player.Instance.Draw();
-
+            NPC.Instance.Draw();
+            bool inMenu = false;
+            if(NPC.Instance.isInRange(Player.Instance))
+            {
+                foreach (var key in Keyboard.GetState().GetPressedKeys())
+                {
+                    switch (key)
+                    {
+                        case Keys.T:
+                            inMenu = true;
+                            for (int i = 1; i <= NPC.Instance.Options.Count; i++)
+                            {
+                                spriteBatch.DrawString(font, i+"."+NPC.Instance.Options[i-1], new Vector2(0, (i-1)*20), Color.White);
+                            }
+                            break;
+                    }
+                }
+                if (!inMenu)
+                {
+                    spriteBatch.DrawString(font, "Press T to talk.", new Vector2(0, 0), Color.White);
+                }
+            }
             spriteBatch.End();
         }
 
