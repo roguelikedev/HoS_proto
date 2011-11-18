@@ -17,7 +17,7 @@ namespace HoS_proto
         public const int TILE_DIM_IN_PX = 64;
         public const int SCREEN_DIM_IN_TILES = 11;
 
-        public Random rand = new Random();
+        public static Random rand = new Random();
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -36,7 +36,26 @@ namespace HoS_proto
 
             for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
                 {
-                    new Environment(x, y, rand.Next(2) == 0 ? Environment.DIRT : Environment.GRASS);
+                    string type = null;
+                    switch (rand.Next(1, 5) + rand.Next(1, 5))
+                    {
+                        case 2:
+                        case 3:
+                        case 4:
+                            type = Environment.DIRT;
+                            break;
+                        case 5:
+                            type = Environment.ROCK;
+                            break;
+                        case 6:
+                        case 7:
+                        case 8:
+                            type = Environment.GRASS;
+                            break;
+                        default:
+                            throw new Exception("BARF!!!!");
+                    }
+                    new Environment(x, y, type);
                 }
 
             new Player(rand.Next(12), rand.Next(12));
@@ -61,6 +80,8 @@ namespace HoS_proto
 
         public static void Draw(string what, int x, int y)
         {
+            if (what == null) return;
+
             x -= Player.Instance.X;
             x += SCREEN_DIM_IN_TILES / 2;
             y -= Player.Instance.Y;

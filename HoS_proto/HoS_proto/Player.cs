@@ -88,6 +88,8 @@ namespace HoS_proto
             if ((moveDir & UP) != 0) Y -= 1;
             if ((moveDir & DOWN) != 0) Y += 1;
 
+            if (Environment.At(Location).blockMove) Location = prevLoc;
+
             return Location != prevLoc;
         }
 
