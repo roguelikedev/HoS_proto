@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HoS_proto", "HoS_proto\HoS_proto\HoS_proto.csproj", "{DE8F6FA5-6639-46C8-8E8E-89A3B9E3A346}"
+EndProject
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "HoS_protoContent", "HoS_proto\HoS_protoContent\HoS_protoContent.contentproj", "{DB34800D-EC95-4968-A8E9-FF74497EED6F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE8F6FA5-6639-46C8-8E8E-89A3B9E3A346}.Debug|x86.ActiveCfg = Debug|x86
+		{DE8F6FA5-6639-46C8-8E8E-89A3B9E3A346}.Debug|x86.Build.0 = Debug|x86
+		{DE8F6FA5-6639-46C8-8E8E-89A3B9E3A346}.Release|x86.ActiveCfg = Release|x86
+		{DE8F6FA5-6639-46C8-8E8E-89A3B9E3A346}.Release|x86.Build.0 = Release|x86
+		{DB34800D-EC95-4968-A8E9-FF74497EED6F}.Debug|x86.ActiveCfg = Debug|x86
+		{DB34800D-EC95-4968-A8E9-FF74497EED6F}.Release|x86.ActiveCfg = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
