@@ -58,7 +58,7 @@ namespace HoS_proto
                     new Environment(x, y, type);
                 }
 
-            new Player(rand.Next(12), rand.Next(12));
+            new Player(rand.Next(SCREEN_DIM_IN_TILES), rand.Next(SCREEN_DIM_IN_TILES));
         }
 
         protected override void Update(GameTime gameTime)
