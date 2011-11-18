@@ -57,8 +57,15 @@ namespace HoS_proto
                     }
                     new Environment(x, y, type);
                 }
-
-            new Player(rand.Next(SCREEN_DIM_IN_TILES), rand.Next(SCREEN_DIM_IN_TILES));
+            {
+                int x = -1, y = -1;
+                while (Environment.At(new Point(x, y)).blockMove)
+                {
+                    x = rand.Next(SCREEN_DIM_IN_TILES);
+                    y = rand.Next(SCREEN_DIM_IN_TILES);
+                }
+                new Player(x, y);
+            }
         }
 
         protected override void Update(GameTime gameTime)
