@@ -44,7 +44,7 @@ namespace HoS_proto
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
-            Player.Instance.Update();
+            Player.Instance.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)

@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using System.Timers;
 
 namespace HoS_proto
 {
@@ -17,11 +18,15 @@ namespace HoS_proto
         public Point Location { get; private set; }
         public int X { get { return Location.X; } private set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } private set { Location = new Point(Location.X, value); } }
+        Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
+        bool shouldMove = true;
 
         public Player(int x, int y)
         {
             Instance = this;
             Location = new Point(x, y);
+            timeSinceMovement.AutoReset = false;
+            timeSinceMovement.Elapsed += (_, __) => shouldMove = true;
         }
 
         const int   STAY    = 0,
@@ -31,10 +36,11 @@ namespace HoS_proto
                     DOWN    = 1 << 3
                     ;
 
-        public void Update()
+        bool Move()
         {
             int moveDir = STAY;
 
+            #region giant switch statement
             foreach (var key in Keyboard.GetState().GetPressedKeys())
             {
                 switch (key)
@@ -65,6 +71,7 @@ namespace HoS_proto
                         break;
                 }
             }
+            #endregion
 
             Action<int, int> CancelOpposites = (dirA, dirB) =>
             {
@@ -74,10 +81,23 @@ namespace HoS_proto
             CancelOpposites(LEFT, RIGHT);
             CancelOpposites(UP, DOWN);
 
+            Point prevLoc = Location;
+
             if ((moveDir & LEFT) != 0) X -= 1;
             if ((moveDir & RIGHT) != 0) X += 1;
             if ((moveDir & UP) != 0) Y -= 1;
             if ((moveDir & DOWN) != 0) Y += 1;
+
+            return Location != prevLoc;
+        }
+
+        public void Update(GameTime gt)
+        {
+            if (shouldMove && Move())
+            {
+                shouldMove = false;
+                timeSinceMovement.Start();
+            }
         }
 
         public void Draw()
