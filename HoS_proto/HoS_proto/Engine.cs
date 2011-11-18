@@ -37,11 +37,14 @@ namespace HoS_proto
                 {
                     new Environment(x, y, rand.Next(2) == 0 ? Environment.DIRT : Environment.GRASS);
                 }
+
+            new Player(rand.Next(12), rand.Next(12));
         }
 
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
+            Player.Instance.Update();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -50,6 +53,7 @@ namespace HoS_proto
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
             Environment.DrawAll();
+            Player.Instance.Draw();
 
             spriteBatch.End();
         }
