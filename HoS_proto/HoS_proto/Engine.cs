@@ -13,6 +13,10 @@ namespace HoS_proto
 {
     public class Engine : Microsoft.Xna.Framework.Game
     {
+        static Engine instance;
+        public const int TILE_DIM = 64;
+
+        public Random rand = new Random();
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
@@ -20,31 +24,41 @@ namespace HoS_proto
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+            instance = this;
+            graphics.PreferredBackBufferHeight = TILE_DIM * 11;
+            graphics.PreferredBackBufferWidth = TILE_DIM * 15;
         }
         
         protected override void Initialize()
         {
-            base.Initialize();
-        }
-
-        protected override void LoadContent()
-        {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
+                {
+                    new Environment(x, y, rand.Next(2) == 0 ? Environment.DIRT : Environment.GRASS);
+                }
         }
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                this.Exit();
-
-            base.Update(gameTime);
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
         }
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.Black);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
-            base.Draw(gameTime);
+            Environment.DrawAll();
+
+            spriteBatch.End();
+        }
+
+        public static void Draw(string what, int x, int y)
+        {
+            instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
+                                    , new Rectangle(x * TILE_DIM, y * TILE_DIM, TILE_DIM, TILE_DIM)
+                                    , Color.White);
         }
     }
 }
