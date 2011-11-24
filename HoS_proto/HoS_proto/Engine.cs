@@ -21,6 +21,7 @@ namespace HoS_proto
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
+        public static Util.TriangleDrawer triDrawer;
 
         public Engine()
         {
@@ -34,6 +35,8 @@ namespace HoS_proto
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
+            triDrawer = new Util.TriangleDrawer(GraphicsDevice);
+
             font = Content.Load<SpriteFont>("SpriteFont1");
             for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
                 {
@@ -112,6 +115,10 @@ namespace HoS_proto
                 }
             }
             spriteBatch.End();
+
+            triDrawer.Begin();
+            Environment.DrawShadows();
+            triDrawer.End();
         }
 
         public static void Draw(string what, int x, int y)

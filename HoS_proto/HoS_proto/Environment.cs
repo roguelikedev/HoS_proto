@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace HoS_proto
 {
@@ -35,7 +36,7 @@ namespace HoS_proto
             {
                 if (all.ContainsKey(where) && all[where].type != ROCK) ground = all[where];
                 else ground = new Environment(x, y, Engine.rand.Next(2) == 0 ? GRASS : DIRT);
-                blockMove = true;
+                blockMove = blockSight = true;
             }
             if (type == null) blockMove = true;
 
@@ -51,6 +52,23 @@ namespace HoS_proto
         public static void DrawAll()
         {
             foreach (var curr in all.Values) curr.Draw();
+        }
+
+        public static void DrawShadows()
+        {
+            Func<int, int, Vector2> Center = (x, y) =>
+            {
+                var rval = new Vector2(x * Engine.TILE_DIM_IN_PX, y * Engine.TILE_DIM_IN_PX);
+                rval += new Vector2(Engine.TILE_DIM_IN_PX / 2);
+                return rval;
+            };
+            foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
+            {
+                Engine.triDrawer.AddVertex(Center(curr.x, curr.y));
+                var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
+                Engine.triDrawer.AddVertex(new Vector2(1, 1));
+                Engine.triDrawer.AddVertex(new Vector2(320, 0));
+            }
         }
     }
 }
