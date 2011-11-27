@@ -68,17 +68,6 @@ namespace Util
                 throw new InvalidOperationException
                     ("Begin must be called before End can be called.");
             }
-            Flush();
-            hasBegun = false;
-        }
-
-        void Flush()
-        {
-            if (!hasBegun)
-            {
-                throw new InvalidOperationException
-                    ("Begin must be called before Flush can be called.");
-            }
             if (ndx == 0) return;
 
             // submit the draw call to the graphics card
@@ -86,6 +75,7 @@ namespace Util
                 ndx / VERTS_PER_TRIANGLE);
 
             ndx = 0;
+            hasBegun = false;
         }
     }
 }

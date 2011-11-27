@@ -56,18 +56,21 @@ namespace HoS_proto
 
         public static void DrawShadows()
         {
+            #region Center()
             Func<int, int, Vector2> Center = (x, y) =>
             {
                 var rval = new Vector2(x * Engine.TILE_DIM_IN_PX, y * Engine.TILE_DIM_IN_PX);
                 rval += new Vector2(Engine.TILE_DIM_IN_PX / 2);
                 return rval;
             };
+            #endregion
+            var playerCenter = Center(Player.Instance.X, Player.Instance.Y) - Center(5, 5);
+
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {
-                Engine.triDrawer.AddVertex(Center(curr.x, curr.y));
-                var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
-                Engine.triDrawer.AddVertex(new Vector2(1, 1));
-                Engine.triDrawer.AddVertex(new Vector2(320, 0));
+                Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - playerCenter);
+                Engine.triDrawer.AddVertex(new Vector2(1, 1) - playerCenter);
+                Engine.triDrawer.AddVertex(new Vector2(320, 0) - playerCenter);
             }
         }
     }
