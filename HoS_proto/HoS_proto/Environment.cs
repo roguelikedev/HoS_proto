@@ -70,10 +70,8 @@ namespace HoS_proto
             #endregion
 
             var screenCenter = Center(-6, -6);
-            {
-                var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
-                screenCenter += playerCenter;
-            }
+            var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
+            screenCenter += playerCenter;
 
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {
@@ -87,8 +85,8 @@ namespace HoS_proto
                     Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - screenCenter);
 
                     var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
-                    var run = screenCenter.X - tr.X;
-                    var rise = screenCenter.Y - tr.Y;
+                    var run = playerCenter.X - tr.X;
+                    var rise = playerCenter.Y - tr.Y;
 
                     Engine.triDrawer.AddVertex(new Vector2(screenSize.X, tr.Y + rise / run * (screenSize.X - tr.X)));
 
