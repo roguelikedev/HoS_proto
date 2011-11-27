@@ -64,13 +64,17 @@ namespace HoS_proto
                 return rval;
             };
             #endregion
-            var playerCenter = Center(Player.Instance.X, Player.Instance.Y) - Center(5, 5);
+            var screenCenter = Center(-6, -6);
+            {
+                var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
+                screenCenter += playerCenter;
+            }
 
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {
-                Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - playerCenter);
-                Engine.triDrawer.AddVertex(new Vector2(1, 1) - playerCenter);
-                Engine.triDrawer.AddVertex(new Vector2(320, 0) - playerCenter);
+                Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - screenCenter);
+                Engine.triDrawer.AddVertex(new Vector2(1, 1) - screenCenter);
+                Engine.triDrawer.AddVertex(new Vector2(320, 0) - screenCenter);
             }
         }
     }
