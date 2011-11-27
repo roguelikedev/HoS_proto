@@ -56,14 +56,19 @@ namespace HoS_proto
 
         public static void DrawShadows()
         {
-            #region Center()
+            #region Lambdas
+            Func<int, int, Vector2> GridToPx = (x, y) =>
+            {
+                return new Vector2(x * Engine.TILE_DIM_IN_PX, y * Engine.TILE_DIM_IN_PX);
+            };
             Func<int, int, Vector2> Center = (x, y) =>
             {
-                var rval = new Vector2(x * Engine.TILE_DIM_IN_PX, y * Engine.TILE_DIM_IN_PX);
+                var rval = GridToPx(x, y);
                 rval += new Vector2(Engine.TILE_DIM_IN_PX / 2);
                 return rval;
             };
             #endregion
+
             var screenCenter = Center(-6, -6);
             {
                 var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
@@ -72,9 +77,23 @@ namespace HoS_proto
 
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {
-                Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - screenCenter);
-                Engine.triDrawer.AddVertex(new Vector2(1, 1) - screenCenter);
-                Engine.triDrawer.AddVertex(new Vector2(320, 0) - screenCenter);
+                var tr = GridToPx(curr.x + 1, curr.y);
+                var tl = GridToPx(curr.x, curr.y);
+                var br = GridToPx(curr.x + 1, curr.y + 1);
+                var bl = GridToPx(curr.x, curr.y + 1);
+
+                if (Player.Instance.X < curr.x && Player.Instance.Y < curr.y)
+                {
+                    Engine.triDrawer.AddVertex(Center(curr.x, curr.y) - screenCenter);
+
+                    var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
+                    var run = screenCenter.X - tr.X;
+                    var rise = screenCenter.Y - tr.Y;
+
+                    Engine.triDrawer.AddVertex(new Vector2(screenSize.X, tr.Y + rise / run * (screenSize.X - tr.X)));
+
+                    Engine.triDrawer.AddVertex(screenSize);
+                }
             }
         }
     }

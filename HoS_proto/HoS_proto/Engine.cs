@@ -28,8 +28,8 @@ namespace HoS_proto
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             instance = this;
-            graphics.PreferredBackBufferHeight = TILE_DIM_IN_PX * 11;
-            graphics.PreferredBackBufferWidth = TILE_DIM_IN_PX * 15;
+            graphics.PreferredBackBufferHeight = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
+            graphics.PreferredBackBufferWidth = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
         }
         
         protected override void Initialize()
