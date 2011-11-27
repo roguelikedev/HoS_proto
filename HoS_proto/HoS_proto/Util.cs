@@ -12,7 +12,6 @@ namespace Util
         int ndx = 0;
         GraphicsDevice device;
         const int VERTS_PER_TRIANGLE = 3;
-        bool hasBegun;
         BasicEffect basicEffect;
 
         public TriangleDrawer(GraphicsDevice graphicsDevice)
@@ -36,26 +35,12 @@ namespace Util
 
         public void Begin()
         {
-            if (hasBegun)
-            {
-                throw new InvalidOperationException
-                    ("End must be called before Begin can be called again.");
-            }
-
             // tell our basic effect to begin.
             basicEffect.CurrentTechnique.Passes[0].Apply();
-
-            hasBegun = true;
         }
 
         public void AddVertex(Vector2 vertex)
         {
-            if (!hasBegun)
-            {
-                throw new InvalidOperationException
-                    ("Begin must be called before AddVertex can be called.");
-            }
-
             vertices[ndx].Position = new Vector3(vertex, 0);
             vertices[ndx].Color = Color.White;
 
@@ -64,11 +49,6 @@ namespace Util
 
         public void End()
         {
-            if (!hasBegun)
-            {
-                throw new InvalidOperationException
-                    ("Begin must be called before End can be called.");
-            }
             if (ndx == 0) return;
 
             // submit the draw call to the graphics card
@@ -76,7 +56,6 @@ namespace Util
                 ndx / VERTS_PER_TRIANGLE);
 
             ndx = 0;
-            hasBegun = false;
         }
     }
 }
