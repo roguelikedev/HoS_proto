@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Util;
 
 namespace HoS_proto
 {
@@ -21,7 +22,9 @@ namespace HoS_proto
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        public static Util.TriangleDrawer triDrawer;
+        public static SpriteFont Font { get { return instance.font; } }
+        public static TriangleDrawer triDrawer;
+        Menu menu = new Menu();
 
         public Engine()
         {
@@ -35,7 +38,7 @@ namespace HoS_proto
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            triDrawer = new Util.TriangleDrawer(GraphicsDevice);
+            triDrawer = new TriangleDrawer(GraphicsDevice);
 
             font = Content.Load<SpriteFont>("SpriteFont1");
             for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
@@ -77,6 +80,9 @@ namespace HoS_proto
                 }
                 new Player(x, y);
             }
+
+            menu.Add("wigs", () => { });
+            menu.Add("borb", () => { });
         }
 
         protected override void Update(GameTime gameTime)
@@ -114,6 +120,7 @@ namespace HoS_proto
                     spriteBatch.DrawString(font, "Press T to talk.", new Vector2(0, 0), Color.White);
                 }
             }
+            menu.Draw(0, 0);
             spriteBatch.End();
 
             triDrawer.Begin();
@@ -121,18 +128,33 @@ namespace HoS_proto
             triDrawer.End();
         }
 
-        public static void Draw(string what, int x, int y)
+        #region view helpers
+        public static void DrawAtWorld(string what, int x, int y)
         {
-            if (what == null) return;
-
             x -= Player.Instance.X;
             x += SCREEN_DIM_IN_TILES / 2;
             y -= Player.Instance.Y;
             y += SCREEN_DIM_IN_TILES / 2;
 
-            instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
-                                    , new Rectangle(x * TILE_DIM_IN_PX, y * TILE_DIM_IN_PX, TILE_DIM_IN_PX, TILE_DIM_IN_PX)
-                                    , Color.White);
+            DrawAtScreen(what, x * TILE_DIM_IN_PX, y * TILE_DIM_IN_PX, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
         }
+        public static void DrawAtScreen(string what, int x, int y, int w, int h)
+        {
+            DrawAtScreen(what, x, y, w, h, Color.White);
+        }
+        public static void DrawAtScreen(string what, int x, int y, int w, int h, Color color)
+        {
+            if (what == null) return;
+
+            instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
+                                    , new Rectangle(x, y, w, h)
+                                    , color);
+        }
+        public static void Write(string what, int x, int y, int size)
+        {
+            instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.White
+                , 0, Vector2.Zero, size, SpriteEffects.None, 0);
+        }
+        #endregion
     }
 }

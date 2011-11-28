@@ -2,6 +2,7 @@ using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using HoS_proto;
+using System.Collections.Generic;
 
 namespace Util
 {
@@ -56,6 +57,64 @@ namespace Util
                 ndx / VERTS_PER_TRIANGLE);
 
             ndx = 0;
+        }
+    }
+
+    public class Menu
+    {
+        class MenuItem
+        {
+            public string name;
+            public Action Lambda;
+            public override string ToString() { return name; }
+            
+            public MenuItem(string name, Action Lambda)
+            {
+                this.name = name; this.Lambda = Lambda;
+            }
+        }
+        List<MenuItem> contents = new List<MenuItem>();
+
+        public void Add(string name, Action Lambda)
+        {
+            contents.Add(new MenuItem(name, Lambda));
+        }
+
+        /// <summary> all args are in pixels. </summary>
+        /// <param name="width"> pass -1 to use default width. </param>
+        /// <param name="height"> pass -1 to use default height. </param>
+        public void Draw(int xOrigin, int yOrigin, int width, int height)
+        {
+            if (contents.Count == 0) return;
+            #region assign defaults
+            {
+                Func<string, Point> Size = str =>
+                {
+                    var _rval = Engine.Font.MeasureString(str);
+                    return new Point((int)_rval.X, (int)_rval.Y);
+                };
+                if (height == -1) height = Size("|").Y;
+                if (width == -1)
+                {
+                    contents.ForEach(mi => width = Math.Max(width, Size(mi.name).X));
+                }
+            }
+            if (height == -1 || width == -1) throw new Exception("incomplete case analysis.");
+            #endregion
+
+            //height /= contents.Count;
+            contents.ForEach(mi =>
+            {
+                var nudge = 16;
+                Engine.DrawAtScreen("lozenge", xOrigin - nudge, yOrigin, width + nudge * 2, height, Color.CornflowerBlue);
+                Engine.Write(mi.name, xOrigin, yOrigin, 1);
+                yOrigin += height;
+            });
+        }
+
+        public void Draw(int xOrigin, int yOrigin)
+        {
+            Draw(xOrigin, yOrigin, -1, -1);
         }
     }
 }
