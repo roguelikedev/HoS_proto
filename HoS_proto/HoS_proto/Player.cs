@@ -9,24 +9,33 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using System.Timers;
+using Util;
+using System.Diagnostics;
 
 namespace HoS_proto
 {
     public class Player
     {
+        public enum State
+        {
+            MOVING, MENU
+        }
+
         public static Player Instance { get; private set; }
         public Point Location { get; private set; }
         public int X { get { return Location.X; } private set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } private set { Location = new Point(Location.X, value); } }
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
-        bool shouldMove = true;
+        bool moveDelayElapsed = true;
+        public State state;
+        Menu activeMenu;
 
         public Player(int x, int y)
         {
             Instance = this;
             Location = new Point(x, y);
             timeSinceMovement.AutoReset = false;
-            timeSinceMovement.Elapsed += (_, __) => shouldMove = true;
+            timeSinceMovement.Elapsed += (_, __) => moveDelayElapsed = true;
         }
 
         const int   STAY    = 0,
@@ -36,62 +45,59 @@ namespace HoS_proto
                     DOWN    = 1 << 3
                     ;
 
-        bool Move()
+        int Direction()
         {
-            int moveDir = STAY;
+            int rval = STAY;
 
-            #region giant switch statement
             foreach (var key in Keyboard.GetState().GetPressedKeys())
             {
                 switch (key)
                 {
+                    case Keys.Left:
                     case Keys.H:
-                        moveDir |= LEFT;
-                        break;
-                    case Keys.J:
-                        moveDir |= DOWN;
-                        break;
-                    case Keys.K:
-                        moveDir |= UP;
-                        break;
-                    case Keys.L:
-                        moveDir |= RIGHT;
-                        break;
-                    case Keys.Y:
-                        moveDir |= LEFT | UP;
-                        break;
-                    case Keys.U:
-                        moveDir |= RIGHT | UP;
-                        break;
-                    case Keys.B:
-                        moveDir |= LEFT | DOWN;
-                        break;
-                    case Keys.N:
-                        moveDir |= RIGHT | DOWN;
-                        break;
-                    case Keys.Up:
-                        moveDir |= UP;
+                        rval |= LEFT;
                         break;
                     case Keys.Down:
-                        moveDir |= DOWN;
+                    case Keys.J:
+                        rval |= DOWN;
                         break;
-                    case Keys.Left:
-                        moveDir |= LEFT;
+                    case Keys.Up:
+                    case Keys.K:
+                        rval |= UP;
                         break;
                     case Keys.Right:
-                        moveDir |= RIGHT;
+                    case Keys.L:
+                        rval |= RIGHT;
+                        break;
+                    case Keys.Y:
+                        rval |= LEFT | UP;
+                        break;
+                    case Keys.U:
+                        rval |= RIGHT | UP;
+                        break;
+                    case Keys.B:
+                        rval |= LEFT | DOWN;
+                        break;
+                    case Keys.N:
+                        rval |= RIGHT | DOWN;
                         break;
                 }
             }
-            #endregion
 
             Action<int, int> CancelOpposites = (dirA, dirB) =>
             {
-                if ((moveDir & dirA & dirB) != 0) moveDir &= ~(dirA | dirB);
+                if ((rval & dirA & dirB) != 0) rval &= ~(dirA | dirB);
             };
 
             CancelOpposites(LEFT, RIGHT);
             CancelOpposites(UP, DOWN);
+
+            return rval;
+        }
+
+        bool Move()
+        {
+            int moveDir = Direction();
 
             Point prevLoc = Location;
 
@@ -107,16 +113,50 @@ namespace HoS_proto
 
         public void Update(GameTime gt)
         {
-            if (shouldMove && Move())
+            if (state == State.MOVING)
             {
-                shouldMove = false;
-                timeSinceMovement.Start();
+
+
+                if (moveDelayElapsed && Move())
+                {
+                    moveDelayElapsed = false;
+                    timeSinceMovement.Start();
+                }
+            }
+            else if (state == State.MENU)
+            {
+                Debug.Assert(activeMenu != null);
+
+                if ((Direction() & UP) != 0) activeMenu.GoPrev();
+                else if ((Direction() & DOWN) != 0) activeMenu.GoNext();
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Enter)) activeMenu.Select();
             }
         }
 
         public void Draw()
         {
             Engine.DrawAtWorld("dd_tinker", X, Y);
+
+            if (NPC.Instance.isInRange(this))
+            {
+                Action<string, int> Say = (str, ndx) => Engine.WriteAtWorld(str,
+                            NPC.Instance.Location.X + 1,
+                            NPC.Instance.Location.Y + ndx, 1);
+
+                if (Keyboard.GetState().IsKeyDown(Keys.T))
+                {
+                    for (int i = 1; i <= NPC.Instance.Options.Count; i++)
+                    {
+                        Say(i + "." + NPC.Instance.Options[i - 1], i);
+                    }
+                }
+                else
+                {
+                    Say("Press T to talk.", 0);
+                }
+            }
+
         }
     }
 }

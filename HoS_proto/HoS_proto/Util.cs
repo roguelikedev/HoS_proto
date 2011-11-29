@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using HoS_proto;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Util
 {
@@ -62,22 +63,56 @@ namespace Util
 
     public class Menu
     {
+        static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.Cornsilk;
         class MenuItem
         {
-            public string name;
             public Action Lambda;
+            public Color color = STANDARD;
+            public string name;
             public override string ToString() { return name; }
             
-            public MenuItem(string name, Action Lambda)
-            {
-                this.name = name; this.Lambda = Lambda;
-            }
+            public MenuItem(string name, Action Lambda) { this.name = name; this.Lambda = Lambda; }
         }
         List<MenuItem> contents = new List<MenuItem>();
+        int activeIndex = -1;
 
         public void Add(string name, Action Lambda)
         {
             contents.Add(new MenuItem(name, Lambda));
+        }
+        public void GoNext()
+        {
+            if (activeIndex != -1)
+            {
+                contents[activeIndex].color = STANDARD;
+            }
+            activeIndex++;
+            Debug.Assert(activeIndex >= 0 && activeIndex <= contents.Count);
+
+            if (activeIndex == contents.Count)
+            {
+                Debug.Assert(activeIndex != 0);
+                activeIndex = 0;
+            }
+
+            contents[activeIndex].color = HOVERING;
+        }
+        public void GoPrev()
+        {
+            if (activeIndex != -1)
+            {
+                contents[activeIndex].color = STANDARD;
+            }
+            activeIndex--;
+            Debug.Assert(activeIndex >= -1 && activeIndex < contents.Count - 1);
+
+            if (activeIndex == -1) activeIndex = contents.Count - 1;
+
+            if (activeIndex != -1) contents[activeIndex].color = HOVERING;
+        }
+        public void Select()
+        {
+            contents[activeIndex].Lambda();
         }
 
         /// <summary> all args are in pixels. </summary>
@@ -106,8 +141,8 @@ namespace Util
             contents.ForEach(mi =>
             {
                 var nudge = 16;
-                Engine.DrawAtScreen("lozenge", xOrigin - nudge, yOrigin, width + nudge * 2, height, Color.CornflowerBlue);
-                Engine.Write(mi.name, xOrigin, yOrigin, 1);
+                Engine.DrawAtScreen("lozenge", xOrigin - nudge, yOrigin, width + nudge * 2, height, mi.color);
+                Engine.WriteAtScreen(mi.name, xOrigin, yOrigin, 1);
                 yOrigin += height;
             });
         }

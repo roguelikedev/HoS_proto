@@ -99,27 +99,7 @@ namespace HoS_proto
             Environment.DrawAll();
             Player.Instance.Draw();
             NPC.Instance.Draw();
-            bool inMenu = false;
-            if(NPC.Instance.isInRange(Player.Instance))
-            {
-                foreach (var key in Keyboard.GetState().GetPressedKeys())
-                {
-                    switch (key)
-                    {
-                        case Keys.T:
-                            inMenu = true;
-                            for (int i = 1; i <= NPC.Instance.Options.Count; i++)
-                            {
-                                spriteBatch.DrawString(font, i+"."+NPC.Instance.Options[i-1], new Vector2(0, (i-1)*20), Color.White);
-                            }
-                            break;
-                    }
-                }
-                if (!inMenu)
-                {
-                    spriteBatch.DrawString(font, "Press T to talk.", new Vector2(0, 0), Color.White);
-                }
-            }
+
             menu.Draw(0, 0);
             spriteBatch.End();
 
@@ -135,8 +115,10 @@ namespace HoS_proto
             x += SCREEN_DIM_IN_TILES / 2;
             y -= Player.Instance.Y;
             y += SCREEN_DIM_IN_TILES / 2;
+            x *= TILE_DIM_IN_PX;
+            y *= TILE_DIM_IN_PX;
 
-            DrawAtScreen(what, x * TILE_DIM_IN_PX, y * TILE_DIM_IN_PX, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
+            DrawAtScreen(what, x, y, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
         }
         public static void DrawAtScreen(string what, int x, int y, int w, int h)
         {
@@ -150,7 +132,18 @@ namespace HoS_proto
                                     , new Rectangle(x, y, w, h)
                                     , color);
         }
-        public static void Write(string what, int x, int y, int size)
+        public static void WriteAtWorld(string what, int x, int y, int size)
+        {
+            x -= Player.Instance.X;
+            x += SCREEN_DIM_IN_TILES / 2;
+            y -= Player.Instance.Y;
+            y += SCREEN_DIM_IN_TILES / 2;
+            x *= TILE_DIM_IN_PX;
+            y *= TILE_DIM_IN_PX;
+
+            WriteAtScreen(what, x, y, size);
+        }
+        public static void WriteAtScreen(string what, int x, int y, int size)
         {
             instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.White
                 , 0, Vector2.Zero, size, SpriteEffects.None, 0);
