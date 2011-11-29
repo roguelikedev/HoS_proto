@@ -65,12 +65,11 @@ namespace HoS_proto
             Func<int, int, Vector2> Center = (x, y) =>
             {
                 var rval = GridToPx(x, y);
-                rval += new Vector2(Engine.TILE_DIM_IN_PX / 2);
                 return rval;
             };
             #endregion
 
-            var screenCenter = Center(-6, -6);
+            var screenCenter = Center(-5, -5);
             var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
             screenCenter += playerCenter;
             var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
@@ -83,24 +82,24 @@ namespace HoS_proto
                 var bl = GridToPx(curr.x, curr.y + 1);
                 float rise = 0, run = 0;
 
-                run = tr.X - playerCenter.X;
-                rise = tr.Y - playerCenter.Y;
-                if (rise == 0 && run == 0) continue;
-
-                //Debug.Assert(rise >= 0 && run >= 0);
-
-                if (run > 0)
+                if (tl.X > playerCenter.X)
                 {
+                    run = tr.X - playerCenter.X;
+                    rise = tr.Y - playerCenter.Y;
+
                     Engine.triDrawer.AddVertex(tr - screenCenter);
                     Engine.triDrawer.AddVertex(tr - screenCenter + new Vector2(run, rise));
+                    Engine.triDrawer.AddVertex(br - screenCenter);
                 }
                 else
                 {
-                    Engine.triDrawer.AddVertex(tr - screenCenter + new Vector2(run, rise));
-                    Engine.triDrawer.AddVertex(tr - screenCenter);
-                }
+                    run = tl.X - playerCenter.X;
+                    rise = tl.Y - playerCenter.Y;
 
-                Engine.triDrawer.AddVertex(br - screenCenter);
+                    Engine.triDrawer.AddVertex(tl - screenCenter + new Vector2(run, rise));
+                    Engine.triDrawer.AddVertex(tl - screenCenter);
+                    Engine.triDrawer.AddVertex(bl - screenCenter);
+                }
             }
         }
     }

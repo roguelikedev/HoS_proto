@@ -73,15 +73,19 @@ namespace HoS_proto
                         rval |= RIGHT;
                         break;
                     case Keys.Y:
+                    case Keys.Home:
                         rval |= LEFT | UP;
                         break;
                     case Keys.U:
+                    case Keys.PageUp:
                         rval |= RIGHT | UP;
                         break;
                     case Keys.B:
+                    case Keys.End:
                         rval |= LEFT | DOWN;
                         break;
                     case Keys.N:
+                    case Keys.PageDown:
                         rval |= RIGHT | DOWN;
                         break;
                 }

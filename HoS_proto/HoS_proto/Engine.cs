@@ -51,12 +51,12 @@ namespace HoS_proto
                             type = Environment.DIRT;
                             break;
                         case 5:
-                            type = Environment.ROCK;
-                            break;
                         case 6:
                         case 7:
-                        case 8:
                             type = Environment.GRASS;
+                            break;
+                        case 8:
+                            type = Environment.ROCK;
                             break;
                         default:
                             throw new Exception("BARF!!!!");
