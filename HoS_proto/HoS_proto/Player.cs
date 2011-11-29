@@ -20,10 +20,14 @@ namespace HoS_proto
         public int X { get { return Location.X; } protected set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
         protected string spritePath;
-        public virtual void Draw()
-        {
-            Engine.DrawAtWorld(spritePath, X, Y);
-        }
+        protected Menu textBubble;
+
+        public virtual void Draw()  { Engine.DrawAtWorld(spritePath, X, Y); }
+        public abstract void Update();
+
+        static List<Acter> all = new List<Acter>();
+        protected Acter() { all.Add(this); }
+        public static void UpdateAll() { all.ForEach(a => a.Update()); }
     }
 
     public class Player : Acter
@@ -37,7 +41,6 @@ namespace HoS_proto
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
         bool moveDelayElapsed = true;
         public State state;
-        Menu activeMenu;
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
@@ -128,8 +131,9 @@ namespace HoS_proto
             return Location != prevLoc;
         }
 
-        public void Update(GameTime gt)
+        public override void Update()
         {
+            
             old_kbs = kbs;
             kbs = Keyboard.GetState();
 
@@ -139,32 +143,32 @@ namespace HoS_proto
                 {
                     Action AssignMenu = () =>
                     {
-                        activeMenu = new Menu();
-                        activeMenu.DrawBox = () =>
+                        textBubble = new Menu();
+                        textBubble.DrawBox = () =>
                         {
                             var origin = Engine.ToScreen(NPC.Instance.Location);
                             return new Rectangle(origin.X + Engine.TILE_DIM_IN_PX, origin.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX);
                         };
                     };
 
-                    if (activeMenu == null)
+                    if (textBubble == null)
                     {
                         AssignMenu();
-                        activeMenu.Add("We need to [T]alk.", Constants.NO_OP);
+                        textBubble.Add("We need to [T]alk.", Constants.NO_OP);
                     }
                     if (Pressed(Keys.T))
                     {
                         state = State.MENU;
                         AssignMenu();
-                        activeMenu.Add("Goto hell!", () => {
-                            this.activeMenu = null;
+                        textBubble.Add("Goto hell!", () => {
+                            this.textBubble = null;
                             this.state = State.MOVING;
                         });
-                        activeMenu.Add("Talk about what?", () => activeMenu.Add("BARF", Constants.NO_OP));
+                        textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
                         return;
                     }
                 }
-                else activeMenu = null;
+                else textBubble = null;
 
                 if (moveDelayElapsed && Move())
                 {
@@ -174,12 +178,12 @@ namespace HoS_proto
             }
             else if (state == State.MENU)
             {
-                Debug.Assert(activeMenu != null);
+                Debug.Assert(textBubble != null);
 
-                if ((Direction() & UP) != 0) activeMenu.GoPrev();
-                else if ((Direction() & DOWN) != 0) activeMenu.GoNext();
+                if ((Direction() & UP) != 0) textBubble.GoPrev();
+                else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
-                if (Pressed(Keys.Enter)) activeMenu.Select();
+                if (Pressed(Keys.Enter)) textBubble.Select();
             }
         }
 
@@ -187,9 +191,9 @@ namespace HoS_proto
         {
             base.Draw();
 
-            if (activeMenu != null)
+            if (textBubble != null)
             {
-                activeMenu.Draw();
+                textBubble.Draw();
             }
         }
     }
@@ -224,6 +228,11 @@ namespace HoS_proto
             {
                 return false;
             }
+        }
+
+        public override void Update()
+        {
+            ;
         }
     }
 }

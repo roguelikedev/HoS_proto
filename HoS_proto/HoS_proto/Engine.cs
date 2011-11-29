@@ -33,7 +33,7 @@ namespace HoS_proto
             graphics.PreferredBackBufferHeight = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
             graphics.PreferredBackBufferWidth = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
         }
-        
+
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
@@ -84,7 +84,7 @@ namespace HoS_proto
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
-            Player.Instance.Update(gameTime);
+            Acter.UpdateAll();
         }
 
         protected override void Draw(GameTime gameTime)
@@ -95,7 +95,7 @@ namespace HoS_proto
             Environment.DrawAll();
             NPC.Instance.Draw();
             spriteBatch.End();
-
+            
             triDrawer.Begin();
             Environment.DrawShadows();
             triDrawer.End();
