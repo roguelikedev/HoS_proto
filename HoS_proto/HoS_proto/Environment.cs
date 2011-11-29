@@ -57,7 +57,7 @@ namespace HoS_proto
 
         public static void DrawShadows()
         {
-            #region Lambdas
+            #region Lambdas, declarations
             Func<int, int, Vector2> GridToPx = (x, y) =>
             {
                 return new Vector2(x * Engine.TILE_DIM_IN_PX, y * Engine.TILE_DIM_IN_PX);
@@ -68,7 +68,6 @@ namespace HoS_proto
                 rval += new Vector2(Engine.TILE_DIM_IN_PX / 2);
                 return rval;
             };
-            #endregion
 
             var screenCenter = GridToPx(-5, -5);
             Action<Vector2> AddVert = v => Engine.triDrawer.AddVertex(v - screenCenter);
@@ -76,6 +75,7 @@ namespace HoS_proto
             var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
             screenCenter += GridToPx(Player.Instance.X, Player.Instance.Y);
             var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
+            #endregion
 
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {

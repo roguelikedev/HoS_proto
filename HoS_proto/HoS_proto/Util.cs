@@ -53,11 +53,21 @@ namespace Util
         {
             if (ndx == 0) return;
 
+            //Comparison<VertexPositionColor> RightSort = (a, b) =>
+            //    {
+            //        if (a.Position.X != b.Position.X)
+            //        {
+            //            return (int)(a.Position.X - b.Position.X);
+            //        }
+            //        else return (int)(a.Position.Y - b.Position.Y);
+            //    };
+
+
             //for (var lcv = 0; lcv < ndx; lcv += VERTS_PER_TRIANGLE)
             //{
             //    var tmp = new List<VertexPositionColor>(vertices).GetRange(lcv, VERTS_PER_TRIANGLE);
-            //    tmp.Sort((a, b) => (int)(a.Position.Y - b.Position.Y));
-            //    tmp.Sort((a, b) => (int)(a.Position.X - b.Position.X));
+
+            //    tmp.Sort(RightSort);
             //    tmp.ToArray().CopyTo(vertices, lcv);
             //}
 
