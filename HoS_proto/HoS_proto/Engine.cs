@@ -90,17 +90,19 @@ namespace HoS_proto
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
+
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-
             Environment.DrawAll();
-            Player.Instance.Draw();
             NPC.Instance.Draw();
-
             spriteBatch.End();
 
             triDrawer.Begin();
             Environment.DrawShadows();
             triDrawer.End();
+
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            Player.Instance.Draw();
+            spriteBatch.End();
         }
 
         #region view helpers

@@ -99,7 +99,7 @@ namespace Util
         {
             if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
             var dbox = DrawBox();
-            Draw(dbox.X, dbox.Y, dbox.Width, dbox.Height);
+            Draw(dbox.X, dbox.Y);
         }
 
         public void Add(string name, Action Lambda)
