@@ -48,7 +48,7 @@ namespace HoS_proto
 
         public void Draw()
         {
-            Engine.Draw("dd_tinker", X, Y);
+            Engine.DrawAtWorld("dd_tinker", X, Y);
         }
     }
 }

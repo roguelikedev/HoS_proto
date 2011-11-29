@@ -8,6 +8,7 @@ using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
+using Util;
 
 namespace HoS_proto
 {
@@ -21,7 +22,8 @@ namespace HoS_proto
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
-        public static Util.TriangleDrawer triDrawer;
+        public static SpriteFont Font { get { return instance.font; } }
+        public static TriangleDrawer triDrawer;
 
         public Engine()
         {
@@ -35,7 +37,7 @@ namespace HoS_proto
         protected override void Initialize()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            triDrawer = new Util.TriangleDrawer(GraphicsDevice);
+            triDrawer = new TriangleDrawer(GraphicsDevice);
 
             font = Content.Load<SpriteFont>("SpriteFont1");
             for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
@@ -93,27 +95,7 @@ namespace HoS_proto
             Environment.DrawAll();
             Player.Instance.Draw();
             NPC.Instance.Draw();
-            bool inMenu = false;
-            if(NPC.Instance.isInRange(Player.Instance))
-            {
-                foreach (var key in Keyboard.GetState().GetPressedKeys())
-                {
-                    switch (key)
-                    {
-                        case Keys.T:
-                            inMenu = true;
-                            for (int i = 1; i <= NPC.Instance.Options.Count; i++)
-                            {
-                                spriteBatch.DrawString(font, i+"."+NPC.Instance.Options[i-1], new Vector2(0, (i-1)*20), Color.White);
-                            }
-                            break;
-                    }
-                }
-                if (!inMenu)
-                {
-                    spriteBatch.DrawString(font, "Press T to talk.", new Vector2(0, 0), Color.White);
-                }
-            }
+
             spriteBatch.End();
 
             triDrawer.Begin();
@@ -121,18 +103,47 @@ namespace HoS_proto
             triDrawer.End();
         }
 
-        public static void Draw(string what, int x, int y)
+        #region view helpers
+        public static Point ToScreen(Point worldRelative)
+        {
+            worldRelative.X -= Player.Instance.X;
+            worldRelative.X += SCREEN_DIM_IN_TILES / 2;
+            worldRelative.X *= TILE_DIM_IN_PX;
+            worldRelative.Y -= Player.Instance.Y;
+            worldRelative.Y += SCREEN_DIM_IN_TILES / 2;
+            worldRelative.Y *= TILE_DIM_IN_PX;
+
+            return worldRelative;
+        }
+        public static Point ToScreen(int x, int y) { return ToScreen(new Point(x, y)); }
+
+        public static void DrawAtWorld(string what, int x, int y)
+        {
+            var where = ToScreen(x, y);
+            DrawAtScreen(what, where.X, where.Y, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
+        }
+        public static void DrawAtScreen(string what, int x, int y, int w, int h)
+        {
+            DrawAtScreen(what, x, y, w, h, Color.White);
+        }
+        public static void DrawAtScreen(string what, int x, int y, int w, int h, Color color)
         {
             if (what == null) return;
 
-            x -= Player.Instance.X;
-            x += SCREEN_DIM_IN_TILES / 2;
-            y -= Player.Instance.Y;
-            y += SCREEN_DIM_IN_TILES / 2;
-
             instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
-                                    , new Rectangle(x * TILE_DIM_IN_PX, y * TILE_DIM_IN_PX, TILE_DIM_IN_PX, TILE_DIM_IN_PX)
-                                    , Color.White);
+                                    , new Rectangle(x, y, w, h)
+                                    , color);
         }
+        public static void WriteAtWorld(string what, int x, int y, int size)
+        {
+            var where = ToScreen(x, y);
+            WriteAtScreen(what, where.X, where.Y, size);
+        }
+        public static void WriteAtScreen(string what, int x, int y, int size)
+        {
+            instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.Black
+                , 0, Vector2.Zero, size, SpriteEffects.None, 0);
+        }
+        #endregion
     }
 }

@@ -47,7 +47,7 @@ namespace HoS_proto
         void Draw()
         {
             if (ground != null) ground.Draw();
-            Engine.Draw(type, x, y);
+            Engine.DrawAtWorld(type, x, y);
         }
 
         public static void DrawAll()
