@@ -71,6 +71,8 @@ namespace HoS_proto
             #endregion
 
             var screenCenter = GridToPx(-5, -5);
+            Action<Vector2> AddVert = v => Engine.triDrawer.AddVertex(v - screenCenter);
+
             var playerCenter = Center(Player.Instance.X, Player.Instance.Y);
             screenCenter += GridToPx(Player.Instance.X, Player.Instance.Y);
             var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
@@ -92,44 +94,46 @@ namespace HoS_proto
                     run = top.X - playerCenter.X;
                     rise = top.Y - playerCenter.Y;
 
-                    Engine.triDrawer.AddVertex(top - screenCenter);
-                    var _1 = top - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
-                    Engine.triDrawer.AddVertex(_1);
-                    Engine.triDrawer.AddVertex(bottom - screenCenter);
+                    AddVert(top);
+                    var _1 = top + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    AddVert(_1);
+                    AddVert(bottom);
 
                     run = bottom.X - playerCenter.X;
                     rise = bottom.Y - playerCenter.Y;
 
-                    Engine.triDrawer.AddVertex(top - screenCenter);
-                    var _2 = bottom - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
-                    Engine.triDrawer.AddVertex(_2);
-                    Engine.triDrawer.AddVertex(bottom - screenCenter);
+                    AddVert(top);
+                    var _2 = bottom + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    AddVert(_2);
+                    AddVert(bottom);
 
-                    Engine.triDrawer.AddVertex(top - screenCenter + Vector2.UnitY / 2);
-                    Engine.triDrawer.AddVertex(_1);
-                    Engine.triDrawer.AddVertex(_2);
+                    AddVert(top + Vector2.UnitY / 2);
+                    AddVert(_1);
+                    AddVert(_2);
                 }
                 else
                 {
-                    run = tl.X - playerCenter.X;
-                    rise = tl.Y - playerCenter.Y;
+                    top = tl; bottom = bl;
 
-                    var _1 = tl - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
-                    Engine.triDrawer.AddVertex(_1);
-                    Engine.triDrawer.AddVertex(tl - screenCenter);
-                    Engine.triDrawer.AddVertex(bl - screenCenter);
+                    run = top.X - playerCenter.X;
+                    rise = top.Y - playerCenter.Y;
 
-                    run = bl.X - playerCenter.X;
-                    rise = bl.Y - playerCenter.Y;
+                    var _1 = top + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    AddVert(_1);
+                    AddVert(top);
+                    AddVert(bottom);
 
-                    var _2 = bl - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
-                    Engine.triDrawer.AddVertex(_2);
-                    Engine.triDrawer.AddVertex(tl - screenCenter);
-                    Engine.triDrawer.AddVertex(bl - screenCenter);
+                    run = bottom.X - playerCenter.X;
+                    rise = bottom.Y - playerCenter.Y;
 
-                    Engine.triDrawer.AddVertex(_1);
-                    Engine.triDrawer.AddVertex(tl - screenCenter + Vector2.UnitY / 2);
-                    Engine.triDrawer.AddVertex(_2);
+                    var _2 = bottom + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    AddVert(_2);
+                    AddVert(top);
+                    AddVert(bottom);
+
+                    AddVert(_1);
+                    AddVert(top + Vector2.UnitY / 2);
+                    AddVert(_2);
                 }
             }
         }
