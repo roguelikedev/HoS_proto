@@ -42,7 +42,7 @@ namespace Util
         public void AddVertex(Vector2 vertex)
         {
             vertices[ndx].Position = new Vector3(vertex, 0);
-            vertices[ndx].Color = Color.White;
+            vertices[ndx].Color = Color.Black;
 
             ndx++;
         }

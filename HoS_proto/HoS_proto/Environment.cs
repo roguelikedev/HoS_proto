@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using System;
+using System.Diagnostics;
 
 namespace HoS_proto
 {
@@ -80,17 +81,36 @@ namespace HoS_proto
                 var tl = GridToPx(curr.x, curr.y);
                 var br = GridToPx(curr.x + 1, curr.y + 1);
                 var bl = GridToPx(curr.x, curr.y + 1);
+                float rise = 0, run = 0;
 
-                if (Player.Instance.X < curr.x && Player.Instance.Y < curr.y)
+                if (Player.Instance.X < curr.x)
                 {
-                    Engine.triDrawer.AddVertex(tr - screenCenter);
-
-                    var run = tr.X - playerCenter.X;
-                    var rise = tr.Y - playerCenter.Y;
-                    Engine.triDrawer.AddVertex(tr - screenCenter + new Vector2(run * Engine.TILE_DIM_IN_PX, rise * Engine.TILE_DIM_IN_PX));
-
-                    Engine.triDrawer.AddVertex(br - screenCenter);
+                    run = tr.X - playerCenter.X;
                 }
+                else if (Player.Instance.X > curr.x)
+                {
+                    run = playerCenter.X - tr.X;
+                    run = tr.X - playerCenter.X;
+                }
+                if (Player.Instance.Y < curr.y)
+                {
+                    rise = tr.Y - playerCenter.Y;
+                }
+                else if (Player.Instance.Y > curr.y)
+                {
+                    rise = playerCenter.Y - tr.Y;
+                    rise = tr.Y - playerCenter.Y;
+                }
+                if (rise == 0 && run == 0) continue;
+
+                //Debug.Assert(rise >= 0 && run >= 0);
+
+                Engine.triDrawer.AddVertex(tr - screenCenter);
+                Engine.triDrawer.AddVertex(tr - screenCenter + new Vector2(run * Engine.TILE_DIM_IN_PX, rise * Engine.TILE_DIM_IN_PX));
+
+                Engine.triDrawer.AddVertex(br - screenCenter);
+
+
             }
         }
     }
