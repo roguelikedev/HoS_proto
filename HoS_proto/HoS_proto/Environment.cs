@@ -83,7 +83,7 @@ namespace HoS_proto
                 var bl = GridToPx(curr.x, curr.y + 1);
                 float rise = 0, run = 0;
 
-                if (tl.X > Player.Instance.X)
+                if (tl.X > Player.Instance.X * Engine.TILE_DIM_IN_PX)
                 {
                     run = tr.X - playerCenter.X;
                     rise = tr.Y - playerCenter.Y;
@@ -110,9 +110,22 @@ namespace HoS_proto
                     run = tl.X - playerCenter.X;
                     rise = tl.Y - playerCenter.Y;
 
-                    Engine.triDrawer.AddVertex(tl - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES));
+                    var _1 = tl - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    Engine.triDrawer.AddVertex(_1);
                     Engine.triDrawer.AddVertex(tl - screenCenter);
                     Engine.triDrawer.AddVertex(bl - screenCenter);
+
+                    run = bl.X - playerCenter.X;
+                    rise = bl.Y - playerCenter.Y;
+
+                    var _2 = bl - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    Engine.triDrawer.AddVertex(_2);
+                    Engine.triDrawer.AddVertex(tl - screenCenter);
+                    Engine.triDrawer.AddVertex(bl - screenCenter);
+
+                    Engine.triDrawer.AddVertex(_1);
+                    Engine.triDrawer.AddVertex(tl - screenCenter + Vector2.UnitY / 2);
+                    Engine.triDrawer.AddVertex(_2);
                 }
             }
         }
