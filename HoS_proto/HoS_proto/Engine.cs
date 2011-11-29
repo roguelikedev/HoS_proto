@@ -104,16 +104,23 @@ namespace HoS_proto
         }
 
         #region view helpers
+        public static Point ToScreen(Point worldRelative)
+        {
+            worldRelative.X -= Player.Instance.X;
+            worldRelative.X += SCREEN_DIM_IN_TILES / 2;
+            worldRelative.X *= TILE_DIM_IN_PX;
+            worldRelative.Y -= Player.Instance.Y;
+            worldRelative.Y += SCREEN_DIM_IN_TILES / 2;
+            worldRelative.Y *= TILE_DIM_IN_PX;
+
+            return worldRelative;
+        }
+        public static Point ToScreen(int x, int y) { return ToScreen(new Point(x, y)); }
+
         public static void DrawAtWorld(string what, int x, int y)
         {
-            x -= Player.Instance.X;
-            x += SCREEN_DIM_IN_TILES / 2;
-            y -= Player.Instance.Y;
-            y += SCREEN_DIM_IN_TILES / 2;
-            x *= TILE_DIM_IN_PX;
-            y *= TILE_DIM_IN_PX;
-
-            DrawAtScreen(what, x, y, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
+            var where = ToScreen(x, y);
+            DrawAtScreen(what, where.X, where.Y, TILE_DIM_IN_PX, TILE_DIM_IN_PX);
         }
         public static void DrawAtScreen(string what, int x, int y, int w, int h)
         {
@@ -129,14 +136,8 @@ namespace HoS_proto
         }
         public static void WriteAtWorld(string what, int x, int y, int size)
         {
-            x -= Player.Instance.X;
-            x += SCREEN_DIM_IN_TILES / 2;
-            y -= Player.Instance.Y;
-            y += SCREEN_DIM_IN_TILES / 2;
-            x *= TILE_DIM_IN_PX;
-            y *= TILE_DIM_IN_PX;
-
-            WriteAtScreen(what, x, y, size);
+            var where = ToScreen(x, y);
+            WriteAtScreen(what, where.X, where.Y, size);
         }
         public static void WriteAtScreen(string what, int x, int y, int size)
         {

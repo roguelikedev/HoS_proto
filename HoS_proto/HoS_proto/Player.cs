@@ -123,15 +123,25 @@ namespace HoS_proto
             {
                 if (NPC.Instance.isInRange(this))
                 {
-                    if (activeMenu == null)
+                    Action AssignMenu = () =>
                     {
                         activeMenu = new Menu();
+                        activeMenu.DrawBox = () =>
+                        {
+                            var origin = Engine.ToScreen(NPC.Instance.Location);
+                            return new Rectangle(origin.X, origin.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX);
+                        };
+                    };
+
+                    if (activeMenu == null)
+                    {
+                        AssignMenu();
                         activeMenu.Add("We need to [T]alk.", Constants.NO_OP);
                     }
                     if (Pressed(Keys.T))
                     {
                         state = State.MENU;
-                        activeMenu = new Menu();
+                        AssignMenu();
                         activeMenu.Add("Goto hell!", () => {
                             this.activeMenu = null;
                             this.state = State.MOVING;
