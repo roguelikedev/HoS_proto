@@ -88,6 +88,12 @@ namespace Util
         {
             contents.Add(new MenuItem(name, Lambda));
         }
+        public void Expand(string name, Action Lambda)
+        {
+
+
+        }
+
         public void GoNext()
         {
             if (activeIndex != -1)
