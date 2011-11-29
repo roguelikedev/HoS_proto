@@ -30,6 +30,9 @@ namespace HoS_proto
         public State state;
         Menu activeMenu;
 
+        KeyboardState kbs, old_kbs;
+        bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
+
         public Player(int x, int y)
         {
             Instance = this;
@@ -49,7 +52,7 @@ namespace HoS_proto
         {
             int rval = STAY;
 
-            foreach (var key in Keyboard.GetState().GetPressedKeys())
+            foreach (var key in new List<Keys>(Keyboard.GetState().GetPressedKeys()).FindAll(k => Pressed(k)))
             {
                 switch (key)
                 {
@@ -113,9 +116,31 @@ namespace HoS_proto
 
         public void Update(GameTime gt)
         {
+            old_kbs = kbs;
+            kbs = Keyboard.GetState();
+
             if (state == State.MOVING)
             {
-
+                if (NPC.Instance.isInRange(this))
+                {
+                    if (activeMenu == null)
+                    {
+                        activeMenu = new Menu();
+                        activeMenu.Add("We need to [T]alk.", Constants.NO_OP);
+                    }
+                    if (Pressed(Keys.T))
+                    {
+                        state = State.MENU;
+                        activeMenu = new Menu();
+                        activeMenu.Add("Goto hell!", () => {
+                            this.activeMenu = null;
+                            this.state = State.MOVING;
+                        });
+                        activeMenu.Add("Talk about what?", () => activeMenu.Add("BARF", Constants.NO_OP));
+                        return;
+                    }
+                }
+                else activeMenu = null;
 
                 if (moveDelayElapsed && Move())
                 {
@@ -130,7 +155,7 @@ namespace HoS_proto
                 if ((Direction() & UP) != 0) activeMenu.GoPrev();
                 else if ((Direction() & DOWN) != 0) activeMenu.GoNext();
 
-                if (Keyboard.GetState().IsKeyDown(Keys.Enter)) activeMenu.Select();
+                if (Pressed(Keys.Enter)) activeMenu.Select();
             }
         }
 
@@ -138,25 +163,10 @@ namespace HoS_proto
         {
             Engine.DrawAtWorld("dd_tinker", X, Y);
 
-            if (NPC.Instance.isInRange(this))
+            if (activeMenu != null)
             {
-                Action<string, int> Say = (str, ndx) => Engine.WriteAtWorld(str,
-                            NPC.Instance.Location.X + 1,
-                            NPC.Instance.Location.Y + ndx, 1);
-
-                if (Keyboard.GetState().IsKeyDown(Keys.T))
-                {
-                    for (int i = 1; i <= NPC.Instance.Options.Count; i++)
-                    {
-                        Say(i + "." + NPC.Instance.Options[i - 1], i);
-                    }
-                }
-                else
-                {
-                    Say("Press T to talk.", 0);
-                }
+                activeMenu.Draw(0, 0);
             }
-
         }
     }
 }

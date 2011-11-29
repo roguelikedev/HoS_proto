@@ -63,7 +63,7 @@ namespace Util
 
     public class Menu
     {
-        static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.Cornsilk;
+        static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.GreenYellow;
         class MenuItem
         {
             public Action Lambda;

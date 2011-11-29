@@ -24,7 +24,6 @@ namespace HoS_proto
         SpriteFont font;
         public static SpriteFont Font { get { return instance.font; } }
         public static TriangleDrawer triDrawer;
-        Menu menu = new Menu();
 
         public Engine()
         {
@@ -80,9 +79,6 @@ namespace HoS_proto
                 }
                 new Player(x, y);
             }
-
-            menu.Add("wigs", () => { });
-            menu.Add("borb", () => { });
         }
 
         protected override void Update(GameTime gameTime)
@@ -100,7 +96,6 @@ namespace HoS_proto
             Player.Instance.Draw();
             NPC.Instance.Draw();
 
-            menu.Draw(0, 0);
             spriteBatch.End();
 
             triDrawer.Begin();
@@ -145,7 +140,7 @@ namespace HoS_proto
         }
         public static void WriteAtScreen(string what, int x, int y, int size)
         {
-            instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.White
+            instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.Black
                 , 0, Vector2.Zero, size, SpriteEffects.None, 0);
         }
         #endregion
