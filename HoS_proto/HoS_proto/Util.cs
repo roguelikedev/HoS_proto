@@ -53,6 +53,14 @@ namespace Util
         {
             if (ndx == 0) return;
 
+            //for (var lcv = 0; lcv < ndx; lcv += VERTS_PER_TRIANGLE)
+            //{
+            //    var tmp = new List<VertexPositionColor>(vertices).GetRange(lcv, VERTS_PER_TRIANGLE);
+            //    tmp.Sort((a, b) => (int)(a.Position.Y - b.Position.Y));
+            //    tmp.Sort((a, b) => (int)(a.Position.X - b.Position.X));
+            //    tmp.ToArray().CopyTo(vertices, lcv);
+            //}
+
             // submit the draw call to the graphics card
             device.DrawUserPrimitives<VertexPositionColor>(PrimitiveType.TriangleList, vertices, 0,
                 ndx / VERTS_PER_TRIANGLE);

@@ -77,31 +77,35 @@ namespace HoS_proto
 
             foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
             {
+                Vector2 top, bottom;
+                float rise = 0, run = 0;
+
                 var tr = GridToPx(curr.x + 1, curr.y);
                 var tl = GridToPx(curr.x, curr.y);
                 var br = GridToPx(curr.x + 1, curr.y + 1);
                 var bl = GridToPx(curr.x, curr.y + 1);
-                float rise = 0, run = 0;
 
                 if (tl.X > Player.Instance.X * Engine.TILE_DIM_IN_PX)
                 {
-                    run = tr.X - playerCenter.X;
-                    rise = tr.Y - playerCenter.Y;
+                    top = tr; bottom = br;
 
-                    Engine.triDrawer.AddVertex(tr - screenCenter);
-                    var _1 = tr - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    run = top.X - playerCenter.X;
+                    rise = top.Y - playerCenter.Y;
+
+                    Engine.triDrawer.AddVertex(top - screenCenter);
+                    var _1 = top - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
                     Engine.triDrawer.AddVertex(_1);
-                    Engine.triDrawer.AddVertex(br - screenCenter);
+                    Engine.triDrawer.AddVertex(bottom - screenCenter);
 
-                    run = br.X - playerCenter.X;
-                    rise = br.Y - playerCenter.Y;
+                    run = bottom.X - playerCenter.X;
+                    rise = bottom.Y - playerCenter.Y;
 
-                    Engine.triDrawer.AddVertex(tr - screenCenter);
-                    var _2 = br - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
+                    Engine.triDrawer.AddVertex(top - screenCenter);
+                    var _2 = bottom - screenCenter + new Vector2(run, rise) * new Vector2(Engine.SCREEN_DIM_IN_TILES);
                     Engine.triDrawer.AddVertex(_2);
-                    Engine.triDrawer.AddVertex(br - screenCenter);
+                    Engine.triDrawer.AddVertex(bottom - screenCenter);
 
-                    Engine.triDrawer.AddVertex(tr - screenCenter + Vector2.UnitY / 2);
+                    Engine.triDrawer.AddVertex(top - screenCenter + Vector2.UnitY / 2);
                     Engine.triDrawer.AddVertex(_1);
                     Engine.triDrawer.AddVertex(_2);
                 }
