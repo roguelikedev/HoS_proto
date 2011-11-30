@@ -115,6 +115,8 @@ namespace HoS_proto
 
         public partial class Propose : Interaction
         {
+
+
             protected override Color Color
             {
                 get { throw new NotImplementedException(); }

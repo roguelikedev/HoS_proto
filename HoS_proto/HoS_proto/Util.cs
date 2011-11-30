@@ -177,6 +177,7 @@ namespace Util
         }
 
         #region obligatory data structure operations
+        public void Add(string text) { Add(text, Constants.NO_OP); }
         public void Add(string text, Action Lambda)
         {
             contents.Add(new MenuItem(text, Lambda));

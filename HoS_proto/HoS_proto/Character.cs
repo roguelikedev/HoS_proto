@@ -86,7 +86,7 @@ namespace HoS_proto
         public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
         #endregion
 
-        protected void MakeTextBubble()
+        protected Menu MakeTextBubble()
         {
             textBubble = new Menu();
             textBubble.DrawBox = () =>
@@ -111,6 +111,7 @@ namespace HoS_proto
                 
                 return rval;
             };
+            return textBubble;
         }
 
         public override string ToString()
@@ -132,10 +133,8 @@ namespace HoS_proto
             var q = new Interaction.Query(this, who, about);
             memory.Add(q);
 
-            MakeTextBubble();
+            if (textBubble == null) MakeTextBubble();
             textBubble.Add(q, Constants.NO_OP);
-
-            textBubble.Add("We need to [T]alk.", Constants.NO_OP);
         }
     }
 
@@ -145,6 +144,27 @@ namespace HoS_proto
         {
             MOVING, MENU
         }
+        enum Has
+        {
+            SPOKEN, WALKED
+        }
+        Dictionary<Has, bool> __backing_field_for_Done;
+        Dictionary<Has, bool> Done
+        {
+            get
+            {
+                if (__backing_field_for_Done == null)
+                {
+                    __backing_field_for_Done = new Dictionary<Has, bool>();
+                    foreach (var key in typeof(Has).GetEnumValues())
+                    {
+                        __backing_field_for_Done[(Has)key] = false;
+                    }
+                }
+                return __backing_field_for_Done;
+            }
+        }
+
 
         #region fields
         public static Player Instance { get; private set; }
@@ -156,6 +176,7 @@ namespace HoS_proto
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
         #endregion
+
 
         public Player(int x, int y)
         {
@@ -254,8 +275,13 @@ namespace HoS_proto
             {
                 if (NPC.Instance.isInRange(this))
                 {
-                    if (Pressed(Keys.T))
+                    if (!Done[Has.SPOKEN])
                     {
+                        MakeTextBubble().Add("press space bar to talk");
+                    }
+                    if (Pressed(Keys.Space))
+                    {
+                        Done[Has.SPOKEN] = true;
                         state = State.MENU;
 
                         MakeTextBubble();
@@ -271,8 +297,14 @@ namespace HoS_proto
 
                 if (moveDelayElapsed && Move())
                 {
+                    Done[Has.WALKED] = true;
                     moveDelayElapsed = false;
                     timeSinceMovement.Start();
+                }
+                else if (!Done[Has.WALKED])
+                {
+                    if (textBubble == null) MakeTextBubble();
+                    textBubble.Add("use direction keys, numpad, or vi keys to walk.");
                 }
             }
             else if (state == State.MENU)
@@ -312,6 +344,7 @@ namespace HoS_proto
 
     public class NPC : Acter
     {
+        #region squish
         public static NPC Instance { get; private set; }
         public List<string> Options { get; private set; }
 
@@ -341,6 +374,7 @@ namespace HoS_proto
                 return false;
             }
         }
+        #endregion
 
         public override void Update()
         {
