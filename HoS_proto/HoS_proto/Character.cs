@@ -38,7 +38,8 @@ namespace HoS_proto
         public Point Location { get; protected set; }
         public int X { get { return Location.X; } protected set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
-        
+
+        protected string name;
         protected string spritePath;
         protected Menu textBubble;
 
@@ -90,6 +91,11 @@ namespace HoS_proto
                 return new Rectangle(origin.X, origin.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX);
             };
         }
+
+        public override string ToString()
+        {
+            return name == null ? "man" : name;
+        }
     }
 
     public class Player : Acter
@@ -107,6 +113,7 @@ namespace HoS_proto
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
+        public bool Pausing { get; private set; }
         #endregion
 
         public Player(int x, int y)
@@ -116,6 +123,7 @@ namespace HoS_proto
             timeSinceMovement.AutoReset = false;
             timeSinceMovement.Elapsed += (_, __) => moveDelayElapsed = true;
             spritePath = "dd_tinker";
+            Pausing = true;
         }
 
         #region controller
@@ -198,7 +206,6 @@ namespace HoS_proto
 
         public override void Update()
         {
-            
             old_kbs = kbs;
             kbs = Keyboard.GetState();
 
@@ -235,6 +242,28 @@ namespace HoS_proto
                 else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
                 if (Pressed(Keys.Enter)) textBubble.Select();
+            }
+        }
+
+        public void GetName()
+        {
+            old_kbs = kbs;
+            kbs = Keyboard.GetState();
+
+            foreach (var key in new List<Keys>(Keyboard.GetState().GetPressedKeys()).FindAll(k => Pressed(k)))
+            {
+                switch (key)
+                {
+                    case Keys.Back:
+                        if (name.Length > 0) name = name.Remove(name.Length - 2);
+                        break;
+                    case Keys.Enter:
+                        Pausing = false;
+                        break;
+                    default:
+                        name += key.ToString();
+                        break;
+                }
             }
         }
         #endregion

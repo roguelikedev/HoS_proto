@@ -24,6 +24,8 @@ namespace HoS_proto
         SpriteFont font;
         public static SpriteFont Font { get { return instance.font; } }
         public static TriangleDrawer triDrawer;
+        Action ModalUpdate;
+        Action ModalDraw;
 
         public Engine()
         {
@@ -84,24 +86,50 @@ namespace HoS_proto
         protected override void Update(GameTime gameTime)
         {
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
-            Acter.UpdateAll();
+            if (ModalUpdate == null)
+            {
+                ModalUpdate = Player.Instance.GetName;
+                Action<string, int> Write = (str, line) =>
+                {
+                    instance.spriteBatch.DrawString(instance.font, str
+                        , new Vector2(line == 1? 50: 100, 100 + 50 * line)
+                        , Color.Gold, 0, Vector2.Zero
+                        , 2
+                        , SpriteEffects.None, 0);
+                };
+                ModalDraw = () =>
+                {
+                    Write("Hello,", 1);
+                    Write("\"" + Player.Instance + "\"", 2);
+                };
+            }
+            if (ModalUpdate == Player.Instance.GetName && !Player.Instance.Pausing)
+            {
+                ModalUpdate = Acter.UpdateAll;
+                ModalDraw = () =>
+                {
+                    Environment.DrawAll();
+                    spriteBatch.End();
+
+                    triDrawer.Begin();
+                    Environment.DrawShadows();
+                    triDrawer.End();
+
+                    spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+                    NPC.Instance.Draw();
+                    Player.Instance.Draw();
+                };
+            }
+            ModalUpdate();
         }
 
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-            Environment.DrawAll();
-            spriteBatch.End();
-            
-            triDrawer.Begin();
-            Environment.DrawShadows();
-            triDrawer.End();
 
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-            NPC.Instance.Draw();
-            Player.Instance.Draw();
+            ModalDraw();
+
             spriteBatch.End();
         }
 
