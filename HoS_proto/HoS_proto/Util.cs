@@ -95,13 +95,6 @@ namespace Util
         int activeIndex = -1;
         public Func<Rectangle> DrawBox = null;
 
-        public void Draw()
-        {
-            if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
-            var dbox = DrawBox();
-            Draw(dbox.X, dbox.Y);
-        }
-
         public void Add(string name, Action Lambda)
         {
             contents.Add(new MenuItem(name, Lambda));
@@ -145,6 +138,13 @@ namespace Util
         public void Select()
         {
             contents[activeIndex].Lambda();
+        }
+
+        public void Draw()
+        {
+            if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
+            var dbox = DrawBox();
+            Draw(dbox.X, dbox.Y);
         }
 
         /// <summary> all args are in pixels. </summary>
