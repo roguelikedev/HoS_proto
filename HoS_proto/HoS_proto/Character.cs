@@ -77,9 +77,9 @@ namespace HoS_proto
                 var origin = Location;
                 if (Interactee != null && Interactee.X > X && Interactee.X < X + 3)
                 {   // if conversation partner's standing to my right, speech bubble goes left.
-                    origin.X -= 3;
+                    origin.X -= textBubble.MaxLineLength / Engine.TILE_DIM_IN_PX + 1;
                 }
-                else origin.X++;                  // add offset to avoid hiding self w/text.
+                else origin.X++;                  // single tile offset to avoid hiding self.
                 
                 origin = Engine.ToScreen(origin);
                 return new Rectangle(origin.X, origin.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX);

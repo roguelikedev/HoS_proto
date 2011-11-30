@@ -94,6 +94,15 @@ namespace Util
         List<MenuItem> contents = new List<MenuItem>();
         int activeIndex = -1;
         public Func<Rectangle> DrawBox = null;
+        public int MaxLineLength
+        {
+            get
+            {
+                var rval = 0f;
+                contents.ForEach(mi => rval = Math.Max(rval, Engine.Font.MeasureString(mi.name).X));
+                return (int)rval;
+            }
+        }
 
         public void Add(string name, Action Lambda)
         {
