@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using Util;
+using System.Diagnostics;
 
 namespace HoS_proto
 {
@@ -158,7 +159,7 @@ namespace HoS_proto
         }
         public static void DrawAtScreen(string what, int x, int y, int w, int h, Color color)
         {
-            if (what == null) return;
+            if (what == null) return;   // valid-- Environment tiles outside play area do this.
 
             instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
                                     , new Rectangle(x, y, w, h)
@@ -170,6 +171,11 @@ namespace HoS_proto
             WriteAtScreen(what, where.X, where.Y, size);
         }
         public static void WriteAtScreen(string what, int x, int y, int size)
+        {
+            Debug.Assert(((float)size) % 1 == 0);
+            WriteAtScreen(what, x, y, (float)size);
+        }
+        public static void WriteAtScreen(string what, int x, int y, float size)
         {
             instance.spriteBatch.DrawString(instance.font, what, new Vector2(x, y), Color.Black
                 , 0, Vector2.Zero, size, SpriteEffects.None, 0);

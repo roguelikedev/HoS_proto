@@ -86,13 +86,18 @@ namespace Util
     public class Menu
     {
         static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.GreenYellow;
-        /// <summary> if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw()
-        /// is called after DrawBox has been assigned a Lambda which evaluates
-        /// to a rectangle having Menu.FLEXIBLE as one or more of x,y,w,h, the
+        /// <summary> MULTIPLE GOTCHA ALERT:
+        /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
+        /// after DrawBox has been assigned a Lambda which evaluates to a
+        /// rectangle having Menu.FLEXIBLE as one or more of x,y,w,h, the
         /// relevant dimension or axis of origin will be altered as necessary
         /// to make the menu text fit.
+        /// 
+        /// if a rectangle's x or y values are Menu.FLEXIBLE, width or height
+        /// (respectively) are assumed to be /positions/ representing rightmost
+        /// or bottommost (respectively) pixel of that rectangle.
         /// </summary>
-        public const int FLEXIBLE = -1;
+        public const int FLEXIBLE = int.MinValue;
         class MenuItem
         {
             public Action Lambda;
@@ -117,9 +122,14 @@ namespace Util
                 return (int)rval;
             }
         }
-        public Rectangle SquishToFit(Rectangle rval)
+        Rectangle SquishToFit()
         {
-            
+            Debug.Assert(DrawBox != null);
+            var rval = DrawBox();
+            if (rval.Width == FLEXIBLE)
+            {
+
+            }
 
             return rval;
         }
@@ -173,6 +183,13 @@ namespace Util
         {
             if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
             var dbox = DrawBox();
+            if (dbox.X == FLEXIBLE)
+            {
+                Debug.Assert(dbox.Width != FLEXIBLE);
+                dbox.X = dbox.Width - MaxLineLength;
+                dbox.Width = MaxLineLength;
+            }
+
             Draw(dbox.X, dbox.Y, dbox.Width, dbox.Height);
         }
 
@@ -189,13 +206,12 @@ namespace Util
                     var _rval = Engine.Font.MeasureString(str);
                     return new Point((int)_rval.X, (int)_rval.Y);
                 };
-                if (height == -1) height = Size("|").Y;
-                if (width == -1)
+                if (height == FLEXIBLE) height = Size("|").Y;
+                if (width == FLEXIBLE)
                 {
                     contents.ForEach(mi => width = Math.Max(width, Size(mi.name).X));
                 }
             }
-            if (height == -1 || width == -1) throw new Exception("incomplete case analysis.");
             #endregion
 
             //height /= contents.Count;

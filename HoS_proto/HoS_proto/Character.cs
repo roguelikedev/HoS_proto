@@ -75,14 +75,24 @@ namespace HoS_proto
             textBubble.DrawBox = () =>
             {
                 var origin = Location;
+                var rval = new Rectangle(origin.X, origin.Y, Menu.FLEXIBLE, Menu.FLEXIBLE);
+
+                #region if conversation partner's standing to my right, speech bubble goes left.
                 if (Interactee != null && Interactee.X > X && Interactee.X < X + 3)
-                {   // if conversation partner's standing to my right, speech bubble goes left.
-                    origin.X -= textBubble.MaxLineLength / Engine.TILE_DIM_IN_PX + 1;
+                #endregion
+                {
+                    origin = Engine.ToScreen(origin);
+                    rval.X = Menu.FLEXIBLE;
+                    rval.Width = origin.X; // field named Width is used as a coordinate here.
+                    rval.Y = origin.Y;
                 }
-                else origin.X++;                  // single tile offset to avoid hiding self.
+                else
+                {
+                    origin.X++; // single tile offset to avoid hiding self.
+                    rval.Location = Engine.ToScreen(origin);
+                }
                 
-                origin = Engine.ToScreen(origin);
-                return new Rectangle(origin.X, origin.Y, Menu.FLEXIBLE, Menu.FLEXIBLE);
+                return rval;
             };
         }
 
