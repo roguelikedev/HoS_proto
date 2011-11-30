@@ -130,11 +130,15 @@ namespace Util
                 set
                 {
                     width = value;
+                    lines.Clear();
+
                     var words = rawText.Split();
                     var currentLine = "";
                     foreach (var currentWord in words)
                     {
-                        var prospectiveLine = currentLine + " " + currentWord;
+                        var prospectiveLine = currentLine
+                                            + (currentLine.Length == 0 ? "" : " ")
+                                            + currentWord;
                         if (Engine.Font.MeasureString(prospectiveLine).X > width)
                         {
                             lines.Add(currentLine);
