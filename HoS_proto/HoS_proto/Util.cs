@@ -104,7 +104,11 @@ namespace Util
         {
             public Action Lambda;
             public Color color = STANDARD;
-            public MenuItem(string s, Action L) { rawText = s; Lambda = L; }
+            public MenuItem(string s, Action L)
+            {
+                rawText = s; Lambda = L;
+                lines.Add(rawText);
+            }
             
             readonly string rawText;
             Point RawTextSize {
