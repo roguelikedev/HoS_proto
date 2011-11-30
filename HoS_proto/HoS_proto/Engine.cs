@@ -16,8 +16,10 @@ namespace HoS_proto
     public class Engine : Microsoft.Xna.Framework.Game
     {
         static Engine instance;
-        public const int TILE_DIM_IN_PX = 64;
-        public const int SCREEN_DIM_IN_TILES = 11;
+        public const int TILE_DIM_IN_PX         = 64,
+                         SCREEN_DIM_IN_TILES    = 11,
+                         SCREEN_WIDTH_PX        = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
+
 
         public static Random rand = new Random();
         GraphicsDeviceManager graphics;

@@ -243,7 +243,8 @@ namespace Util
             }
             else if (dbox.X != FLEXIBLE && dbox.Width == FLEXIBLE)
             {
-                dbox.Width = MaxLineLength;
+                dbox.Width = Math.Min(MaxLineLength, Engine.SCREEN_WIDTH_PX - dbox.X);
+                contents.ForEach(mi => mi.Width = dbox.Width);
             }
             else
             {
