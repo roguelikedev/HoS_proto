@@ -16,6 +16,7 @@ namespace HoS_proto
 {
     public class Quirk
     {
+        #region squish
         public const int
             VERY                = 1,
             CASUAL              = 1 << 1,
@@ -30,6 +31,7 @@ namespace HoS_proto
         public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
         public static bool operator ==(Quirk _this, Quirk that) { return _this.value == that.value; }
         public static bool operator !=(Quirk _this, Quirk that) { return _this.value != that.value; }
+        #endregion
     }
 
     public abstract class Acter
@@ -46,14 +48,6 @@ namespace HoS_proto
         public Acter Interactee { get; private set; }
         public Quirk Quirks { get; private set; }
         #endregion
-
-        public string Hail(Acter who)
-        {
-            var rval = Quirks & Quirk.CASUAL ? "Hey, " : "";
-            if (Interactee != who) rval += who;
-            Interactee = who;
-            return rval;
-        }
 
         public virtual void Draw() 
         {
@@ -95,6 +89,14 @@ namespace HoS_proto
         public override string ToString()
         {
             return name == null ? "man" : name;
+        }
+
+        public string Hail(Acter who)
+        {
+            var rval = Quirks & Quirk.CASUAL ? "Hey" : "";
+            if (Interactee != who) rval += ", " + who;
+            Interactee = who;
+            return rval;
         }
     }
 
@@ -273,6 +275,7 @@ namespace HoS_proto
     {
         public static NPC Instance { get; private set; }
         public List<string> Options { get; private set; }
+        List<Interaction> memory = new List<Interaction>();
 
         public NPC(int x, int y)
         {
@@ -306,10 +309,13 @@ namespace HoS_proto
             if (!isInRange(Player.Instance)) textBubble = null;
             else
             {
+                var q = new Interaction.Query(this, Player.Instance, Interaction.Atom.NOTHING);
+                memory.Add(q);
                 if (textBubble == null)
                 {
                     MakeTextBubble();
-                    textBubble.Add(Hail(Player.Instance) + "We need to [T]alk.", Constants.NO_OP);
+                    textBubble.Add(q, Constants.NO_OP);
+                    textBubble.Add("We need to [T]alk.", Constants.NO_OP);
                 }
             }
         }

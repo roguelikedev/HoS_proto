@@ -67,6 +67,7 @@ namespace HoS_proto
             Atom subjectAsKey = Atom.NOTHING;
             Acter subjectAsActer;
 
+            public static implicit operator string(Query q) { return q.ToString(); }
             public override string ToString()
             {
                 var rval = sender.Hail(receiver) + ", ";
