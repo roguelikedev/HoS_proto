@@ -86,6 +86,7 @@ namespace Util
     public class Menu
     {
         static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.GreenYellow;
+        public const int BORDER_DEPTH = 16;
         /// <summary> MULTIPLE GOTCHA ALERT:
         /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
         /// after DrawBox has been assigned a Lambda which evaluates to a
@@ -98,14 +99,57 @@ namespace Util
         /// or bottommost (respectively) pixel of that rectangle.
         /// </summary>
         public const int FLEXIBLE = int.MinValue;
+
         class MenuItem
         {
             public Action Lambda;
             public Color color = STANDARD;
-            public string name;
-            public override string ToString() { return name; }
+            public readonly Menu container;
+            public MenuItem(string s, Action L, Menu c) { rawText = s; Lambda = L; container = c; }
             
-            public MenuItem(string name, Action Lambda) { this.name = name; this.Lambda = Lambda; }
+            readonly string rawText;
+            Point RawTextSize
+            {
+                get { return new Point((int)Engine.Font.MeasureString(rawText).X
+                                     , (int)Engine.Font.MeasureString(rawText).Y); }
+            }
+            List<string> lines = new List<string>();
+
+            public override string ToString() { return lines.Count > 1? string.Join("\n", lines) : rawText; }
+            public static implicit operator string(MenuItem mi) { return mi.ToString(); }
+
+            /// <summary> in pixels. </summary>
+            public int Height { get { return RawTextSize.Y * lines.Count; } }
+
+            int width = -1;
+            /// <summary> in pixels. </summary>
+            public int Width
+            {
+                get { return width == -1? RawTextSize.X : width; }
+                set
+                {
+                    width = value;
+                    var words = rawText.Split();
+                    var currentLine = "";
+                    foreach (var currentWord in words)
+                    {
+                        if (Engine.Font.MeasureString(currentLine + " " + currentWord).X > width)
+                        {
+                            lines.Add(currentLine);
+                            currentLine = "";
+                        }
+                        currentLine += currentWord;
+                    }
+                    lines.Add(currentLine);
+                }
+            }
+
+            public void Draw(int xOrigin, int yOrigin)
+            {
+                Engine.DrawAtScreen("lozenge", xOrigin - BORDER_DEPTH, yOrigin
+                                             , Width + BORDER_DEPTH * 2, Height, color);
+                Engine.WriteAtScreen(this, xOrigin, yOrigin, 1);
+            }
         }
         List<MenuItem> contents = new List<MenuItem>();
         int activeIndex = -1;
@@ -117,26 +161,16 @@ namespace Util
         {
             get
             {
-                var rval = 0f;
-                contents.ForEach(mi => rval = Math.Max(rval, Engine.Font.MeasureString(mi.name).X));
-                return (int)rval;
+                var rval = 0;
+                contents.ForEach(mi => rval = Math.Max(rval, mi.Width));
+                return rval;
             }
         }
-        Rectangle SquishToFit()
-        {
-            Debug.Assert(DrawBox != null);
-            var rval = DrawBox();
-            if (rval.Width == FLEXIBLE)
-            {
 
-            }
-
-            return rval;
-        }
-
+        #region obligatory data structure operations
         public void Add(string name, Action Lambda)
         {
-            contents.Add(new MenuItem(name, Lambda));
+            contents.Add(new MenuItem(name, Lambda, this));
         }
         public void Expand(string name, Action Lambda)
         {
@@ -178,6 +212,7 @@ namespace Util
         {
             contents[activeIndex].Lambda();
         }
+        #endregion
 
         public void Draw()
         {
@@ -188,6 +223,13 @@ namespace Util
                 Debug.Assert(dbox.Width != FLEXIBLE);
                 dbox.X = dbox.Width - MaxLineLength;
                 dbox.Width = MaxLineLength;
+            }
+            if (dbox.X < 0)
+            {
+                var underlap = dbox.X;
+                dbox.X = 0;
+                dbox.Width += underlap;
+                contents.ForEach(mi => mi.Width += underlap);
             }
 
             Draw(dbox.X, dbox.Y, dbox.Width, dbox.Height);
@@ -209,7 +251,7 @@ namespace Util
                 if (height == FLEXIBLE) height = Size("|").Y;
                 if (width == FLEXIBLE)
                 {
-                    contents.ForEach(mi => width = Math.Max(width, Size(mi.name).X));
+                    contents.ForEach(mi => width = Math.Max(width, mi.Width));
                 }
             }
             #endregion
@@ -217,10 +259,8 @@ namespace Util
             //height /= contents.Count;
             contents.ForEach(mi =>
             {
-                var nudge = 16;
-                Engine.DrawAtScreen("lozenge", xOrigin - nudge, yOrigin, width + nudge * 2, height, mi.color);
-                Engine.WriteAtScreen(mi.name, xOrigin, yOrigin, 1);
-                yOrigin += height;
+                mi.Draw(xOrigin, yOrigin);
+                yOrigin += mi.Height;
             });
         }
     }
