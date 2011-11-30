@@ -56,6 +56,14 @@ namespace HoS_proto
         public Acter Interactee { get; private set; }
         public Quirk Quirks { get; private set; }
         List<Interaction> memory = new List<Interaction>();
+        bool AmbiguousListener
+        {
+            get
+            {
+                if (memory.Count < 2) return true;
+                return memory.Last().receiver != memory[memory.Count - 2].receiver;
+            }
+        }
         #endregion
 
         public virtual void Draw() 
@@ -113,22 +121,21 @@ namespace HoS_proto
         public string Hail(Acter who)
         {
             var rval = Quirks & Quirk.CASUAL ? "Hey" : "";
-            if (Interactee != who) rval += ", " + who;
+            if (AmbiguousListener) rval += ", " + who;
             return rval;
         }
 
         protected void Query(Acter who, Interaction.Atom about)
         {
+            Interactee = who;
+
             var q = new Interaction.Query(this, who, about);
             memory.Add(q);
 
             MakeTextBubble();
             textBubble.Add(q, Constants.NO_OP);
 
-            Interactee = who;
-
             textBubble.Add("We need to [T]alk.", Constants.NO_OP);
-
         }
     }
 
