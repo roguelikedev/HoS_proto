@@ -271,50 +271,51 @@ namespace HoS_proto
             old_kbs = kbs;
             kbs = Keyboard.GetState();
 
-            if (state == State.MOVING)
+            switch (state)
             {
-                if (NPC.Instance.isInRange(this))
-                {
-                    if (!Done[Has.SPOKEN])
+                case State.MOVING:
+                    if (NPC.Instance.isInRange(this))
                     {
-                        MakeTextBubble().Add("press space bar to talk");
+                        if (!Done[Has.SPOKEN]) MakeTextBubble().Add("press space bar to talk");
+
+                        if (Pressed(Keys.Space))
+                        {
+                            Done[Has.SPOKEN] = true;
+                            state = State.MENU;
+
+                            MakeTextBubble();
+                            textBubble.Add("Goto hell!", () =>
+                            {
+                                this.textBubble = null;
+                                this.state = State.MOVING;
+                            });
+                            textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
+                            return;
+                        }
                     }
-                    if (Pressed(Keys.Space))
+                    else textBubble = null;
+
+                    if (moveDelayElapsed && Move())
                     {
-                        Done[Has.SPOKEN] = true;
-                        state = State.MENU;
-
-                        MakeTextBubble();
-                        textBubble.Add("Goto hell!", () => {
-                            this.textBubble = null;
-                            this.state = State.MOVING;
-                        });
-                        textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
-                        return;
+                        Done[Has.WALKED] = true;
+                        moveDelayElapsed = false;
+                        timeSinceMovement.Start();
                     }
-                }
-                else textBubble = null;
+                    else if (!Done[Has.WALKED])
+                    {
+                        if (textBubble == null) MakeTextBubble();
+                        textBubble.Add("use direction keys, numpad, or vi keys to walk.");
+                    }
+                    break;
 
-                if (moveDelayElapsed && Move())
-                {
-                    Done[Has.WALKED] = true;
-                    moveDelayElapsed = false;
-                    timeSinceMovement.Start();
-                }
-                else if (!Done[Has.WALKED])
-                {
-                    if (textBubble == null) MakeTextBubble();
-                    textBubble.Add("use direction keys, numpad, or vi keys to walk.");
-                }
-            }
-            else if (state == State.MENU)
-            {
-                Debug.Assert(textBubble != null);
+                case State.MENU:
+                    Debug.Assert(textBubble != null);
 
-                if ((Direction() & UP) != 0) textBubble.GoPrev();
-                else if ((Direction() & DOWN) != 0) textBubble.GoNext();
+                    if ((Direction() & UP) != 0) textBubble.GoPrev();
+                    else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
-                if (Pressed(Keys.Enter)) textBubble.Select();
+                    if (Pressed(Keys.Enter) || Pressed(Keys.Space)) textBubble.Select();
+                    break;
             }
         }
 
