@@ -103,7 +103,7 @@ namespace HoS_proto
 
         public string Hail(Acter who)
         {
-            var rval = Quirks & Quirk.CASUAL ? "Hey" : "";
+            var rval = Quirks & Quirk.CASUAL ? "Heydiddle fuckwad progress" : "";
             if (Interactee != who) rval += ", " + who;
             Interactee = who;
             return rval;

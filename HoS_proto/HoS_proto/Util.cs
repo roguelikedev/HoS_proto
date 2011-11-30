@@ -129,6 +129,7 @@ namespace Util
                 get { return width == -1? RawTextSize.X : width; }
                 set
                 {
+                    Debug.Assert(value > 0);
                     width = value;
                     lines.Clear();
 
@@ -225,20 +226,31 @@ namespace Util
         {
             if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
             var dbox = DrawBox();
-            if (dbox.X == FLEXIBLE)
+            if (dbox.X != FLEXIBLE && dbox.Width != FLEXIBLE) goto JUST_DRAW_ALREADY;
+
+            if (dbox.X == FLEXIBLE && dbox.Width != FLEXIBLE)
             {
-                Debug.Assert(dbox.Width != FLEXIBLE);
-                dbox.X = dbox.Width - MaxLineLength;
+                var max_x = dbox.Width;
+                dbox.Width = MaxLineLength;
+                dbox.X = max_x - dbox.Width;
+                if (dbox.X < 0)
+                {
+                    var negativeNumber = dbox.X;
+                    dbox.X -= negativeNumber;
+                    dbox.Width += negativeNumber;
+                    contents.ForEach(mi => mi.Width += negativeNumber);
+                }
+            }
+            else if (dbox.X != FLEXIBLE && dbox.Width == FLEXIBLE)
+            {
                 dbox.Width = MaxLineLength;
             }
-            if (dbox.X < 0)
+            else
             {
-                var underlap = dbox.X;
-                dbox.X = 0;
-                dbox.Width += underlap;
-                contents.ForEach(mi => mi.Width += underlap);
+                Debug.Assert(false, "cannot use parameterless Draw() without knowing where.");
             }
 
+        JUST_DRAW_ALREADY:
             Draw(dbox.X, dbox.Y);
         }
 
