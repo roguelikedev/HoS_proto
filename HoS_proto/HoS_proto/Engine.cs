@@ -93,7 +93,6 @@ namespace HoS_proto
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
             Environment.DrawAll();
-            NPC.Instance.Draw();
             spriteBatch.End();
             
             triDrawer.Begin();
@@ -101,6 +100,7 @@ namespace HoS_proto
             triDrawer.End();
 
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            NPC.Instance.Draw();
             Player.Instance.Draw();
             spriteBatch.End();
         }

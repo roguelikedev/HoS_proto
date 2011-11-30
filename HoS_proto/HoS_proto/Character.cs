@@ -28,7 +28,8 @@ namespace HoS_proto
         public static implicit operator Quirk(int i) { return new Quirk(i); }
         public static implicit operator bool(Quirk self) { return self.value != 0; }
         public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
-        public override bool Equals(Quirk that) { return value == that.value; }
+        public static bool operator ==(Quirk _this, Quirk that) { return _this.value == that.value; }
+        public static bool operator !=(Quirk _this, Quirk that) { return _this.value != that.value; }
     }
 
     public abstract class Acter
@@ -47,10 +48,10 @@ namespace HoS_proto
 
         public string Hail(Acter who)
         {
+            var rval = Quirks & Quirk.CASUAL ? "Hey, " : "";
+            if (Interactee != who) rval += who;
             Interactee = who;
-            return Quirks & Quirk.CASUAL ? "Hey, " : ""
-                                         + Interactee
-                                         + ", ";
+            return rval;
         }
 
         public virtual void Draw() 
