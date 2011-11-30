@@ -55,6 +55,7 @@ namespace HoS_proto
 
         public Acter Interactee { get; private set; }
         public Quirk Quirks { get; private set; }
+        List<Interaction> memory = new List<Interaction>();
         #endregion
 
         public virtual void Draw() 
@@ -113,8 +114,21 @@ namespace HoS_proto
         {
             var rval = Quirks & Quirk.CASUAL ? "Hey" : "";
             if (Interactee != who) rval += ", " + who;
-            Interactee = who;
             return rval;
+        }
+
+        protected void Query(Acter who, Interaction.Atom about)
+        {
+            var q = new Interaction.Query(this, who, about);
+            memory.Add(q);
+
+            MakeTextBubble();
+            textBubble.Add(q, Constants.NO_OP);
+
+            Interactee = who;
+
+            textBubble.Add("We need to [T]alk.", Constants.NO_OP);
+
         }
     }
 
@@ -293,7 +307,6 @@ namespace HoS_proto
     {
         public static NPC Instance { get; private set; }
         public List<string> Options { get; private set; }
-        List<Interaction> memory = new List<Interaction>();
 
         public NPC(int x, int y)
         {
@@ -327,12 +340,7 @@ namespace HoS_proto
             if (!isInRange(Player.Instance)) textBubble = null;
             else if (textBubble == null)
             {
-                var q = new Interaction.Query(this, Player.Instance, Interaction.Atom.NOTHING);
-                memory.Add(q);
-
-                MakeTextBubble();
-                textBubble.Add(q, Constants.NO_OP);
-                textBubble.Add("We need to [T]alk.", Constants.NO_OP);
+                Query(Player.Instance, Interaction.Atom.NOTHING);
             }
         }
     }
