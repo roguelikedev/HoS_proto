@@ -14,8 +14,26 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
+    public class Quirk
+    {
+        public const int
+            VERY                = 1,
+            CASUAL              = 1 << 1,
+            TIGHT_LIPPED        = 1 << 2,
+            GENEROUS            = 1 << 3
+            ;
+        int value;
+        Quirk(int v) { value = v; }
+        public static implicit operator int(Quirk q) { return q.value; }
+        public static implicit operator Quirk(int i) { return new Quirk(i); }
+        public static implicit operator bool(Quirk self) { return self.value != 0; }
+        public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
+        public override bool Equals(Quirk that) { return value == that.value; }
+    }
+
     public abstract class Acter
     {
+        #region fields
         public Point Location { get; protected set; }
         public int X { get { return Location.X; } protected set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
@@ -25,20 +43,7 @@ namespace HoS_proto
 
         public Acter Interactee { get; private set; }
         public Quirk Quirks { get; private set; }
-        public class Quirk
-        {
-            public const int
-                CASUAL          = 1,
-                TIGHT_LIPPED    = 1 << 1,
-                GENEROUS        = 1 << 2
-                ;
-            int value;
-            Quirk(int v) { value = v; }
-            public static implicit operator int(Quirk q) { return q.value; }
-            public static implicit operator Quirk(int i) { return new Quirk(i); }
-            public static implicit operator bool(Quirk self) { return self.value != 0; }
-            public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
-        }
+        #endregion
 
         public string Hail(Acter who)
         {
@@ -56,6 +61,7 @@ namespace HoS_proto
 
         public abstract void Update();
 
+        #region object oriented overhead
         static List<Acter> all = new List<Acter>();
         protected Acter()
         {
@@ -63,6 +69,9 @@ namespace HoS_proto
             all.Add(this);
         }
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
+        public static implicit operator bool(Acter who) { return who != null; }
+        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+        #endregion
 
         protected void MakeTextBubble()
         {
@@ -89,6 +98,7 @@ namespace HoS_proto
             MOVING, MENU
         }
 
+        #region fields
         public static Player Instance { get; private set; }
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
         bool moveDelayElapsed = true;
@@ -96,6 +106,7 @@ namespace HoS_proto
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
+        #endregion
 
         public Player(int x, int y)
         {
@@ -106,6 +117,7 @@ namespace HoS_proto
             spritePath = "dd_tinker";
         }
 
+        #region controller
         const int   STAY    = 0,
                     LEFT    = 1,
                     RIGHT   = 1 << 1,
@@ -224,6 +236,7 @@ namespace HoS_proto
                 if (Pressed(Keys.Enter)) textBubble.Select();
             }
         }
+        #endregion
     }
 
     public class NPC : Acter

@@ -10,11 +10,11 @@ namespace HoS_proto
 {
     public abstract class Interaction
     {
-        public enum Key
+        public enum Atom
         {
-            NOTHING, HAS_EVER_SPOKEN
+            NOTHING, FOOD, SOMEONE
         }
-        public static Dictionary<Key, bool> progress = new Dictionary<Key, bool>();
+        public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
 
         public readonly Acter sender;
         public readonly Acter receiver;
@@ -32,7 +32,17 @@ namespace HoS_proto
         }
         partial class Query : Interaction
         {
-            public Query(Acter from, Acter to) : base(from, to) { }
+            public Query(Acter from, Acter to, Atom subject)
+                : base(from, to)
+            {
+                subjectAsKey = subject;
+            }
+            public Query(Acter from, Acter to, Acter subject)
+                : base(from, to)
+            {
+                subjectAsActer = subject;
+                subjectAsKey = Atom.SOMEONE;
+            }
         }
         partial class Employ
         {
@@ -44,29 +54,41 @@ namespace HoS_proto
         }
         #endregion
 
-
         public abstract partial class Response : Interaction
         {
             public readonly Propose context;
 
-
-            public partial class No : Response
-            {
-            }
-            public partial class Ok : Response
-            {
-            }
+            public partial class No : Response { }
+            public partial class Ok : Response { }
         }
 
         public partial class Query : Interaction
         {
-            Key subjectAsKey = Key.NOTHING;
+            Atom subjectAsKey = Atom.NOTHING;
             Acter subjectAsActer;
 
             public override string ToString()
             {
                 var rval = sender.Hail(receiver) + ", ";
 
+                switch (subjectAsKey)
+                {
+                    case Atom.SOMEONE:
+                        rval += subjectAsActer;
+                        break;
+                    case Atom.NOTHING:
+                        if (sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
+                        else rval += "how're you doing";
+                        break;
+                    case Atom.FOOD:
+                        rval += "where is the apple grove";
+                        break;
+                    default:
+                        Debug.Assert(false);
+                        break;
+                }
+
+                rval += "?";
                 return rval;
             }
         }
