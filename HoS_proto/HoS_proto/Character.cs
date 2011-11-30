@@ -21,7 +21,9 @@ namespace HoS_proto
             VERY                = 1,
             CASUAL              = 1 << 1,
             TIGHT_LIPPED        = 1 << 2,
-            GENEROUS            = 1 << 3
+            GENEROUS            = 1 << 3,
+            EGOTISTICAL         = 1 << 4,
+            OUTGOING            = 1 << 5
             ;
         int value;
         Quirk(int v) { value = v; }
@@ -50,6 +52,7 @@ namespace HoS_proto
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
 
         protected string name;
+        public override string ToString() { return name == null ? "man" : name; }
         protected string spritePath;
         protected Menu textBubble;
 
@@ -66,25 +69,12 @@ namespace HoS_proto
         }
         #endregion
 
+        #region view
         public virtual void Draw() 
         {
             Engine.DrawAtWorld(spritePath, X, Y);
             if (textBubble != null) textBubble.Draw();
         }
-
-        public abstract void Update();
-
-        #region object oriented overhead
-        static List<Acter> all = new List<Acter>();
-        protected Acter()
-        {
-            Quirks = Quirk.CASUAL;
-            all.Add(this);
-        }
-        public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator bool(Acter who) { return who != null; }
-        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
-        #endregion
 
         protected Menu MakeTextBubble()
         {
@@ -108,16 +98,26 @@ namespace HoS_proto
                     origin.X++; // single tile offset to avoid hiding self.
                     rval.Location = Engine.ToScreen(origin);
                 }
-                
+
                 return rval;
             };
             return textBubble;
         }
+        #endregion
 
-        public override string ToString()
+        public abstract void Update();
+
+        #region object oriented overhead
+        static List<Acter> all = new List<Acter>();
+        protected Acter()
         {
-            return name == null ? "man" : name;
+            Quirks = Quirk.CASUAL;
+            all.Add(this);
         }
+        public static void UpdateAll() { all.ForEach(a => a.Update()); }
+        public static implicit operator bool(Acter who) { return who != null; }
+        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+        #endregion
 
         public string Hail(Acter who)
         {
@@ -136,6 +136,11 @@ namespace HoS_proto
             if (textBubble == null) MakeTextBubble();
             textBubble.Add(q, Constants.NO_OP);
         }
+
+        public Interaction LastInteraction(Acter with)
+        {
+            return memory.Last(intr => intr.receiver == with);
+        }
     }
 
     public class Player : Acter
@@ -148,7 +153,6 @@ namespace HoS_proto
         {
             SPOKEN, WALKED
         }
-        Dictionary<Has, bool> __backing_field_for_Done;
         Dictionary<Has, bool> Done
         {
             get
@@ -165,7 +169,6 @@ namespace HoS_proto
             }
         }
 
-
         #region fields
         public static Player Instance { get; private set; }
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
@@ -175,8 +178,9 @@ namespace HoS_proto
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
-        #endregion
 
+        Dictionary<Has, bool> __backing_field_for_Done;
+        #endregion
 
         public Player(int x, int y)
         {
@@ -282,14 +286,6 @@ namespace HoS_proto
                         {
                             Done[Has.SPOKEN] = true;
                             state = State.MENU;
-
-                            MakeTextBubble();
-                            textBubble.Add("Goto hell!", () =>
-                            {
-                                this.textBubble = null;
-                                this.state = State.MOVING;
-                            });
-                            textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
                             return;
                         }
                     }
@@ -309,7 +305,22 @@ namespace HoS_proto
                     break;
 
                 case State.MENU:
-                    Debug.Assert(textBubble != null);
+                    if (textBubble == null) MakeTextBubble();
+
+                    var context = NPC.Instance.LastInteraction(this);
+                    Debug.Assert(context != null, "it works like this now, i may want to know when that changes");
+
+                    //Query(NPC.Instance, 
+                            //MakeTextBubble();
+                            //textBubble.Add("Goto hell!", () =>
+                            //{
+                            //    this.textBubble = null;
+                            //    this.state = State.MOVING;
+                            //});
+                            //textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
+                            //return;
+                    //textBubble.Add(
+
 
                     if ((Direction() & UP) != 0) textBubble.GoPrev();
                     else if ((Direction() & DOWN) != 0) textBubble.GoNext();
@@ -335,7 +346,9 @@ namespace HoS_proto
                         Pausing = false;
                         break;
                     default:
-                        name += key.ToString();
+                        var c = key.ToString();
+                        if (name.Length > 1) c = c.ToLower();
+                        name += c;
                         break;
                 }
             }

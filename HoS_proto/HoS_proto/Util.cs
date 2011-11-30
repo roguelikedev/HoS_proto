@@ -161,7 +161,7 @@ namespace Util
             }
         }
         List<MenuItem> contents = new List<MenuItem>();
-        int activeIndex = -1;
+        MenuItem activeItem;
 
         /// <summary> assigning to this permits use of parameterless Draw().
         /// see also Menu.FLEXIBLE. </summary>
@@ -189,37 +189,33 @@ namespace Util
 
         public void GoNext()
         {
-            if (activeIndex != -1)
-            {
-                contents[activeIndex].color = STANDARD;
-            }
-            activeIndex++;
-            Debug.Assert(activeIndex >= 0 && activeIndex <= contents.Count);
-
-            if (activeIndex == contents.Count)
-            {
-                Debug.Assert(activeIndex != 0);
-                activeIndex = 0;
-            }
-
-            contents[activeIndex].color = HOVERING;
+            if (contents.Count == 0) return;
+            if (activeItem != null) activeItem.color = STANDARD;
+            else activeItem = contents[0];
+            
+            var ndx = contents.IndexOf(activeItem) + 1;
+            Debug.Assert(ndx <= contents.Count);
+            if (ndx == contents.Count) ndx = 0;
+            activeItem = contents[ndx];
+            
+            activeItem.color = HOVERING;
         }
         public void GoPrev()
         {
-            if (activeIndex != -1)
-            {
-                contents[activeIndex].color = STANDARD;
-            }
-            activeIndex--;
-            Debug.Assert(activeIndex >= -1 && activeIndex < contents.Count - 1);
+            if (contents.Count == 0) return;
+            if (activeItem != null) activeItem.color = STANDARD;
+            else activeItem = contents[0];
 
-            if (activeIndex == -1) activeIndex = contents.Count - 1;
+            var ndx = contents.IndexOf(activeItem) - 1;
+            Debug.Assert(ndx >= -1);
+            if (ndx == -1) ndx = contents.Count - 1;
+            activeItem = contents[ndx];
 
-            if (activeIndex != -1) contents[activeIndex].color = HOVERING;
+            activeItem.color = HOVERING;
         }
         public void Select()
         {
-            contents[activeIndex].Lambda();
+            if (activeItem != null) activeItem.Lambda();
         }
         #endregion
 

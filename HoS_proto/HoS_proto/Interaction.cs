@@ -12,7 +12,7 @@ namespace HoS_proto
     {
         public enum Atom
         {
-            NOTHING, FOOD, SOMEONE
+            NOTHING, FOOD, SOMEONE, MUTUAL_KNOWLEDGE
         }
         public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
 
@@ -22,6 +22,9 @@ namespace HoS_proto
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
         public static implicit operator Color(Interaction interaction) { return interaction.Color; }
+        public static implicit operator bool(Interaction interaction) { return interaction != null; }
+
+        public virtual string ToVerb { get { return "do"; } }
 
         #region constructor spam
         protected Interaction(Acter from, Acter to)
@@ -39,14 +42,32 @@ namespace HoS_proto
             public Query(Acter from, Acter to, Atom subject)
                 : base(from, to)
             {
-                subjectAsKey = subject;
+                subjectAsAtom = subject;
             }
             public Query(Acter from, Acter to, Acter subject)
                 : base(from, to)
             {
                 subjectAsActer = subject;
-                subjectAsKey = Atom.SOMEONE;
+                subjectAsAtom = Atom.SOMEONE;
             }
+            public Query(Acter from, Acter to, Interaction subject)
+                : base(from, to)
+            {
+                subjectAsInteraction = subject;
+
+                if (from.Quirks & Quirk.EGOTISTICAL)
+                {
+                    if (subject.receiver == from || subject.sender == from) subjectAsActer = from;
+                }
+                else if (from.Quirks & Quirk.OUTGOING)
+                {
+                    if (subject.receiver != from) subjectAsActer = subject.receiver;
+                    else if (subject.sender != from) subjectAsActer = subject.sender;
+                }
+                
+                subjectAsAtom = Atom.MUTUAL_KNOWLEDGE;
+            }
+
         }
         partial class Employ
         {
@@ -61,29 +82,34 @@ namespace HoS_proto
         public abstract partial class Response : Interaction
         {
             public readonly Propose context;
+            public override string ToVerb { get { return "answer"; } }
 
             public partial class No : Response
             {
                 protected override Color Color { get { return Color.Red; } }
+                public override string ToVerb { get { return "disagree"; } }
             }
             public partial class Ok : Response
             {
                 protected override Color Color { get { return Color.Green; } }
+                public override string ToVerb { get { return "agree"; } }
             }
         }
 
         public partial class Query : Interaction
         {
-            Atom subjectAsKey = Atom.NOTHING;
+            Atom subjectAsAtom = Atom.NOTHING;
             Acter subjectAsActer;
+            Interaction subjectAsInteraction;
 
             protected override Color Color { get { return Color.Yellow; } }
+            public override string ToVerb { get { return "ask"; } }
 
             public override string ToString()
             {
                 var rval = sender.Hail(receiver) + ", ";
 
-                switch (subjectAsKey)
+                switch (subjectAsAtom)
                 {
                     case Atom.SOMEONE:
                         rval += subjectAsActer;
@@ -94,6 +120,23 @@ namespace HoS_proto
                         break;
                     case Atom.FOOD:
                         rval += "where is the apple grove";
+                        break;
+                    case Atom.MUTUAL_KNOWLEDGE:
+                        if (subjectAsInteraction)
+                        {
+                            rval += "what did ";
+
+                            Func<Acter, string> ProOrProperNoun = who =>
+                            {
+                                if (who == sender) return "I";
+                                else if (who == receiver) return "you";
+                                else return who;
+                            };
+                            rval += ProOrProperNoun(subjectAsInteraction.sender);
+
+                            rval += " mean by " + subjectAsInteraction.ToVerb + "ing ";
+                            rval += "that?";
+                        }
                         break;
                     default:
                         Debug.Assert(false);
@@ -111,16 +154,16 @@ namespace HoS_proto
             {
                 get { throw new NotImplementedException(); }
             }
+            public override string ToVerb { get { return "use"; } }
         }
 
         public partial class Propose : Interaction
         {
-
-
             protected override Color Color
             {
                 get { throw new NotImplementedException(); }
             }
+            public override string ToVerb { get { return "offer"; } }
         }
     }
 }
