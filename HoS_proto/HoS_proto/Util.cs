@@ -238,7 +238,7 @@ namespace Util
                     var negativeNumber = dbox.X;
                     dbox.X -= negativeNumber;
                     dbox.Width += negativeNumber;
-                    contents.ForEach(mi => mi.Width += negativeNumber);
+                    contents.ForEach(mi => mi.Width = dbox.Width);
                 }
             }
             else if (dbox.X != FLEXIBLE && dbox.Width == FLEXIBLE)
