@@ -82,7 +82,7 @@ namespace HoS_proto
                 else origin.X++;                  // single tile offset to avoid hiding self.
                 
                 origin = Engine.ToScreen(origin);
-                return new Rectangle(origin.X, origin.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX);
+                return new Rectangle(origin.X, origin.Y, Menu.FLEXIBLE, Menu.FLEXIBLE);
             };
         }
 

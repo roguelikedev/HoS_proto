@@ -9,13 +9,16 @@ namespace Util
 {
     public class TriangleDrawer
     {
+        #region fields
         VertexPositionColor[] vertices = new VertexPositionColor[6000];
 
         int ndx = 0;
         GraphicsDevice device;
         const int VERTS_PER_TRIANGLE = 3;
         BasicEffect basicEffect;
+        #endregion
 
+        #region OpenGL overhead
         public TriangleDrawer(GraphicsDevice graphicsDevice)
         {
             if (graphicsDevice == null)
@@ -40,6 +43,7 @@ namespace Util
             // tell our basic effect to begin.
             basicEffect.CurrentTechnique.Passes[0].Apply();
         }
+        #endregion
 
         public void AddVertex(Vector2 vertex)
         {
@@ -82,6 +86,13 @@ namespace Util
     public class Menu
     {
         static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.GreenYellow;
+        /// <summary> if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw()
+        /// is called after DrawBox has been assigned a Lambda which evaluates
+        /// to a rectangle having Menu.FLEXIBLE as one or more of x,y,w,h, the
+        /// relevant dimension or axis of origin will be altered as necessary
+        /// to make the menu text fit.
+        /// </summary>
+        public const int FLEXIBLE = -1;
         class MenuItem
         {
             public Action Lambda;
@@ -93,6 +104,9 @@ namespace Util
         }
         List<MenuItem> contents = new List<MenuItem>();
         int activeIndex = -1;
+
+        /// <summary> assigning to this permits use of parameterless Draw().
+        /// see also Menu.FLEXIBLE. </summary>
         public Func<Rectangle> DrawBox = null;
         public int MaxLineLength
         {
@@ -102,6 +116,12 @@ namespace Util
                 contents.ForEach(mi => rval = Math.Max(rval, Engine.Font.MeasureString(mi.name).X));
                 return (int)rval;
             }
+        }
+        public Rectangle SquishToFit(Rectangle rval)
+        {
+            
+
+            return rval;
         }
 
         public void Add(string name, Action Lambda)
@@ -153,7 +173,7 @@ namespace Util
         {
             if (DrawBox == null) throw new Exception("cannot use parameterless Draw() without knowing where.");
             var dbox = DrawBox();
-            Draw(dbox.X, dbox.Y);
+            Draw(dbox.X, dbox.Y, dbox.Width, dbox.Height);
         }
 
         /// <summary> all args are in pixels. </summary>
@@ -186,11 +206,6 @@ namespace Util
                 Engine.WriteAtScreen(mi.name, xOrigin, yOrigin, 1);
                 yOrigin += height;
             });
-        }
-
-        public void Draw(int xOrigin, int yOrigin)
-        {
-            Draw(xOrigin, yOrigin, -1, -1);
         }
     }
 }
