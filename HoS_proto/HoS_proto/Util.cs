@@ -85,7 +85,7 @@ namespace Util
 
     public class Menu
     {
-        static readonly Color STANDARD = Color.CornflowerBlue, HOVERING = Color.GreenYellow;
+        static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
         public const int BORDER_DEPTH = 16;
         /// <summary> MULTIPLE GOTCHA ALERT:
         /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
@@ -109,6 +109,7 @@ namespace Util
                 rawText = s; Lambda = L;
                 lines.Add(rawText);
             }
+            public MenuItem(string s, Action L, Color c) : this(s, L) { color = c; }
             
             readonly string rawText;
             Point RawTextSize {
@@ -176,14 +177,13 @@ namespace Util
         }
 
         #region obligatory data structure operations
-        public void Add(string name, Action Lambda)
+        public void Add(string text, Action Lambda)
         {
-            contents.Add(new MenuItem(name, Lambda));
+            contents.Add(new MenuItem(text, Lambda));
         }
-        public void Expand(string name, Action Lambda)
+        public void Add(Interaction interaction, Action Lambda)
         {
-
-
+            contents.Add(new MenuItem(interaction, Lambda, interaction));
         }
 
         public void GoNext()

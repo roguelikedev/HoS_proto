@@ -18,6 +18,10 @@ namespace HoS_proto
 
         public readonly Acter sender;
         public readonly Acter receiver;
+        protected abstract Color Color { get; }
+
+        public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
+        public static implicit operator Color(Interaction interaction) { return interaction.Color; }
 
         #region constructor spam
         protected Interaction(Acter from, Acter to)
@@ -58,8 +62,14 @@ namespace HoS_proto
         {
             public readonly Propose context;
 
-            public partial class No : Response { }
-            public partial class Ok : Response { }
+            public partial class No : Response
+            {
+                protected override Color Color { get { return Color.Red; } }
+            }
+            public partial class Ok : Response
+            {
+                protected override Color Color { get { return Color.Green; } }
+            }
         }
 
         public partial class Query : Interaction
@@ -67,7 +77,8 @@ namespace HoS_proto
             Atom subjectAsKey = Atom.NOTHING;
             Acter subjectAsActer;
 
-            public static implicit operator string(Query q) { return q.ToString(); }
+            protected override Color Color { get { return Color.Yellow; } }
+
             public override string ToString()
             {
                 var rval = sender.Hail(receiver) + ", ";
@@ -96,10 +107,18 @@ namespace HoS_proto
 
         public partial class Employ : Interaction
         {
+            protected override Color Color
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
 
         public partial class Propose : Interaction
         {
+            protected override Color Color
+            {
+                get { throw new NotImplementedException(); }
+            }
         }
     }
 }

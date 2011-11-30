@@ -30,7 +30,15 @@ namespace HoS_proto
         public static implicit operator bool(Quirk self) { return self.value != 0; }
         public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
         public static bool operator ==(Quirk _this, Quirk that) { return _this.value == that.value; }
+        #region shut up, compiler
         public static bool operator !=(Quirk _this, Quirk that) { return _this.value != that.value; }
+        public override bool Equals(object obj)
+        {
+            if (obj is Quirk) return this == obj as Quirk;
+            return base.Equals(obj);
+        }
+        public override int GetHashCode() { return value.GetHashCode(); }
+        #endregion
         #endregion
     }
 
@@ -317,16 +325,14 @@ namespace HoS_proto
         public override void Update()
         {
             if (!isInRange(Player.Instance)) textBubble = null;
-            else
+            else if (textBubble == null)
             {
                 var q = new Interaction.Query(this, Player.Instance, Interaction.Atom.NOTHING);
                 memory.Add(q);
-                if (textBubble == null)
-                {
-                    MakeTextBubble();
-                    textBubble.Add(q, Constants.NO_OP);
-                    textBubble.Add("We need to [T]alk.", Constants.NO_OP);
-                }
+
+                MakeTextBubble();
+                textBubble.Add(q, Constants.NO_OP);
+                textBubble.Add("We need to [T]alk.", Constants.NO_OP);
             }
         }
     }
