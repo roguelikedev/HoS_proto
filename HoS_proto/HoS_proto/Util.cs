@@ -104,15 +104,12 @@ namespace Util
         {
             public Action Lambda;
             public Color color = STANDARD;
-            public readonly Menu container;
-            public MenuItem(string s, Action L, Menu c) { rawText = s; Lambda = L; container = c; }
+            public MenuItem(string s, Action L) { rawText = s; Lambda = L; }
             
             readonly string rawText;
-            Point RawTextSize
-            {
+            Point RawTextSize {
                 get { return new Point((int)Engine.Font.MeasureString(rawText).X
-                                     , (int)Engine.Font.MeasureString(rawText).Y); }
-            }
+                                     , (int)Engine.Font.MeasureString(rawText).Y); } }
             List<string> lines = new List<string>();
 
             public override string ToString() { return lines.Count > 1? string.Join("\n", lines) : rawText; }
@@ -133,12 +130,13 @@ namespace Util
                     var currentLine = "";
                     foreach (var currentWord in words)
                     {
-                        if (Engine.Font.MeasureString(currentLine + " " + currentWord).X > width)
+                        var prospectiveLine = currentLine + " " + currentWord;
+                        if (Engine.Font.MeasureString(prospectiveLine).X > width)
                         {
                             lines.Add(currentLine);
-                            currentLine = "";
+                            currentLine = currentWord;
                         }
-                        currentLine += currentWord;
+                        else currentLine = prospectiveLine;
                     }
                     lines.Add(currentLine);
                 }
@@ -146,6 +144,7 @@ namespace Util
 
             public void Draw(int xOrigin, int yOrigin)
             {
+                Debug.Assert(Width > 0);
                 Engine.DrawAtScreen("lozenge", xOrigin - BORDER_DEPTH, yOrigin
                                              , Width + BORDER_DEPTH * 2, Height, color);
                 Engine.WriteAtScreen(this, xOrigin, yOrigin, 1);
@@ -170,7 +169,7 @@ namespace Util
         #region obligatory data structure operations
         public void Add(string name, Action Lambda)
         {
-            contents.Add(new MenuItem(name, Lambda, this));
+            contents.Add(new MenuItem(name, Lambda));
         }
         public void Expand(string name, Action Lambda)
         {
@@ -232,31 +231,13 @@ namespace Util
                 contents.ForEach(mi => mi.Width += underlap);
             }
 
-            Draw(dbox.X, dbox.Y, dbox.Width, dbox.Height);
+            Draw(dbox.X, dbox.Y);
         }
 
         /// <summary> all args are in pixels. </summary>
-        /// <param name="width"> pass -1 to use default width. </param>
-        /// <param name="height"> pass -1 to use default height. </param>
-        public void Draw(int xOrigin, int yOrigin, int width, int height)
+        void Draw(int xOrigin, int yOrigin)
         {
             if (contents.Count == 0) return;
-            #region assign defaults
-            {
-                Func<string, Point> Size = str =>
-                {
-                    var _rval = Engine.Font.MeasureString(str);
-                    return new Point((int)_rval.X, (int)_rval.Y);
-                };
-                if (height == FLEXIBLE) height = Size("|").Y;
-                if (width == FLEXIBLE)
-                {
-                    contents.ForEach(mi => width = Math.Max(width, mi.Width));
-                }
-            }
-            #endregion
-
-            //height /= contents.Count;
             contents.ForEach(mi =>
             {
                 mi.Draw(xOrigin, yOrigin);
