@@ -12,9 +12,54 @@ namespace HoS_proto
     {
         public class Query : Interaction
         {
-            Atom subjectAsAtom = Atom.NOTHING;
-            Acter subjectAsActer;
-            Interaction subjectAsInteraction;
+            #region ugliness
+            Atom __backing_field_for_SubjectAsAtom = Atom.NOTHING;
+            Acter __backing_field_for_SubjectAsActer;
+            Interaction __backing_field_for_SubjectAsInteraction;
+            #endregion
+
+            public Interaction SubjectAsInteraction
+            {
+                get { return __backing_field_for_SubjectAsInteraction; }
+                set
+                {
+                    __backing_field_for_SubjectAsInteraction = value;
+                    if ((sender == SubjectAsInteraction.sender || sender == SubjectAsInteraction.receiver)
+                        && (receiver == SubjectAsInteraction.receiver || receiver == SubjectAsInteraction.sender))
+                    {
+                        if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.MUTUAL_HISTORY;
+                        if (!SubjectAsActer)
+                        {
+                            if (sender.Quirks & Quirk.EGOTISTICAL) SubjectAsActer = sender;
+                            else if (sender.Quirks & Quirk.OUTGOING) SubjectAsActer = receiver;
+                        }
+                    }
+                }
+            }
+            public Atom SubjectAsAtom
+            {
+                get { return __backing_field_for_SubjectAsAtom; }
+                set
+                {
+                    if (value == Atom.MUTUAL_HISTORY && !SubjectAsInteraction)
+                    {
+                        var lastInteraction = receiver.LastInteraction(sender);
+                        if (!lastInteraction) lastInteraction = sender.LastInteraction(receiver);
+                        if (!lastInteraction) __backing_field_for_SubjectAsAtom = Atom.NOTHING;
+                        else SubjectAsInteraction = lastInteraction;
+                    }
+                    __backing_field_for_SubjectAsAtom = value;
+                }
+            }
+            public Acter SubjectAsActer
+            {
+                get { return __backing_field_for_SubjectAsActer; }
+                set
+                {
+                    __backing_field_for_SubjectAsActer = value;
+                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.SOMEONE;
+                }
+            }
 
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "ask"; } }
@@ -23,10 +68,10 @@ namespace HoS_proto
             {
                 var rval = sender.Hail(receiver) + ", ";
 
-                switch (subjectAsAtom)
+                switch (SubjectAsAtom)
                 {
                     case Atom.SOMEONE:
-                        rval += subjectAsActer;
+                        rval += SubjectAsActer;
                         break;
                     case Atom.NOTHING:
                         if (sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
@@ -36,7 +81,7 @@ namespace HoS_proto
                         rval += "where is the apple grove";
                         break;
                     case Atom.MUTUAL_HISTORY:
-                        if (subjectAsInteraction)
+                        if (SubjectAsInteraction)
                         {
                             rval += "what did ";
 
@@ -46,9 +91,9 @@ namespace HoS_proto
                                 else if (who == receiver) return "you";
                                 else return who;
                             };
-                            rval += ProOrProperNoun(subjectAsInteraction.sender);
+                            rval += ProOrProperNoun(SubjectAsInteraction.sender);
 
-                            rval += " mean by " + subjectAsInteraction.ToVerb + "ing ";
+                            rval += " mean by " + SubjectAsInteraction.ToVerb + "ing ";
                             rval += "that?";
                         }
                         break;
@@ -61,36 +106,7 @@ namespace HoS_proto
                 return rval;
             }
 
-
-
-            public Query(Acter from, Acter to, Atom subject)
-                : base(from, to)
-            {
-                subjectAsAtom = subject;
-            }
-            public Query(Acter from, Acter to, Acter subject)
-                : base(from, to)
-            {
-                subjectAsActer = subject;
-                subjectAsAtom = Atom.SOMEONE;
-            }
-            public Query(Acter from, Acter to, Interaction subject)
-                : base(from, to)
-            {
-                subjectAsInteraction = subject;
-
-                if (from.Quirks & Quirk.EGOTISTICAL)
-                {
-                    if (subject.receiver == from || subject.sender == from) subjectAsActer = from;
-                }
-                else if (from.Quirks & Quirk.OUTGOING)
-                {
-                    if (subject.receiver != from) subjectAsActer = subject.receiver;
-                    else if (subject.sender != from) subjectAsActer = subject.sender;
-                }
-
-                subjectAsAtom = Atom.MUTUAL_HISTORY;
-            }
+            public Query(Acter from, Acter to) : base(from, to) { }
         }
     }
 }

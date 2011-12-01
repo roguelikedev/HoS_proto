@@ -25,6 +25,7 @@ namespace HoS_proto
             Location = new Point(x, y);
             Options = new List<string>();
             spritePath = "dc_caveman";
+            name = "weird caveman";
         }
 
         public void addOption(string opt)

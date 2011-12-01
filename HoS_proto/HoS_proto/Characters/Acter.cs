@@ -122,8 +122,9 @@ namespace HoS_proto
 
         public string Hail(Acter who)
         {
-            var rval = Quirks & Quirk.CASUAL ? "Hey" : "";
-            if (AmbiguousListener) rval += ", " + who;
+            var rval = Quirks & Quirk.CASUAL ? "Hey, " : "";
+            if (AmbiguousListener) rval += who;
+            rval = char.ToUpper(rval[0]).ToString() + (rval.Length > 1 ? rval.Substring(1) : "");
             return rval;
         }
 
@@ -131,7 +132,8 @@ namespace HoS_proto
         {
             Interactee = who;
 
-            var q = new Interaction.Query(this, who, about);
+            var q = new Interaction.Query(this, who);
+            q.SubjectAsAtom = about;
             memory.Add(q);
 
             if (textBubble == null) MakeTextBubble();
