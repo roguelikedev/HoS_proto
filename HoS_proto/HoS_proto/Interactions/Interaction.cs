@@ -26,24 +26,15 @@ namespace HoS_proto
 
         public virtual string ToVerb { get { return "do"; } }
 
-        #region constructor spam
         protected Interaction(Acter from, Acter to)
         {
             sender = from; receiver = to;
         }
 
-        partial class Employ
-        {
-            public Employ(Acter from, Acter to) : base(from, to) { }
-        }
-        partial class Propose
-        {
-            public Propose(Acter from, Acter to) : base(from, to) { }
-        }
-        #endregion
-
         public partial class Employ : Interaction
         {
+            public Employ(Acter from, Acter to) : base(from, to) { }
+
             protected override Color Color
             {
                 get { throw new NotImplementedException(); }
@@ -53,6 +44,8 @@ namespace HoS_proto
 
         public partial class Propose : Interaction
         {
+            public Propose(Acter from, Acter to) : base(from, to) { }
+
             protected override Color Color
             {
                 get { throw new NotImplementedException(); }

@@ -107,8 +107,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Characters\NPC.cs" />
+    <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Character.cs" />
+    <Compile Include="Characters\Acter.cs" />
     <Compile Include="Interactions\Query.cs" />
     <Compile Include="Interactions\Response.cs" />
     <Compile Include="Interactions\Interaction.cs" />
