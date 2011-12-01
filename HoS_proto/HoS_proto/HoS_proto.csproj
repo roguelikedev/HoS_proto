@@ -109,7 +109,9 @@
   <ItemGroup>
     <Compile Include="Constants.cs" />
     <Compile Include="Character.cs" />
-    <Compile Include="Interaction.cs" />
+    <Compile Include="Interactions\Query.cs" />
+    <Compile Include="Interactions\Response.cs" />
+    <Compile Include="Interactions\Interaction.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
