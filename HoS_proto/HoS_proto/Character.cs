@@ -57,7 +57,7 @@ namespace HoS_proto
         protected Menu textBubble;
 
         public Acter Interactee { get; private set; }
-        public Quirk Quirks { get; private set; }
+        public Quirk Quirks { get; protected set; }
         List<Interaction> memory = new List<Interaction>();
         bool AmbiguousListener
         {
@@ -190,6 +190,7 @@ namespace HoS_proto
             timeSinceMovement.Elapsed += (_, __) => moveDelayElapsed = true;
             spritePath = "dd_tinker";
             Pausing = true;
+            Quirks = Quirk.TIGHT_LIPPED;
         }
 
         #region controller
@@ -270,6 +271,8 @@ namespace HoS_proto
             return Location != prevLoc;
         }
 
+        bool Enter
+
         public override void Update()
         {
             old_kbs = kbs;
@@ -278,6 +281,7 @@ namespace HoS_proto
             switch (state)
             {
                 case State.MOVING:
+                    #region squish
                     if (NPC.Instance.isInRange(this))
                     {
                         if (!Done[Has.SPOKEN]) MakeTextBubble().Add("press space bar to talk");
@@ -303,23 +307,23 @@ namespace HoS_proto
                         textBubble.Add("use direction keys, numpad, or vi keys to walk.");
                     }
                     break;
+                    #endregion
 
                 case State.MENU:
                     if (textBubble == null) MakeTextBubble();
 
-                    var context = NPC.Instance.LastInteraction(this);
-                    Debug.Assert(context != null, "it works like this now, i may want to know when that changes");
-
-                    //Query(NPC.Instance, 
-                            //MakeTextBubble();
-                            //textBubble.Add("Goto hell!", () =>
-                            //{
-                            //    this.textBubble = null;
-                            //    this.state = State.MOVING;
-                            //});
-                            //textBubble.Add("Talk about what?", () => textBubble.Add("BARF", Constants.NO_OP));
-                            //return;
-                    //textBubble.Add(
+                    textBubble.AddUnique("Ask", () =>
+                    {
+                        var subject = NPC.Instance.LastInteraction(this);
+                        if (subject != null)
+                        {
+                            Query(NPC.Instance, Interaction.Atom.MUTUAL_HISTORY);
+                        }
+                        else
+                        {
+                            Query(NPC.Instance, Interaction.Atom.NOTHING);
+                        }
+                    });
 
 
                     if ((Direction() & UP) != 0) textBubble.GoPrev();

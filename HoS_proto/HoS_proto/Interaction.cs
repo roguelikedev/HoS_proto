@@ -12,7 +12,7 @@ namespace HoS_proto
     {
         public enum Atom
         {
-            NOTHING, FOOD, SOMEONE, MUTUAL_KNOWLEDGE
+            NOTHING, FOOD, SOMEONE, MUTUAL_HISTORY
         }
         public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
 
@@ -65,7 +65,7 @@ namespace HoS_proto
                     else if (subject.sender != from) subjectAsActer = subject.sender;
                 }
                 
-                subjectAsAtom = Atom.MUTUAL_KNOWLEDGE;
+                subjectAsAtom = Atom.MUTUAL_HISTORY;
             }
 
         }
@@ -121,7 +121,7 @@ namespace HoS_proto
                     case Atom.FOOD:
                         rval += "where is the apple grove";
                         break;
-                    case Atom.MUTUAL_KNOWLEDGE:
+                    case Atom.MUTUAL_HISTORY:
                         if (subjectAsInteraction)
                         {
                             rval += "what did ";

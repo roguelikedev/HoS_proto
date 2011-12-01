@@ -85,53 +85,48 @@ namespace Util
 
     public class Menu
     {
-        static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
-        public const int BORDER_DEPTH = 16;
-        /// <summary> MULTIPLE GOTCHA ALERT:
-        /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
-        /// after DrawBox has been assigned a Lambda which evaluates to a
-        /// rectangle having Menu.FLEXIBLE as one or more of x,y,w,h, the
-        /// relevant dimension or axis of origin will be altered as necessary
-        /// to make the menu text fit.
-        /// 
-        /// if a rectangle's x or y values are Menu.FLEXIBLE, width or height
-        /// (respectively) are assumed to be /positions/ representing rightmost
-        /// or bottommost (respectively) pixel of that rectangle.
-        /// </summary>
-        public const int FLEXIBLE = int.MinValue;
-
         class MenuItem
         {
-            public Action Lambda;
-            public Color color = STANDARD;
+            #region constructors
             public MenuItem(string s, Action L)
             {
                 rawText = s; Lambda = L;
                 lines.Add(rawText);
             }
             public MenuItem(string s, Action L, Color c) : this(s, L) { color = c; }
-            
-            readonly string rawText;
-            Point RawTextSize {
-                get { return new Point((int)Engine.Font.MeasureString(rawText).X
-                                     , (int)Engine.Font.MeasureString(rawText).Y); } }
-            List<string> lines = new List<string>();
+            #endregion
+            #region fields
+            public Action Lambda;
+            public Color color = STANDARD;
 
-            public override string ToString() { return lines.Count > 1? string.Join("\n", lines) : rawText; }
+            readonly string rawText;
+            List<string> lines = new List<string>();
+            int __backing_field_for_Width = -1;
+            #endregion
+            #region helpers
+            Point RawTextSize
+            {
+                get
+                {
+                    return new Point((int)Engine.Font.MeasureString(rawText).X
+                                   , (int)Engine.Font.MeasureString(rawText).Y);
+                }
+            }
+            public override string ToString() { return lines.Count > 1 ? string.Join("\n", lines) : rawText; }
             public static implicit operator string(MenuItem mi) { return mi.ToString(); }
 
             /// <summary> in pixels. </summary>
             public int Height { get { return RawTextSize.Y * lines.Count; } }
+            #endregion
 
-            int width = -1;
             /// <summary> in pixels. </summary>
             public int Width
             {
-                get { return width == -1? RawTextSize.X : width; }
+                get { return __backing_field_for_Width == -1 ? RawTextSize.X : __backing_field_for_Width; }
                 set
                 {
                     Debug.Assert(value > 0);
-                    width = value;
+                    __backing_field_for_Width = value;
                     lines.Clear();
 
                     var words = rawText.Split();
@@ -141,7 +136,7 @@ namespace Util
                         var prospectiveLine = currentLine
                                             + (currentLine.Length == 0 ? "" : " ")
                                             + currentWord;
-                        if (Engine.Font.MeasureString(prospectiveLine).X > width)
+                        if (Engine.Font.MeasureString(prospectiveLine).X > __backing_field_for_Width)
                         {
                             lines.Add(currentLine);
                             currentLine = currentWord;
@@ -163,19 +158,6 @@ namespace Util
         List<MenuItem> contents = new List<MenuItem>();
         MenuItem activeItem;
 
-        /// <summary> assigning to this permits use of parameterless Draw().
-        /// see also Menu.FLEXIBLE. </summary>
-        public Func<Rectangle> DrawBox = null;
-        public int MaxLineLength
-        {
-            get
-            {
-                var rval = 0;
-                contents.ForEach(mi => rval = Math.Max(rval, mi.Width));
-                return rval;
-            }
-        }
-
         #region obligatory data structure operations
         public void Add(string text) { Add(text, Constants.NO_OP); }
         public void Add(string text, Action Lambda)
@@ -186,18 +168,25 @@ namespace Util
         {
             contents.Add(new MenuItem(interaction, Lambda, interaction));
         }
+        public bool AddUnique(string text, Action Lambda)
+        {
+            var mi = new MenuItem(text, Lambda);
+            if (contents.Exists(_mi => mi.ToString() == _mi.ToString() && mi.color == _mi.color)) return false;
+            Add(text, Lambda);
+            return true;
+        }
 
         public void GoNext()
         {
             if (contents.Count == 0) return;
             if (activeItem != null) activeItem.color = STANDARD;
             else activeItem = contents[0];
-            
+
             var ndx = contents.IndexOf(activeItem) + 1;
             Debug.Assert(ndx <= contents.Count);
             if (ndx == contents.Count) ndx = 0;
             activeItem = contents[ndx];
-            
+
             activeItem.color = HOVERING;
         }
         public void GoPrev()
@@ -218,6 +207,35 @@ namespace Util
             if (activeItem != null) activeItem.Lambda();
         }
         #endregion
+
+        #region view
+        static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
+        public const int BORDER_DEPTH = 16;
+        /// <summary> MULTIPLE GOTCHA ALERT:
+        /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
+        /// after DrawBox has been assigned a Lambda which evaluates to a
+        /// rectangle having Menu.FLEXIBLE as one or more of x,y,w,h, the
+        /// relevant dimension or axis of origin will be altered as necessary
+        /// to make the menu text fit.
+        /// 
+        /// if a rectangle's x or y values are Menu.FLEXIBLE, width or height
+        /// (respectively) are assumed to be /positions/ representing rightmost
+        /// or bottommost (respectively) pixel of that rectangle.
+        /// </summary>
+        public const int FLEXIBLE = int.MinValue;
+
+        /// <summary> assigning to this permits use of parameterless Draw().
+        /// see also Menu.FLEXIBLE. </summary>
+        public Func<Rectangle> DrawBox = null;
+        public int MaxLineLength
+        {
+            get
+            {
+                var rval = 0;
+                contents.ForEach(mi => rval = Math.Max(rval, mi.Width));
+                return rval;
+            }
+        }
 
         public void Draw()
         {
@@ -262,5 +280,6 @@ namespace Util
                 yOrigin += mi.Height;
             });
         }
+        #endregion
     }
 }
