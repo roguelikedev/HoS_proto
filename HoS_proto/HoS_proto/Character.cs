@@ -147,7 +147,7 @@ namespace HoS_proto
     {
         public enum State
         {
-            MOVING, MENU
+            MOVING, TALKING
         }
         enum Has
         {
@@ -192,8 +192,31 @@ namespace HoS_proto
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
         }
+        public void GetName()
+        {
+            old_kbs = kbs;
+            kbs = Keyboard.GetState();
 
-        #region controller
+            foreach (var key in new List<Keys>(Keyboard.GetState().GetPressedKeys()).FindAll(k => Pressed(k)))
+            {
+                switch (key)
+                {
+                    case Keys.Back:
+                        if (name.Length > 0) name = name.Remove(name.Length - 2);
+                        break;
+                    case Keys.Enter:
+                        Pausing = false;
+                        break;
+                    default:
+                        var c = key.ToString();
+                        if (name.Length > 1) c = c.ToLower();
+                        name += c;
+                        break;
+                }
+            }
+        }
+
+        #region movement
         const int   STAY    = 0,
                     LEFT    = 1,
                     RIGHT   = 1 << 1,
@@ -257,6 +280,8 @@ namespace HoS_proto
 
         bool Move()
         {
+            if (!moveDelayElapsed) return false;
+
             int moveDir = Direction();
 
             Point prevLoc = Location;
@@ -268,51 +293,34 @@ namespace HoS_proto
 
             if (Environment.At(Location).blockMove) Location = prevLoc;
 
-            return Location != prevLoc;
+            if (Location == prevLoc) return false;
+            else
+            {
+                Done[Has.WALKED] = true;
+                moveDelayElapsed = false;
+                timeSinceMovement.Start();
+                return true;
+            }
         }
+        #endregion
 
-        bool Enter
-
-        public override void Update()
+        #region state machine
+        bool Enter(State nextState)
         {
-            old_kbs = kbs;
-            kbs = Keyboard.GetState();
+            if (state == nextState) return false;
 
-            switch (state)
+            switch (nextState)
             {
                 case State.MOVING:
-                    #region squish
-                    if (NPC.Instance.isInRange(this))
-                    {
-                        if (!Done[Has.SPOKEN]) MakeTextBubble().Add("press space bar to talk");
-
-                        if (Pressed(Keys.Space))
-                        {
-                            Done[Has.SPOKEN] = true;
-                            state = State.MENU;
-                            return;
-                        }
-                    }
-                    else textBubble = null;
-
-                    if (moveDelayElapsed && Move())
-                    {
-                        Done[Has.WALKED] = true;
-                        moveDelayElapsed = false;
-                        timeSinceMovement.Start();
-                    }
-                    else if (!Done[Has.WALKED])
+                    if (!Done[Has.WALKED])
                     {
                         if (textBubble == null) MakeTextBubble();
                         textBubble.Add("use direction keys, numpad, or vi keys to walk.");
                     }
                     break;
-                    #endregion
 
-                case State.MENU:
-                    if (textBubble == null) MakeTextBubble();
-
-                    textBubble.AddUnique("Ask", () =>
+                case State.TALKING:
+                    MakeTextBubble().Add("Ask", () =>
                     {
                         var subject = NPC.Instance.LastInteraction(this);
                         if (subject != null)
@@ -324,37 +332,57 @@ namespace HoS_proto
                             Query(NPC.Instance, Interaction.Atom.NOTHING);
                         }
                     });
+                    
+                    Done[Has.SPOKEN] = true;
+                    break;
+            }
+            state = nextState;
+            return true;
+        }
+        bool ExitState()
+        {
+            switch (state)
+            {
+                case State.MOVING:
+                    textBubble = null;
+                    break;
+                case State.TALKING:
+                    textBubble = null;
+                    break;
+            }
+            return true;
+        }
 
+        public override void Update()
+        {
+            old_kbs = kbs;
+            kbs = Keyboard.GetState();
 
+            switch (state)
+            {
+                case State.MOVING:
+                    if (NPC.Instance.isInRange(this))
+                    {
+                        if (!Done[Has.SPOKEN]) MakeTextBubble().Add("press space bar to talk");
+
+                        if (Pressed(Keys.Space))
+                        {
+                            ExitState();
+                            Enter(State.TALKING);
+                            return;
+                        }
+                    }
+                    else textBubble = null;
+
+                    Move();
+                    break;
+
+                case State.TALKING:
                     if ((Direction() & UP) != 0) textBubble.GoPrev();
                     else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
                     if (Pressed(Keys.Enter) || Pressed(Keys.Space)) textBubble.Select();
                     break;
-            }
-        }
-
-        public void GetName()
-        {
-            old_kbs = kbs;
-            kbs = Keyboard.GetState();
-
-            foreach (var key in new List<Keys>(Keyboard.GetState().GetPressedKeys()).FindAll(k => Pressed(k)))
-            {
-                switch (key)
-                {
-                    case Keys.Back:
-                        if (name.Length > 0) name = name.Remove(name.Length - 2);
-                        break;
-                    case Keys.Enter:
-                        Pausing = false;
-                        break;
-                    default:
-                        var c = key.ToString();
-                        if (name.Length > 1) c = c.ToLower();
-                        name += c;
-                        break;
-                }
             }
         }
         #endregion
