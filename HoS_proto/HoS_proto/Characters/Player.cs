@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Timers;
+using System.Diagnostics;
 
 namespace HoS_proto
 {
@@ -253,7 +254,30 @@ namespace HoS_proto
             if (quest.Completed) { Engine.WriteAtWorld("GJ", X, Y, 3); return; }
             else
             {
-                Engine.DrawAtWorld("lozenge", quest.Location.X, quest.Location.Y);
+                Func<Point, bool> Visible = pt =>
+                {
+                    var HALF_SCREEN = Engine.SCREEN_DIM_IN_TILES / 2;
+                    var x_ok = pt.X >= X - HALF_SCREEN && pt.X <= X + HALF_SCREEN;
+                    var y_ok = pt.Y >= Y - HALF_SCREEN && pt.Y <= Y + HALF_SCREEN;
+                    return x_ok && y_ok;
+                };
+
+                if (Visible(quest.Location))
+                {
+                    Engine.DrawAtWorld("halo", quest.Location.X, quest.Location.Y);
+                    goto LAST_LINE;
+                }
+
+                var dir = new Vector2(quest.Location.X - X, quest.Location.Y - Y);
+                Debug.Assert(dir != Vector2.Zero);
+                dir.Normalize();
+                var rot = (float)Math.Asin(dir.X) - MathHelper.PiOver2;
+
+                dir *= Engine.SCREEN_WIDTH_PX / 3;
+                dir += new Vector2(Engine.SCREEN_WIDTH_PX / 2);
+
+                Engine.DrawAtScreen("arrow", (int)dir.X, (int)dir.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX, Color.Gold,
+                    rot);
             }
 
         LAST_LINE:

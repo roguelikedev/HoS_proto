@@ -161,11 +161,12 @@ namespace HoS_proto
         }
         public static void DrawAtScreen(string what, int x, int y, int w, int h, Color color)
         {
+            DrawAtScreen(what, x, y, w, h, color, 0);
+        }
+        public static void DrawAtScreen(string what, int x, int y, int w, int h, Color color, float rotation)
+        {
             if (what == null) return;   // valid-- Environment tiles outside play area do this.
-
-            instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what)
-                                    , new Rectangle(x, y, w, h)
-                                    , color);
+            instance.spriteBatch.Draw(instance.Content.Load<Texture2D>(what), new Rectangle(x, y, w, h), null, color, rotation, Vector2.Zero, SpriteEffects.None, 0);
         }
         public static void WriteAtWorld(string what, int x, int y, int size)
         {
