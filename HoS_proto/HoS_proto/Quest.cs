@@ -22,7 +22,15 @@ namespace HoS_proto
         {
             get
             {
-                return acter.Location == Location;
+                switch (verb)
+                {
+                    case Verb.GO:
+                        return acter.Location == Location;
+                    case Verb.TALK:
+                        return Engine.OnScreen(Location);
+                    default:
+                        return false;
+                }
             }
         }
     }
