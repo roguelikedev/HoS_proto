@@ -111,15 +111,16 @@ namespace HoS_proto
 
         #region object oriented overhead
         static List<Acter> all = new List<Acter>();
+        public static void UpdateAll() { all.ForEach(a => a.Update()); }
+        public static implicit operator bool(Acter who) { return who != null; }
+        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+        #endregion
+
         protected Acter()
         {
             Quirks = Quirk.CASUAL;
             all.Add(this);
         }
-        public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator bool(Acter who) { return who != null; }
-        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
-        #endregion
 
         public string Hail(Acter who)
         {
@@ -133,8 +134,7 @@ namespace HoS_proto
         {
             Interactee = who;
 
-            var q = new Interaction.Query(this, who);
-            q.SubjectAsAtom = about;
+            var q = new Interaction.Query(this, who, about);
             memory.Add(q);
 
             MakeTextBubble().Add(q, Constants.NO_OP);
@@ -147,7 +147,7 @@ namespace HoS_proto
             var context = who.LastInteraction(this);
             if (!context) context = new Interaction.Idle(who);
 
-            Interaction.Response a = Interaction.Response.Make(this, who, context, affirm);
+            Interaction a = Interaction.Response.Make(this, who, context, affirm);
             memory.Add(a);
 
             MakeTextBubble().Add(a, Constants.NO_OP);

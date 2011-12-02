@@ -16,9 +16,11 @@ namespace HoS_proto
             public override string ToVerb { get { return "answer"; } }
             Response(Acter from, Acter to, Interaction context) : base(from, to) { this.context = context; }
 
-            public static Response Make(Acter from, Acter to, Interaction context, bool affirm)
+            public static Interaction Make(Acter from, Acter to, Interaction context, bool affirm)
             {
-                return affirm ? (Response)new Ok(from, to, context) : new No(from, to, context);
+                if (!affirm) return new No(from, to, context);
+                if (context is Query) return new Answer(from, to, context as Query);
+                return new Ok(from, to, context);
             }
 
             public class No : Response
@@ -52,12 +54,8 @@ namespace HoS_proto
                 public override string ToString()
                 {
                     var rval = sender.Quirks & Quirk.GENEROUS ? "Of course " : "";
-                    if (context is Query)
-                    {
-                        rval += "I'll tell you all about " + (context as Query).SubjectAsAtom + ".";
 
-                    }
-                    else if (context is Propose)
+                    if (context is Propose)
                     {
                         rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "Okay." : "I'll do it.";
                     }

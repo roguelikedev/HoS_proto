@@ -10,6 +10,13 @@ namespace HoS_proto
 {
     partial class Interaction
     {
+        string ProOrProperNoun(Acter who)
+        {
+            if (who == sender) return "I";
+            else if (who == receiver) return "you";
+            else return who;
+        }
+
         public class Query : Interaction
         {
             #region ugliness
@@ -21,7 +28,7 @@ namespace HoS_proto
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "ask"; } }
 
-            public Query(Acter from, Acter to) : base(from, to) { }
+            public Query(Acter from, Acter to, Atom subject) : base(from, to) { SubjectAsAtom = subject; }
 
             public Interaction SubjectAsInteraction
             {
@@ -44,14 +51,14 @@ namespace HoS_proto
             public Atom SubjectAsAtom
             {
                 get { return __backing_field_for_SubjectAsAtom; }
-                set
+                private set
                 {
+                    Debug.Assert(SubjectAsAtom == Atom.NOTHING);
                     if (value == Atom.MUTUAL_HISTORY && !SubjectAsInteraction)
                     {
                         var lastInteraction = receiver.LastInteraction(sender);
                         if (!lastInteraction) lastInteraction = sender.LastInteraction(receiver);
-                        if (!lastInteraction) __backing_field_for_SubjectAsAtom = Atom.NOTHING;
-                        else SubjectAsInteraction = lastInteraction;
+                        if (lastInteraction) SubjectAsInteraction = lastInteraction;
                     }
                     __backing_field_for_SubjectAsAtom = value;
                 }
@@ -86,15 +93,7 @@ namespace HoS_proto
                         if (SubjectAsInteraction)
                         {
                             rval += "what did ";
-
-                            Func<Acter, string> ProOrProperNoun = who =>
-                            {
-                                if (who == sender) return "I";
-                                else if (who == receiver) return "you";
-                                else return who;
-                            };
                             rval += ProOrProperNoun(SubjectAsInteraction.sender);
-
                             rval += " mean by " + SubjectAsInteraction.ToVerb + "ing ";
                             rval += "that?";
                         }
@@ -105,6 +104,52 @@ namespace HoS_proto
                 }
 
                 rval += "?";
+                return rval;
+            }
+        }
+
+        public class Answer : Interaction
+        {
+            protected override Color Color { get { return Color.Green; } }
+            public override string ToVerb { get { return "answer"; } }
+            Query context;
+
+            public Answer(Acter from, Acter to, Query about) : base(from, to) { context = about; }
+
+            public override string ToString()
+            {
+                var rval = "";
+                switch (context.SubjectAsAtom)
+                {
+                    case Atom.NOTHING:
+                        rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
+                        break;
+                    case Atom.SOMEONE:
+                        Debug.Assert(context.SubjectAsActer);
+                        rval += ProOrProperNoun(context.SubjectAsActer) + ", what a";
+                        if (context.SubjectAsActer.Quirks & Quirk.EGOTISTICAL)
+                        {
+                            rval += context.SubjectAsActer == sender ? " cool" : " egotistical";
+                        }
+                        if (context.SubjectAsActer.Quirks & Quirk.TIGHT_LIPPED) rval += " quiet";
+                        rval += " person.";
+
+                        rval += "\nYou can probably find " + context.SubjectAsActer + " ";
+                        if (context.SubjectAsActer.Location.Y < sender.Location.Y - 3) rval += "north";
+                        if (context.SubjectAsActer.Location.Y > sender.Location.Y + 3) rval += "south";
+                        if (context.SubjectAsActer.Location.X < sender.Location.X - 3) rval += "west";
+                        if (context.SubjectAsActer.Location.X > sender.Location.X + 3) rval += "east";
+                        rval += " of here.";
+
+                        break;
+
+                    case Atom.MUTUAL_HISTORY:
+                        rval += "I don't know anything about that!!!";
+                        break;
+                    case Atom.FOOD:
+                        rval += "I don't know anything about that!!!";
+                        break;
+                }
                 return rval;
             }
         }
