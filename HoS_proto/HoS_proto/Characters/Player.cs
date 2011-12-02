@@ -250,7 +250,7 @@ namespace HoS_proto
             if (intentions.Count == 0) goto LAST_LINE;
 
             var quest = intentions[0];
-            if (quest.Completed) Engine.WriteAtWorld("GJ", X, Y - 1, 3);
+            if (quest.Completed) { Engine.WriteAtWorld("GJ", X, Y, 3); return; }
             else
             {
                 Engine.DrawAtWorld("lozenge", quest.Location.X, quest.Location.Y);
