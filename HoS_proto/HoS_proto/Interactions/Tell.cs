@@ -48,15 +48,14 @@ namespace HoS_proto
                         rval += " person.\n";
 
                         rval += Directions(context.SubjectAsActer);
-
                         break;
 
                     case Atom.PLACE:
-
+                        rval += Directions(context.SubjectAsExister);
                         break;
 
                     case Atom.MUTUAL_HISTORY:
-                        rval += "I don't know anything about that!!!";
+                        rval += sender.Hail(receiver) + "you're confusing me.";
                         break;
                     case Atom.FOOD:
                         rval += "I don't know anything about that!!!";

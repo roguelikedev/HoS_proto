@@ -21,15 +21,9 @@ namespace HoS_proto
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
         protected string spritePath;
 
-        public virtual void Draw()
-        {
-            Engine.DrawAtWorld(spritePath, X, Y);
-        }
+        public virtual void Draw() { Engine.DrawAtWorld(spritePath, X, Y); }
 
-        public override string ToString()
-        {
-            return spritePath;
-        }
+        public override string ToString() { return spritePath; }
     }
 
     public abstract class Person : Exister
@@ -146,14 +140,25 @@ namespace HoS_proto
             ShowLastSentence(q);
         }
 
-        protected void Tell(Person other, Interaction.Query about)
+        protected void Tell(Person other, Interaction.Atom about)
         {
             Interactee = other;
 
-            var q = new Interaction.Tell(this, other, about);
-            memory.Add(q);
+            Interaction a;
+            switch (about)
+            {
+                case Interaction.Atom.PLACE:
+                    var q = new Interaction.Query(this, this, Interaction.Atom.PLACE);
+                    q.SubjectAsExister = Environment.At(0, 0);
+                    a = new Interaction.Tell(this, other, q);
+                    break;
+                default:
+                    Debug.Assert(false, "there's no code here!");
+                    return;
+            }
 
-            ShowLastSentence(q);
+            memory.Add(a);
+            ShowLastSentence(a);
         }
 
         protected void Respond(Person other, bool affirm)

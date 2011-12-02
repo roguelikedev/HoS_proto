@@ -64,6 +64,7 @@ namespace HoS_proto
                 {
                     __backing_field_for_SubjectAsActer = value;
                     if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.PERSON;
+                    if (SubjectAsExister == null) SubjectAsExister = value;
                 }
             }
             public Exister SubjectAsExister
