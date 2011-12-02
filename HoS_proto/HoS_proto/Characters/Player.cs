@@ -188,16 +188,19 @@ namespace HoS_proto
                     }
 
                     var context = NPC.Instance.LastInteraction(this);
-                    textBubble.Add("Ask", () =>
+                    textBubble
+                    .Add("Ask", () =>
                     {
                         Query(NPC.Instance, context ? Interaction.Atom.MUTUAL_HISTORY : Interaction.Atom.NOTHING);
-                    }).Add("OK", () =>
+                    }, Color.Yellow)
+                    .Add("OK", () =>
                     {
                         Respond(NPC.Instance, true);
-                    }).Add("No", () =>
+                    }, Color.Green)
+                    .Add("No", () =>
                     {
                         Respond(NPC.Instance, false);
-                    })
+                    }, Color.Red)
                     ;
 
                     textBubble.GoNext();

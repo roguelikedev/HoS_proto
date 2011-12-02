@@ -141,7 +141,7 @@ namespace HoS_proto
             var q = new Interaction.Query(this, who, about);
             memory.Add(q);
 
-            MakeTextBubble().Add(q, Constants.NO_OP);
+            MakeTextBubble().Add(q);
         }
 
         protected void Respond(Acter who, bool affirm)
@@ -154,7 +154,7 @@ namespace HoS_proto
             Interaction a = Interaction.Response.Make(this, who, context, affirm);
             memory.Add(a);
 
-            MakeTextBubble().Add(a, Constants.NO_OP);
+            MakeTextBubble().Add(a);
         }
 
         public Interaction LastInteraction(Acter with)

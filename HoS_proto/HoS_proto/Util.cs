@@ -98,7 +98,7 @@ namespace Util
             #region fields
             public Action Lambda;
             public Color color = STANDARD;
-            public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
+            public bool Active { get { return Lambda != null; } }
 
             readonly string rawText;
             List<string> lines = new List<string>();
@@ -166,9 +166,9 @@ namespace Util
             contents.Add(new MenuItem(text, Lambda));
             return this;
         }
-        public Menu Add(Interaction interaction, Action Lambda)
+        public Menu Add(string text, Action Lambda, Color color)
         {
-            contents.Add(new MenuItem(interaction, Lambda, interaction));
+            contents.Add(new MenuItem(text, Lambda, color));
             return this;
         }
         public bool AddUnique(string text, Action Lambda)
