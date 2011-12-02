@@ -14,7 +14,6 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-
     public class Quirk
     {
         #region squish
@@ -46,16 +45,49 @@ namespace HoS_proto
         #endregion
     }
 
-    public abstract class Acter
+    public enum Verb
     {
-        #region fields
+        BRING
+    }
+
+    public enum Motive
+    {
+        FOOD
+    }
+
+    public class Goal
+    {
+        Func<Point> _Location;
+
+        public Goal(Verb why, Func<Point> Where)
+        {
+
+        }
+    }
+
+    public abstract class Exister
+    {
         public Point Location { get; protected set; }
         public int X { get { return Location.X; } protected set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
+        protected string spritePath;
 
+        public virtual void Draw()
+        {
+            Engine.DrawAtWorld(spritePath, X, Y);
+        }
+
+        public override string ToString()
+        {
+            return spritePath;
+        }
+    }
+
+    public abstract class Acter : Exister
+    {
+        #region fields, cantrips
         protected string name;
         public override string ToString() { return name == null ? "man" : name; }
-        protected string spritePath;
         protected Menu textBubble;
 
         public Acter Interactee { get; private set; }
@@ -69,12 +101,20 @@ namespace HoS_proto
                 return memory.Last().receiver != memory[memory.Count - 2].receiver;
             }
         }
+
+        public Interaction LastInteraction(Acter with)
+        {
+            // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
+            if (!memory.Exists(intr => intr.receiver == with)) return null;
+
+            return memory.Last(intr => intr.receiver == with);
+        }
         #endregion
 
         #region view
-        public virtual void Draw()
+        public override void Draw()
         {
-            Engine.DrawAtWorld(spritePath, X, Y);
+            base.Draw();
             if (textBubble != null) textBubble.Draw();
         }
 
@@ -105,15 +145,7 @@ namespace HoS_proto
             };
             return textBubble;
         }
-        #endregion
 
-        public abstract void Update();
-
-        #region object oriented overhead
-        static List<Acter> all = new List<Acter>();
-        public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator bool(Acter who) { return who != null; }
-        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
         void ShowLastSentence(Interaction interaction)
         {
             MakeTextBubble();
@@ -126,11 +158,20 @@ namespace HoS_proto
         }
         #endregion
 
+        public abstract void Update();
+
+        #region object oriented overhead
+        static List<Acter> all = new List<Acter>();
+        public static void UpdateAll() { all.ForEach(a => a.Update()); }
+        public static implicit operator bool(Acter who) { return who != null; }
+        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+
         protected Acter()
         {
             Quirks = Quirk.CASUAL;
             all.Add(this);
         }
+        #endregion
 
         public string Hail(Acter who)
         {
@@ -167,12 +208,10 @@ namespace HoS_proto
             ShowLastSentence(a);
         }
 
-        public Interaction LastInteraction(Acter with)
+        protected void Enlist(Acter who, Goal why)
         {
-            // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(intr => intr.receiver == with)) return null;
 
-            return memory.Last(intr => intr.receiver == with);
+
         }
     }
 }

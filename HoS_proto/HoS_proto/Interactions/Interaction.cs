@@ -26,9 +26,12 @@ namespace HoS_proto
 
         public virtual string ToVerb { get { return "do"; } }
 
+        public readonly ulong GUID;
+        static uint nextGUID;
         protected Interaction(Acter from, Acter to)
         {
             sender = from; receiver = to;
+            GUID = nextGUID++;
         }
 
         public partial class Employ : Interaction

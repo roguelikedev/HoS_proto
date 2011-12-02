@@ -50,9 +50,36 @@ namespace HoS_proto
         public override void Update()
         {
             if (!isInRange(Player.Instance)) textBubble = null;
-            else if (textBubble == null)
+            else
             {
-                Query(Player.Instance, Interaction.Atom.NOTHING);
+                var iSaid = LastInteraction(Player.Instance);
+                var playerSaid = Player.Instance.LastInteraction(this);
+
+                if (!iSaid && !playerSaid)
+                {
+                    Query(Player.Instance, Interaction.Atom.NOTHING);
+                    return;
+                }
+                if (!playerSaid) return;
+                if (iSaid.GUID > playerSaid.GUID) return;
+
+
+                if (playerSaid is Interaction.Response.No)
+                {
+                    Query(Player.Instance, Interaction.Atom.MUTUAL_HISTORY);
+                }
+                else if (playerSaid is Interaction.Response.Ok)
+                {
+                    Respond(Player.Instance, true);
+                }
+                else if (playerSaid is Interaction.Query)
+                {
+                    Respond(Player.Instance, false);
+                }
+                else
+                {
+
+                }
             }
         }
     }
