@@ -244,5 +244,20 @@ namespace HoS_proto
             }
         }
         #endregion
+
+        public override void Draw()
+        {
+            if (intentions.Count == 0) goto LAST_LINE;
+
+            var quest = intentions[0];
+            if (quest.Completed) Engine.WriteAtWorld("GJ", X, Y - 1, 3);
+            else
+            {
+                Engine.DrawAtWorld("lozenge", quest.Location.X, quest.Location.Y);
+            }
+
+        LAST_LINE:
+            base.Draw();
+        }
     }
 }
