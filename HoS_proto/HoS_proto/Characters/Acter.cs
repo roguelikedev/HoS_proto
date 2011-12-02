@@ -114,6 +114,16 @@ namespace HoS_proto
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
         public static implicit operator bool(Acter who) { return who != null; }
         public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+        void ShowLastSentence(Interaction interaction)
+        {
+            MakeTextBubble();
+            if (this is Player) textBubble.Add(interaction);
+            else if (this is NPC) textBubble.Add(interaction, Constants.NO_OP, interaction);
+            else
+            {
+                Debug.Assert(false, "what class is THAT");
+            }
+        }
         #endregion
 
         protected Acter()
@@ -141,7 +151,7 @@ namespace HoS_proto
             var q = new Interaction.Query(this, who, about);
             memory.Add(q);
 
-            MakeTextBubble().Add(q);
+            ShowLastSentence(q);
         }
 
         protected void Respond(Acter who, bool affirm)
@@ -154,7 +164,7 @@ namespace HoS_proto
             Interaction a = Interaction.Response.Make(this, who, context, affirm);
             memory.Add(a);
 
-            MakeTextBubble().Add(a);
+            ShowLastSentence(a);
         }
 
         public Interaction LastInteraction(Acter with)
