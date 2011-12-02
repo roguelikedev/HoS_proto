@@ -98,7 +98,7 @@ namespace Util
             #region fields
             public Action Lambda;
             public Color color = STANDARD;
-            public bool active = true;
+            public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
 
             readonly string rawText;
             List<string> lines = new List<string>();
@@ -183,13 +183,13 @@ namespace Util
         {
             if (activeItem == null)
             {
-                activeItem = contents.Find(mi => mi.active);
+                activeItem = contents.Find(mi => mi.Active);
                 if (activeItem == null) return;
             }
             else
             {
                 activeItem.color = STANDARD;
-                var valid = contents.FindAll(mi => mi.active);
+                var valid = contents.FindAll(mi => mi.Active);
                 var ndx = valid.IndexOf(activeItem) + 1;
                 if (ndx == valid.Count) ndx = 0;
                 activeItem = valid[ndx];
@@ -200,13 +200,13 @@ namespace Util
         {
             if (activeItem == null)
             {
-                activeItem = contents.FindLast(mi => mi.active);
+                activeItem = contents.FindLast(mi => mi.Active);
                 if (activeItem == null) return;
             }
             else
             {
                 activeItem.color = STANDARD;
-                var valid = contents.FindAll(mi => mi.active);
+                var valid = contents.FindAll(mi => mi.Active);
                 var ndx = valid.IndexOf(activeItem) - 1;
                 if (ndx < 0) ndx = valid.Count - 1;
                 activeItem = valid[ndx];
@@ -293,13 +293,5 @@ namespace Util
             });
         }
         #endregion
-
-        public void DisableCurrent()
-        {
-            if (activeItem == null) return;
-            activeItem.color = STANDARD;
-            activeItem.active = false;
-            GoNext();
-        }
     }
 }

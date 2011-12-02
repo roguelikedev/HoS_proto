@@ -125,8 +125,12 @@ namespace HoS_proto
         public string Hail(Acter who)
         {
             var rval = Quirks & Quirk.CASUAL ? "Hey, " : "";
-            if (AmbiguousListener) rval += who;
-            rval = char.ToUpper(rval[0]).ToString() + (rval.Length > 1 ? rval.Substring(1) : "");
+            if (AmbiguousListener)
+            {
+                rval += who;
+                rval = char.ToUpper(rval[0]).ToString() + (rval.Length > 1 ? rval.Substring(1) : "");
+            }
+            if (rval.Length > 0) rval += ", ";
             return rval;
         }
 
@@ -155,6 +159,9 @@ namespace HoS_proto
 
         public Interaction LastInteraction(Acter with)
         {
+            // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
+            if (!memory.Exists(intr => intr.receiver == with)) return null;
+
             return memory.Last(intr => intr.receiver == with);
         }
     }

@@ -75,7 +75,7 @@ namespace HoS_proto
 
             public override string ToString()
             {
-                var rval = sender.Hail(receiver) + ", ";
+                var rval = sender.Hail(receiver);
 
                 switch (SubjectAsAtom)
                 {

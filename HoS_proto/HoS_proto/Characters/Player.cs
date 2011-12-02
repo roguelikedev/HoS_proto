@@ -170,8 +170,6 @@ namespace HoS_proto
         #region state machine
         bool Enter(State nextState)
         {
-            if (state == nextState) return false;
-
             switch (nextState)
             {
                 case State.MOVING:
@@ -183,8 +181,14 @@ namespace HoS_proto
                     break;
 
                 case State.TALKING:
+                    MakeTextBubble();
+                    {
+                        var prevStatement = LastInteraction(NPC.Instance);
+                        if (prevStatement) textBubble.Add(prevStatement);
+                    }
+
                     var context = NPC.Instance.LastInteraction(this);
-                    MakeTextBubble().Add("Ask", () =>
+                    textBubble.Add("Ask", () =>
                     {
                         Query(NPC.Instance, context ? Interaction.Atom.MUTUAL_HISTORY : Interaction.Atom.NOTHING);
                     }).Add("OK", () =>
@@ -195,7 +199,6 @@ namespace HoS_proto
                         Respond(NPC.Instance, false);
                     })
                     ;
-                    
 
                     textBubble.GoNext();
                     Done[Has.SPOKEN] = true;
@@ -246,7 +249,11 @@ namespace HoS_proto
                     if ((Direction() & UP) != 0) textBubble.GoPrev();
                     else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
-                    if (Pressed(Keys.Enter) || Pressed(Keys.Space)) textBubble.InvokeCurrent();
+                    if (Pressed(Keys.Enter) || Pressed(Keys.Space))
+                    {
+                        textBubble.InvokeCurrent();
+                        Enter(State.TALKING);
+                    }
                     break;
             }
         }
