@@ -12,7 +12,7 @@ namespace HoS_proto
     {
         public partial class Propose : Interaction
         {
-            Quest quest;
+            public readonly Quest quest;
             public Propose(Person questGiver, Person quester, Quest quest) : base(questGiver, quester) { this.quest = quest; }
 
             protected override Color Color { get { return Color.Yellow; } }
@@ -20,11 +20,7 @@ namespace HoS_proto
 
             public override string ToString()
             {
-                var rval = "";
-                {
-                    var rude = Quirk.BLUNT | Quirk.EGOTISTICAL | Quirk.TIGHT_LIPPED;
-                    rval += sender.Quirks & rude ? "" : "Please ";
-                }
+                var rval = sender.Quirks & Quirk.RUDE ? "" : "Please ";
 
                 rval += quest.verb.ToString().ToLower();
                 switch (quest.verb)

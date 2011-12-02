@@ -19,7 +19,7 @@ namespace HoS_proto
             public static Interaction Make(Person from, Person to, Interaction context, bool affirm)
             {
                 if (!affirm) return new No(from, to, context);
-                if (context is Query) return new Answer(from, to, context as Query);
+                if (context is Query) return new Tell(from, to, context as Query);
                 return new Ok(from, to, context);
             }
 

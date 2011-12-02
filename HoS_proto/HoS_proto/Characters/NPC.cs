@@ -63,22 +63,22 @@ namespace HoS_proto
                 if (!playerSaid) return;
                 if (iSaid.GUID > playerSaid.GUID) return;
 
-
-                if (playerSaid is Interaction.Response.No)
+                var usuallyAnswer = playerSaid is Interaction.Query ? 3 : 0;
+                switch (Engine.rand.Next(5) + usuallyAnswer)
                 {
-                    Query(Player.Instance, Interaction.Atom.MUTUAL_HISTORY);
-                }
-                else if (playerSaid is Interaction.Response.Ok)
-                {
-                    Respond(Player.Instance, true);
-                }
-                else if (playerSaid is Interaction.Query)
-                {
-                    Respond(Player.Instance, false);
-                }
-                else
-                {
-                    Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(Point.Zero)));
+                    case 0:
+                    case 1:
+                        Respond(Player.Instance, true);
+                        break;
+                    case 2:
+                        Respond(Player.Instance, false);
+                        break;
+                    case 3:
+                        Query(Player.Instance, Interaction.Atom.MUTUAL_HISTORY);
+                        break;
+                    case 4:
+                        Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(Point.Zero)));
+                        break;
                 }
             }
         }

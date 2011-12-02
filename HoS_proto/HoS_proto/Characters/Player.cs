@@ -176,10 +176,10 @@ namespace HoS_proto
             switch (nextState)
             {
                 case State.MOVING:
+                    textBubble = null;
                     if (!Done[Has.WALKED])
                     {
-                        if (textBubble == null) MakeTextBubble();
-                        textBubble.Add("use direction keys, numpad, or vi keys to walk.");
+                        MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                     }
                     break;
 
@@ -191,19 +191,13 @@ namespace HoS_proto
                     }
 
                     var context = NPC.Instance.LastInteraction(this);
-                    textBubble
-                    .Add("Ask", () =>
+                    textBubble.Add("Ask", () =>
                     {
                         Query(NPC.Instance, context ? Interaction.Atom.MUTUAL_HISTORY : Interaction.Atom.NOTHING);
                     }, Color.Yellow)
-                    .Add("OK", () =>
-                    {
-                        Respond(NPC.Instance, true);
-                    }, Color.Green)
-                    .Add("No", () =>
-                    {
-                        Respond(NPC.Instance, false);
-                    }, Color.Red)
+                    .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
+                    .Add("No", () => Respond(NPC.Instance, false), Color.Red)
+                    .Add("Bye", () => Enter(State.MOVING), Color.Red)
                     ;
 
                     textBubble.GoNext();
@@ -211,19 +205,6 @@ namespace HoS_proto
                     break;
             }
             state = nextState;
-            return true;
-        }
-        bool ExitState()
-        {
-            switch (state)
-            {
-                case State.MOVING:
-                    textBubble = null;
-                    break;
-                case State.TALKING:
-                    textBubble = null;
-                    break;
-            }
             return true;
         }
 
@@ -241,7 +222,6 @@ namespace HoS_proto
 
                         if (Pressed(Keys.Space))
                         {
-                            ExitState();
                             Enter(State.TALKING);
                             return;
                         }
@@ -258,7 +238,7 @@ namespace HoS_proto
                     if (Pressed(Keys.Enter) || Pressed(Keys.Space))
                     {
                         textBubble.InvokeCurrent();
-                        Enter(State.TALKING);
+                        Enter(state);
                     }
                     break;
             }

@@ -112,8 +112,8 @@
     <Compile Include="Characters\NPC.cs" />
     <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Characters\Acter.cs" />
-    <Compile Include="Interactions\Answer.cs" />
+    <Compile Include="Characters\Person.cs" />
+    <Compile Include="Interactions\Tell.cs" />
     <Compile Include="Quest.cs" />
     <Compile Include="Characters\Quirk.cs" />
     <Compile Include="Interactions\Propose.cs" />

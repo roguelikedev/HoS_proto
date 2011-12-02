@@ -10,13 +10,14 @@ namespace HoS_proto
     public class Quirk
     {
         public const int
-            VERY = 1,
-            CASUAL = 1 << 1,
-            TIGHT_LIPPED = 1 << 2,
-            GENEROUS = 1 << 3,
-            EGOTISTICAL = 1 << 4,
-            OUTGOING = 1 << 5,
-            BLUNT = 1 << 6
+            VERY                = 1,
+            CASUAL              = 1 << 1,
+            TIGHT_LIPPED        = 1 << 2,
+            GENEROUS            = 1 << 3,
+            EGOTISTICAL         = 1 << 4,
+            OUTGOING            = 1 << 5,
+            BLUNT               = 1 << 6,
+            RUDE                = BLUNT | EGOTISTICAL | TIGHT_LIPPED
             ;
         int value;
         Quirk(int v) { value = v; }
