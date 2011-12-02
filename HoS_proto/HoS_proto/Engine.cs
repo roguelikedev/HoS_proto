@@ -46,13 +46,16 @@ namespace HoS_proto
             font = Content.Load<SpriteFont>("SpriteFont1");
 
             for (int x = -1; ++x < Environment.WORLD_DIM.X; ) for (int y = -1; ++y < Environment.WORLD_DIM.Y; ) new Environment(x, y, Environment.DIRT);
-            for (int lcv = -1; ++lcv < Math.Sqrt(Environment.WORLD_DIM.X * Environment.WORLD_DIM.Y); )
+            Func<Point> WhereNext = () => new Point(rand.Next(Environment.WORLD_DIM.X), rand.Next(Environment.WORLD_DIM.Y));
+            var worldDimRoot2 = Math.Sqrt(Environment.WORLD_DIM.X * Environment.WORLD_DIM.Y);
+            for (int lcv = -1; ++lcv < worldDimRoot2; )
             {
-                var x = rand.Next(Environment.WORLD_DIM.X);
-                var y = rand.Next(Environment.WORLD_DIM.Y);
-                Environment.Streamer(x, y, Environment.GRASS, 14);
-                Environment.Streamer(x, y, Environment.GRASS, 14);
+                var whereNext = WhereNext();
+                Environment.Streamer(whereNext.X, whereNext.Y, Environment.GRASS, 14);
+                Environment.Streamer(whereNext.X, whereNext.Y, Environment.GRASS, 14);
             }
+            for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 5);
+
 
             new Player(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
