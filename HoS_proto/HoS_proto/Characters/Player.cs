@@ -246,7 +246,7 @@ namespace HoS_proto
                     if ((Direction() & UP) != 0) textBubble.GoPrev();
                     else if ((Direction() & DOWN) != 0) textBubble.GoNext();
 
-                    if (Pressed(Keys.Enter) || Pressed(Keys.Space)) textBubble.Select();
+                    if (Pressed(Keys.Enter) || Pressed(Keys.Space)) textBubble.InvokeCurrent();
                     break;
             }
         }

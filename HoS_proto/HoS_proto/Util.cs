@@ -98,6 +98,7 @@ namespace Util
             #region fields
             public Action Lambda;
             public Color color = STANDARD;
+            public bool active = true;
 
             readonly string rawText;
             List<string> lines = new List<string>();
@@ -180,31 +181,40 @@ namespace Util
 
         public void GoNext()
         {
-            if (contents.Count == 0) return;
-            if (activeItem != null) activeItem.color = STANDARD;
-            else activeItem = contents[0];
-
-            var ndx = contents.IndexOf(activeItem) + 1;
-            Debug.Assert(ndx <= contents.Count);
-            if (ndx == contents.Count) ndx = 0;
-            activeItem = contents[ndx];
-
+            if (activeItem == null)
+            {
+                activeItem = contents.Find(mi => mi.active);
+                if (activeItem == null) return;
+            }
+            else
+            {
+                activeItem.color = STANDARD;
+                var valid = contents.FindAll(mi => mi.active);
+                var ndx = valid.IndexOf(activeItem) + 1;
+                if (ndx == valid.Count) ndx = 0;
+                activeItem = valid[ndx];
+            }
             activeItem.color = HOVERING;
         }
         public void GoPrev()
         {
-            if (contents.Count == 0) return;
-            if (activeItem != null) activeItem.color = STANDARD;
-            else activeItem = contents[0];
-
-            var ndx = contents.IndexOf(activeItem) - 1;
-            Debug.Assert(ndx >= -1);
-            if (ndx == -1) ndx = contents.Count - 1;
-            activeItem = contents[ndx];
-
+            if (activeItem == null)
+            {
+                activeItem = contents.FindLast(mi => mi.active);
+                if (activeItem == null) return;
+            }
+            else
+            {
+                activeItem.color = STANDARD;
+                var valid = contents.FindAll(mi => mi.active);
+                var ndx = valid.IndexOf(activeItem) - 1;
+                if (ndx < 0) ndx = valid.Count - 1;
+                activeItem = valid[ndx];
+            }
             activeItem.color = HOVERING;
+
         }
-        public void Select()
+        public void InvokeCurrent()
         {
             if (activeItem != null) activeItem.Lambda();
         }
@@ -283,5 +293,13 @@ namespace Util
             });
         }
         #endregion
+
+        public void DisableCurrent()
+        {
+            if (activeItem == null) return;
+            activeItem.color = STANDARD;
+            activeItem.active = false;
+            GoNext();
+        }
     }
 }
