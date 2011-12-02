@@ -14,9 +14,9 @@ namespace HoS_proto
         {
             public readonly Interaction context;
             public override string ToVerb { get { return "answer"; } }
-            Response(Acter from, Acter to, Interaction context) : base(from, to) { this.context = context; }
+            Response(Person from, Person to, Interaction context) : base(from, to) { this.context = context; }
 
-            public static Interaction Make(Acter from, Acter to, Interaction context, bool affirm)
+            public static Interaction Make(Person from, Person to, Interaction context, bool affirm)
             {
                 if (!affirm) return new No(from, to, context);
                 if (context is Query) return new Answer(from, to, context as Query);
@@ -27,7 +27,7 @@ namespace HoS_proto
             {
                 protected override Color Color { get { return Color.Red; } }
                 public override string ToVerb { get { return "disagree"; } }
-                public No(Acter from, Acter to, Interaction context) : base(from, to, context) { }
+                public No(Person from, Person to, Interaction context) : base(from, to, context) { }
 
                 public override string ToString()
                 {
@@ -49,7 +49,7 @@ namespace HoS_proto
             {
                 protected override Color Color { get { return Color.Green; } }
                 public override string ToVerb { get { return "agree"; } }
-                public Ok(Acter from, Acter to, Interaction context) : base(from, to, context) { }
+                public Ok(Person from, Person to, Interaction context) : base(from, to, context) { }
 
                 public override string ToString()
                 {

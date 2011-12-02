@@ -16,8 +16,8 @@ namespace HoS_proto
         }
         public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
 
-        public readonly Acter sender;
-        public readonly Acter receiver;
+        public readonly Person sender;
+        public readonly Person receiver;
         protected abstract Color Color { get; }
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
@@ -25,18 +25,24 @@ namespace HoS_proto
         public static implicit operator bool(Interaction interaction) { return interaction != null; }
 
         public virtual string ToVerb { get { return "do"; } }
+        string ProOrProperNoun(Person who)
+        {
+            if (who == sender) return "I";
+            else if (who == receiver) return "you";
+            else return who;
+        }
 
         public readonly ulong GUID;
         static uint nextGUID;
-        protected Interaction(Acter from, Acter to)
+        protected Interaction(Person from, Person to)
         {
             sender = from; receiver = to;
             GUID = nextGUID++;
         }
 
-        public partial class Employ : Interaction
+        public partial class Utilize : Interaction
         {
-            public Employ(Acter from, Acter to) : base(from, to) { }
+            public Utilize(Person from, Person to) : base(from, to) { }
 
             protected override Color Color
             {
@@ -45,21 +51,10 @@ namespace HoS_proto
             public override string ToVerb { get { return "use"; } }
         }
 
-        public partial class Propose : Interaction
-        {
-            public Propose(Acter from, Acter to) : base(from, to) { }
-
-            protected override Color Color
-            {
-                get { throw new NotImplementedException(); }
-            }
-            public override string ToVerb { get { return "offer"; } }
-        }
-
         public class Idle : Interaction
         {
             protected override Color Color { get { return Color.Gray; } }
-            public Idle(Acter from) : base(from, from) { }
+            public Idle(Person from) : base(from, from) { }
             public override string ToVerb { get { return "wait"; } }
         }
     }

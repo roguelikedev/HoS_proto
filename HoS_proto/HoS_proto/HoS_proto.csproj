@@ -16,8 +16,10 @@
     <XnaProfile>HiDef</XnaProfile>
     <XnaCrossPlatformGroupID>e07f167f-ca97-4565-a1e5-9b9eed949b71</XnaCrossPlatformGroupID>
     <XnaOutputType>Game</XnaOutputType>
-    <ApplicationIcon>Game.ico</ApplicationIcon>
-    <Thumbnail>GameThumbnail.png</Thumbnail>
+    <ApplicationIcon>
+    </ApplicationIcon>
+    <Thumbnail>
+    </Thumbnail>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -111,6 +113,10 @@
     <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Characters\Acter.cs" />
+    <Compile Include="Interactions\Answer.cs" />
+    <Compile Include="Quest.cs" />
+    <Compile Include="Characters\Quirk.cs" />
+    <Compile Include="Interactions\Propose.cs" />
     <Compile Include="Interactions\Query.cs" />
     <Compile Include="Interactions\Response.cs" />
     <Compile Include="Interactions\Interaction.cs" />
@@ -119,10 +125,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Engine.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Game.ico" />
-    <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\HoS_protoContent\HoS_protoContent.contentproj">

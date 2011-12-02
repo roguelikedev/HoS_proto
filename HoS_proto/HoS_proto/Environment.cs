@@ -23,8 +23,10 @@ namespace HoS_proto
             if (all.ContainsKey(p)) return all[p];
             else return NOTHING;
         }
+        public static Environment At(int x, int y) { return At(new Point(x, y)); }
 
         int x, y;
+        public Point Location { get { return new Point(x, y); } }
         string type;
         public readonly bool blockMove, blockSight;
         Environment ground;

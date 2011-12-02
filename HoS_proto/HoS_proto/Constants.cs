@@ -6,4 +6,9 @@ namespace HoS_proto
     {
         public static Action NO_OP = () => { };
     }
+
+    public enum Verb
+    {
+        GO, GET
+    }
 }

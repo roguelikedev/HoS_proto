@@ -6,7 +6,7 @@ using System.Timers;
 
 namespace HoS_proto
 {
-    public class Player : Acter
+    public class Player : Person
     {
         public enum State
         {
@@ -54,6 +54,7 @@ namespace HoS_proto
             spritePath = "dd_tinker";
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
+            name = "man";
         }
         public void GetName()
         {
@@ -65,14 +66,16 @@ namespace HoS_proto
                 switch (key)
                 {
                     case Keys.Back:
-                        if (name.Length > 0) name = name.Remove(name.Length - 2);
+                        if (name.Length > 0) name = name.Remove(name.Length - 1);
                         break;
                     case Keys.Enter:
                         Pausing = false;
                         break;
                     default:
+                        if ((char)key > 'z' || (char)key < 'A') continue;
+
                         var c = key.ToString();
-                        if (name.Length > 1) c = c.ToLower();
+                        if (name.Length > 0) c = c.ToLower();
                         name += c;
                         break;
                 }

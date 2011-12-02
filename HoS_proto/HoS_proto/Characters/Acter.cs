@@ -14,57 +14,6 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public class Quirk
-    {
-        #region squish
-        public const int
-            VERY                = 1,
-            CASUAL              = 1 << 1,
-            TIGHT_LIPPED        = 1 << 2,
-            GENEROUS            = 1 << 3,
-            EGOTISTICAL         = 1 << 4,
-            OUTGOING            = 1 << 5,
-            BLUNT               = 1 << 6
-            ;
-        int value;
-        Quirk(int v) { value = v; }
-        public static implicit operator int(Quirk q) { return q.value; }
-        public static implicit operator Quirk(int i) { return new Quirk(i); }
-        public static implicit operator bool(Quirk self) { return self.value != 0; }
-        public static Quirk operator &(Quirk a, Quirk b) { return a.value & b.value; }
-        public static bool operator ==(Quirk _this, Quirk that) { return _this.value == that.value; }
-        #region shut up, compiler
-        public static bool operator !=(Quirk _this, Quirk that) { return _this.value != that.value; }
-        public override bool Equals(object obj)
-        {
-            if (obj is Quirk) return this == obj as Quirk;
-            return base.Equals(obj);
-        }
-        public override int GetHashCode() { return value.GetHashCode(); }
-        #endregion
-        #endregion
-    }
-
-    public enum Verb
-    {
-        BRING
-    }
-
-    public enum Motive
-    {
-        FOOD
-    }
-
-    public class Goal
-    {
-        Func<Point> _Location;
-
-        public Goal(Verb why, Func<Point> Where)
-        {
-
-        }
-    }
-
     public abstract class Exister
     {
         public Point Location { get; protected set; }
@@ -83,14 +32,14 @@ namespace HoS_proto
         }
     }
 
-    public abstract class Acter : Exister
+    public abstract class Person : Exister
     {
         #region fields, cantrips
-        protected string name;
-        public override string ToString() { return name == null ? "man" : name; }
+        protected string name = "";
+        public override string ToString() { return name; }
         protected Menu textBubble;
 
-        public Acter Interactee { get; private set; }
+        public Person Interactee { get; private set; }
         public Quirk Quirks { get; protected set; }
         List<Interaction> memory = new List<Interaction>();
         bool AmbiguousListener
@@ -102,7 +51,7 @@ namespace HoS_proto
             }
         }
 
-        public Interaction LastInteraction(Acter with)
+        public Interaction LastInteraction(Person with)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
             if (!memory.Exists(intr => intr.receiver == with)) return null;
@@ -161,19 +110,19 @@ namespace HoS_proto
         public abstract void Update();
 
         #region object oriented overhead
-        static List<Acter> all = new List<Acter>();
+        static List<Person> all = new List<Person>();
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator bool(Acter who) { return who != null; }
-        public static implicit operator string(Acter who) { return who ? who.ToString() : "no one"; }
+        public static implicit operator bool(Person who) { return who != null; }
+        public static implicit operator string(Person who) { return who ? who.ToString() : "no one"; }
 
-        protected Acter()
+        protected Person()
         {
             Quirks = Quirk.CASUAL;
             all.Add(this);
         }
         #endregion
 
-        public string Hail(Acter who)
+        public string Hail(Person who)
         {
             var rval = Quirks & Quirk.CASUAL ? "Hey, " : "";
             if (AmbiguousListener)
@@ -181,37 +130,42 @@ namespace HoS_proto
                 rval += who;
                 rval = char.ToUpper(rval[0]).ToString() + (rval.Length > 1 ? rval.Substring(1) : "");
             }
-            if (rval.Length > 0) rval += ", ";
+            if (rval.Length > 0 && !rval.EndsWith(", ")) rval += ", ";
             return rval;
         }
 
-        protected void Query(Acter who, Interaction.Atom about)
+        protected void Query(Person other, Interaction.Atom about)
         {
-            Interactee = who;
+            Interactee = other;
 
-            var q = new Interaction.Query(this, who, about);
+            var q = new Interaction.Query(this, other, about);
             memory.Add(q);
 
             ShowLastSentence(q);
         }
 
-        protected void Respond(Acter who, bool affirm)
+        protected void Respond(Person other, bool affirm)
         {
-            Interactee = who;
+            Interactee = other;
 
-            var context = who.LastInteraction(this);
-            if (!context) context = new Interaction.Idle(who);
+            var context = other.LastInteraction(this);
+            if (!context) context = new Interaction.Idle(other);
 
-            Interaction a = Interaction.Response.Make(this, who, context, affirm);
+            Interaction a = Interaction.Response.Make(this, other, context, affirm);
             memory.Add(a);
 
             ShowLastSentence(a);
         }
 
-        protected void Enlist(Acter who, Goal why)
+        protected void Enlist(Person other, Quest why)
         {
+            Interactee = other;
 
+            var quest = Quest.New(Verb.GO, other, Environment.At(0, 0));
+            Interaction askedForHelp = new Interaction.Propose(this, other, quest);
+            memory.Add(askedForHelp);
 
+            ShowLastSentence(askedForHelp);
         }
     }
 }

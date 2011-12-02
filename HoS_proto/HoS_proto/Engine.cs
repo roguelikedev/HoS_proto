@@ -108,7 +108,7 @@ namespace HoS_proto
             }
             if (ModalUpdate == Player.Instance.GetName && !Player.Instance.Pausing)
             {
-                ModalUpdate = Acter.UpdateAll;
+                ModalUpdate = Person.UpdateAll;
                 ModalDraw = () =>
                 {
                     Environment.DrawAll();

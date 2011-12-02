@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public class NPC : Acter
+    public class NPC : Person
     {
         public static NPC Instance { get; private set; }
         public List<string> Options { get; private set; }
@@ -78,7 +78,7 @@ namespace HoS_proto
                 }
                 else
                 {
-
+                    Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(Point.Zero)));
                 }
             }
         }
