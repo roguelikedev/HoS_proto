@@ -11,7 +11,7 @@ namespace HoS_proto
     {
         public enum State
         {
-            MOVING, TALKING
+            UNINITIALIZED, MOVING, TALKING
         }
         enum Has
         {
@@ -37,7 +37,7 @@ namespace HoS_proto
         public static Player Instance { get; private set; }
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
         bool moveDelayElapsed = true;
-        public State state;
+        State state = State.UNINITIALIZED;
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
@@ -164,6 +164,7 @@ namespace HoS_proto
             else
             {
                 Done[Has.WALKED] = true;
+                textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
                 return true;
@@ -181,6 +182,7 @@ namespace HoS_proto
                     if (!Done[Has.WALKED])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
+                        intentions.Add(Quest.New(Verb.GO, this, Environment.At(NPC.Instance.Location)));
                     }
                     break;
 
@@ -216,6 +218,10 @@ namespace HoS_proto
 
             switch (state)
             {
+                case State.UNINITIALIZED:
+                    Enter(State.MOVING);
+                    break;
+
                 case State.MOVING:
                     if (NPC.Instance.isInRange(this))
                     {
@@ -227,7 +233,6 @@ namespace HoS_proto
                             return;
                         }
                     }
-                    else textBubble = null;
 
                     Move();
                     break;
@@ -254,15 +259,7 @@ namespace HoS_proto
             if (quest.Completed) { Engine.WriteAtWorld("GJ", X, Y, 3); return; }
             else
             {
-                Func<Point, bool> Visible = pt =>
-                {
-                    var HALF_SCREEN = Engine.SCREEN_DIM_IN_TILES / 2;
-                    var x_ok = pt.X >= X - HALF_SCREEN && pt.X <= X + HALF_SCREEN;
-                    var y_ok = pt.Y >= Y - HALF_SCREEN && pt.Y <= Y + HALF_SCREEN;
-                    return x_ok && y_ok;
-                };
-
-                if (Visible(quest.Location))
+                if (Engine.OnScreen(quest.Location))
                 {
                     Engine.DrawAtWorld("halo", quest.Location.X, quest.Location.Y);
                     goto LAST_LINE;
@@ -276,8 +273,8 @@ namespace HoS_proto
                 dir *= Engine.SCREEN_WIDTH_PX / 3;
                 dir += new Vector2(Engine.SCREEN_WIDTH_PX / 2);
 
-                Engine.DrawAtScreen("arrow", (int)dir.X, (int)dir.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX, Color.Gold,
-                    rot);
+                Engine.DrawAtScreen("arrow", (int)dir.X, (int)dir.Y, Engine.TILE_DIM_IN_PX, Engine.TILE_DIM_IN_PX
+                                   , Color.Gold, rot);
             }
 
         LAST_LINE:

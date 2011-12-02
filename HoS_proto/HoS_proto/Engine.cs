@@ -45,7 +45,7 @@ namespace HoS_proto
             triDrawer = new TriangleDrawer(GraphicsDevice);
 
             font = Content.Load<SpriteFont>("SpriteFont1");
-            for (int x = -1; ++x < 11; ) for (int y = -1; ++y < 11; )
+            for (int x = -1; ++x < Environment.WORLD_DIM.X; ) for (int y = -1; ++y < Environment.WORLD_DIM.Y; )
                 {
                     string type = null;
                     switch (rand.Next(1, 5) + rand.Next(1, 5))
@@ -69,8 +69,8 @@ namespace HoS_proto
                     new Environment(x, y, type);
                 }
 
-            new Player(rand.Next(12), rand.Next(12));
-            new NPC(rand.Next(12), rand.Next(12));
+            new Player(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
+            new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             NPC.Instance.addOption("Talk.");
             NPC.Instance.addOption("Kick.");
             NPC.Instance.addOption("Punch.");
@@ -149,6 +149,15 @@ namespace HoS_proto
             return worldRelative;
         }
         public static Point ToScreen(int x, int y) { return ToScreen(new Point(x, y)); }
+
+        public static bool OnScreen(Point worldRelative)
+        {
+            var HALF_SCREEN = SCREEN_DIM_IN_TILES / 2;
+            var pLoc = Player.Instance.Location;
+            var x_ok = worldRelative.X >= pLoc.X - HALF_SCREEN && worldRelative.X <= pLoc.X + HALF_SCREEN;
+            var y_ok = worldRelative.Y >= pLoc.Y - HALF_SCREEN && worldRelative.Y <= pLoc.Y + HALF_SCREEN;
+            return x_ok && y_ok;
+        }
 
         public static void DrawAtWorld(string what, int x, int y)
         {

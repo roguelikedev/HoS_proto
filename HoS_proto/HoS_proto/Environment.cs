@@ -17,6 +17,8 @@ namespace HoS_proto
                             DIRT  = "dirt",
                             ROCK  = "rock"
                             ;
+        public static readonly Point WORLD_DIM = new Point(128, 128);
+
         static Dictionary<Point, Environment> all = new Dictionary<Point, Environment>();
         public static Environment At(Point p)
         {
@@ -79,7 +81,7 @@ namespace HoS_proto
             var screenSize = new Vector2(Engine.SCREEN_DIM_IN_TILES * Engine.TILE_DIM_IN_PX);
             #endregion
 
-            foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight))
+            foreach (var curr in new List<Environment>(all.Values).FindAll(e => e.blockSight && Engine.OnScreen(e.Location)))
             {
                 Vector2 top, bottom;
                 float rise = 0, run = 0;
