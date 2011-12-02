@@ -72,7 +72,10 @@ namespace HoS_proto
                         Tell(Player.Instance, Interaction.Atom.PLACE);
                         break;
                     case 2:
-                        Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(Point.Zero)));
+                        var where = new Point(X > Environment.WORLD_DIM.X / 2 ? 0 : Environment.WORLD_DIM.X - 1
+                                            , Y > Environment.WORLD_DIM.Y / 2 ? 0 : Environment.WORLD_DIM.Y - 1)
+                                            ;
+                        Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(where)));
                         break;
                     default:
                         Respond(Player.Instance, Engine.rand.Next(2) == 1);

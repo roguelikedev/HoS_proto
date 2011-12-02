@@ -44,29 +44,15 @@ namespace HoS_proto
             triDrawer = new TriangleDrawer(GraphicsDevice);
 
             font = Content.Load<SpriteFont>("SpriteFont1");
-            for (int x = -1; ++x < Environment.WORLD_DIM.X; ) for (int y = -1; ++y < Environment.WORLD_DIM.Y; )
-                {
-                    string type = null;
-                    switch (rand.Next(1, 5) + rand.Next(1, 5))
-                    {
-                        case 2:
-                        case 3:
-                        case 4:
-                            type = Environment.DIRT;
-                            break;
-                        case 5:
-                        case 6:
-                        case 7:
-                            type = Environment.GRASS;
-                            break;
-                        case 8:
-                            type = Environment.ROCK;
-                            break;
-                        default:
-                            throw new Exception("BARF!!!!");
-                    }
-                    new Environment(x, y, type);
-                }
+
+            for (int x = -1; ++x < Environment.WORLD_DIM.X; ) for (int y = -1; ++y < Environment.WORLD_DIM.Y; ) new Environment(x, y, Environment.DIRT);
+            for (int lcv = -1; ++lcv < Math.Sqrt(Environment.WORLD_DIM.X * Environment.WORLD_DIM.Y); )
+            {
+                var x = rand.Next(Environment.WORLD_DIM.X);
+                var y = rand.Next(Environment.WORLD_DIM.Y);
+                Environment.Streamer(x, y, Environment.GRASS, 14);
+                Environment.Streamer(x, y, Environment.GRASS, 14);
+            }
 
             new Player(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));

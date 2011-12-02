@@ -22,7 +22,7 @@ namespace HoS_proto
             {
                 Func<Exister, string> Directions = ex =>
                 {
-                    var _rval = "You can probably find " + ex;
+                    var _rval = "You can probably find " + ex + " ";
                     if (ex.Location.Y < sender.Location.Y - 3) _rval += "north";
                     if (ex.Location.Y > sender.Location.Y + 3) _rval += "south";
                     if (ex.Location.X < sender.Location.X - 3) _rval += "west";

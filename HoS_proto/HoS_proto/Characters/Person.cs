@@ -182,8 +182,7 @@ namespace HoS_proto
         {
             Interactee = other;
 
-            var quest = Quest.New(Verb.GO, other, Environment.At(0, 0));
-            Interaction askedForHelp = new Interaction.Propose(this, other, quest);
+            Interaction askedForHelp = new Interaction.Propose(this, other, why);
             memory.Add(askedForHelp);
 
             ShowLastSentence(askedForHelp);

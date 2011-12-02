@@ -17,7 +17,7 @@ namespace HoS_proto
                             DIRT  = "dirt",
                             ROCK  = "rock"
                             ;
-        public static readonly Point WORLD_DIM = new Point(24, 24);
+        public static readonly Point WORLD_DIM = new Point(64, 64);
 
         static Dictionary<Point, Environment> all = new Dictionary<Point, Environment>();
         public static Environment At(Point p)
@@ -27,6 +27,7 @@ namespace HoS_proto
         }
         public static Environment At(int x, int y) { return At(new Point(x, y)); }
 
+        string Type { get { return spritePath; } }
         public readonly bool blockMove, blockSight;
         Environment ground;
 
@@ -43,6 +44,28 @@ namespace HoS_proto
             if (type == null) blockMove = true;
 
             all[where] = this;
+        }
+
+        public static void Streamer(int x, int y, string type, int size)
+        {
+            var misses = 0;
+            for (int lcv = -1; lcv < size; )
+            {
+                if (At(x, y).Type == type) misses++;
+                else
+                {
+                    new Environment(x, y, type);
+                    lcv++;
+                }
+
+                if (Engine.rand.Next(2) == 0)
+                {
+                    x += Engine.rand.Next(3) - 1;
+                }
+                else y += Engine.rand.Next(3) - 1;
+
+                if (misses > size) break;
+            }
         }
 
         public override void Draw()
