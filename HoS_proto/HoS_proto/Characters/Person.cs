@@ -146,11 +146,11 @@ namespace HoS_proto
             ShowLastSentence(q);
         }
 
-        protected void Tell(Person other, Interaction.Atom about)
+        protected void Tell(Person other, Interaction.Query about)
         {
             Interactee = other;
 
-            var q = new Interaction.Query(this, other, about);
+            var q = new Interaction.Tell(this, other, about);
             memory.Add(q);
 
             ShowLastSentence(q);

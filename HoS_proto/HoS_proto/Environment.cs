@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public class Environment
+    public class Environment : Exister
     {
         public static Environment NOTHING { get; private set; }
         static Environment()
@@ -27,19 +27,16 @@ namespace HoS_proto
         }
         public static Environment At(int x, int y) { return At(new Point(x, y)); }
 
-        int x, y;
-        public Point Location { get { return new Point(x, y); } }
-        string type;
         public readonly bool blockMove, blockSight;
         Environment ground;
 
         public Environment(int x, int y, string type)
         {
-            this.x = x; this.y = y; this.type = type;
+            this.X = x; this.Y = y; spritePath = type;
             Point where = new Point(x, y);
             if (type == ROCK)
             {
-                if (all.ContainsKey(where) && all[where].type != ROCK) ground = all[where];
+                if (all.ContainsKey(where) && all[where].spritePath != ROCK) ground = all[where];
                 else ground = new Environment(x, y, Engine.rand.Next(2) == 0 ? GRASS : DIRT);
                 blockMove = blockSight = true;
             }
@@ -48,10 +45,10 @@ namespace HoS_proto
             all[where] = this;
         }
 
-        void Draw()
+        public override void Draw()
         {
             if (ground != null) ground.Draw();
-            Engine.DrawAtWorld(type, x, y);
+            base.Draw();
         }
 
         public static void DrawAll()
@@ -86,10 +83,10 @@ namespace HoS_proto
                 Vector2 top, bottom;
                 float rise = 0, run = 0;
 
-                var tr = GridToPx(curr.x + 1, curr.y);
-                var tl = GridToPx(curr.x, curr.y);
-                var br = GridToPx(curr.x + 1, curr.y + 1);
-                var bl = GridToPx(curr.x, curr.y + 1);
+                var tr = GridToPx(curr.X + 1, curr.Y);
+                var tl = GridToPx(curr.X, curr.Y);
+                var br = GridToPx(curr.X + 1, curr.Y + 1);
+                var bl = GridToPx(curr.X, curr.Y + 1);
 
                 if (tl.X > Player.Instance.X * Engine.TILE_DIM_IN_PX)
                 {

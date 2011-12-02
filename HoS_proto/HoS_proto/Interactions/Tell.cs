@@ -20,13 +20,24 @@ namespace HoS_proto
 
             public override string ToString()
             {
+                Func<Exister, string> Directions = ex =>
+                {
+                    var _rval = "You can probably find " + ex;
+                    if (ex.Location.Y < sender.Location.Y - 3) _rval += "north";
+                    if (ex.Location.Y > sender.Location.Y + 3) _rval += "south";
+                    if (ex.Location.X < sender.Location.X - 3) _rval += "west";
+                    if (ex.Location.X > sender.Location.X + 3) _rval += "east";
+                    _rval += " of here.";
+                    return _rval;
+                };
+
                 var rval = "";
                 switch (context.SubjectAsAtom)
                 {
                     case Atom.NOTHING:
                         rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
                         break;
-                    case Atom.SOMEONE:
+                    case Atom.PERSON:
                         Debug.Assert(context.SubjectAsActer);
                         rval += ProOrProperNoun(context.SubjectAsActer) + ", what a";
                         if (context.SubjectAsActer.Quirks & Quirk.EGOTISTICAL)
@@ -34,14 +45,13 @@ namespace HoS_proto
                             rval += context.SubjectAsActer == sender ? " cool" : " egotistical";
                         }
                         if (context.SubjectAsActer.Quirks & Quirk.TIGHT_LIPPED) rval += " quiet";
-                        rval += " person.";
+                        rval += " person.\n";
 
-                        rval += "\nYou can probably find " + context.SubjectAsActer + " ";
-                        if (context.SubjectAsActer.Location.Y < sender.Location.Y - 3) rval += "north";
-                        if (context.SubjectAsActer.Location.Y > sender.Location.Y + 3) rval += "south";
-                        if (context.SubjectAsActer.Location.X < sender.Location.X - 3) rval += "west";
-                        if (context.SubjectAsActer.Location.X > sender.Location.X + 3) rval += "east";
-                        rval += " of here.";
+                        rval += Directions(context.SubjectAsActer);
+
+                        break;
+
+                    case Atom.PLACE:
 
                         break;
 

@@ -20,7 +20,6 @@ namespace HoS_proto
                          SCREEN_DIM_IN_TILES    = 11,
                          SCREEN_WIDTH_PX        = TILE_DIM_IN_PX * SCREEN_DIM_IN_TILES;
 
-
         public static Random rand = new Random();
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;

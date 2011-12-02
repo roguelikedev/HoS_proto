@@ -16,6 +16,7 @@ namespace HoS_proto
             Atom __backing_field_for_SubjectAsAtom = Atom.NOTHING;
             Person __backing_field_for_SubjectAsActer;
             Interaction __backing_field_for_SubjectAsInteraction;
+            Exister __backing_field_for_SubjectAsExister;
             #endregion
 
             protected override Color Color { get { return Color.Yellow; } }
@@ -62,7 +63,22 @@ namespace HoS_proto
                 set
                 {
                     __backing_field_for_SubjectAsActer = value;
-                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.SOMEONE;
+                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.PERSON;
+                }
+            }
+            public Exister SubjectAsExister
+            {
+                get { return __backing_field_for_SubjectAsExister; }
+                set
+                {
+                    __backing_field_for_SubjectAsExister = value;
+                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = (value is Person)
+                                                                     ? Atom.PERSON
+                                                                     : ((value is Environment)
+                                                                        ? Atom.PLACE
+                                                                        : Atom.NOTHING
+                                                                        )
+                                                                     ;
                 }
             }
 
@@ -72,7 +88,7 @@ namespace HoS_proto
 
                 switch (SubjectAsAtom)
                 {
-                    case Atom.SOMEONE:
+                    case Atom.PERSON:
                         rval += SubjectAsActer;
                         break;
                     case Atom.NOTHING:

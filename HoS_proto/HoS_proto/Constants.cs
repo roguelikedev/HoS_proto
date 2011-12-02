@@ -11,4 +11,12 @@ namespace HoS_proto
     {
         GO, GET, TALK
     }
+
+    public abstract partial class Interaction
+    {
+        public enum Atom
+        {
+            NOTHING, FOOD, PERSON, MUTUAL_HISTORY, PLACE
+        }
+    }
 }

@@ -10,10 +10,6 @@ namespace HoS_proto
 {
     public abstract partial class Interaction
     {
-        public enum Atom
-        {
-            NOTHING, FOOD, SOMEONE, MUTUAL_HISTORY
-        }
         public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
 
         public readonly Person sender;
