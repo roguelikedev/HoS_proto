@@ -182,7 +182,7 @@ namespace HoS_proto
                     if (!Done[Has.WALKED])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                        intentions.Add(Quest.New(Verb.GO, this, Environment.At(NPC.Instance.Location)));
+                        intentions.Add(Quest.New(Verb.TALK, this, Environment.At(NPC.Instance.Location)));
                     }
                     break;
 
@@ -256,19 +256,26 @@ namespace HoS_proto
             if (intentions.Count == 0) goto LAST_LINE;
 
             var quest = intentions[0];
-            if (quest.Completed) { Engine.WriteAtWorld("GJ", X, Y, 3); return; }
+            if (quest.Completed)
+            {
+                Engine.WriteAtWorld("GJ", X, Y, 3);
+                if (quest.verb == Verb.TALK) intentions.RemoveAt(0);
+                return;
+            }
             else
             {
                 if (Engine.OnScreen(quest.Location))
                 {
-                    Engine.DrawAtWorld("halo", quest.Location.X, quest.Location.Y);
+                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.Location.X, quest.Location.Y);
                     goto LAST_LINE;
                 }
 
                 var dir = new Vector2(quest.Location.X - X, quest.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
-                var rot = (float)Math.Asin(dir.X) - MathHelper.PiOver2;
+                var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;
+                if (dir.Y < 0) rot *= -1;
+                rot = MathHelper.TwoPi - rot;
 
                 dir *= Engine.SCREEN_WIDTH_PX / 3;
                 dir += new Vector2(Engine.SCREEN_WIDTH_PX / 2);

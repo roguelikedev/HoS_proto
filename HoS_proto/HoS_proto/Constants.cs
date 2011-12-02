@@ -9,6 +9,6 @@ namespace HoS_proto
 
     public enum Verb
     {
-        GO, GET
+        GO, GET, TALK
     }
 }
