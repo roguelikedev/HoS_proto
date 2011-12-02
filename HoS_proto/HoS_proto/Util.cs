@@ -98,7 +98,8 @@ namespace Util
             #region fields
             public Action Lambda;
             public Color color = STANDARD;
-            public bool Active { get { return Lambda != null; } }
+            public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
+            public bool highlighted;
 
             readonly string rawText;
             List<string> lines = new List<string>();
@@ -151,8 +152,15 @@ namespace Util
             public void Draw(int xOrigin, int yOrigin)
             {
                 Debug.Assert(Width > 0);
-                Engine.DrawAtScreen("lozenge", xOrigin - BORDER_DEPTH, yOrigin
-                                             , Width + BORDER_DEPTH * 2, Height, color);
+                var offset = new Point(BORDER_DEPTH, 0);
+                if (highlighted)
+                {
+                    offset.X += BORDER_DEPTH / 2;
+                    offset.Y = BORDER_DEPTH / 2;
+                }
+                Engine.DrawAtScreen("lozenge", xOrigin - offset.X, yOrigin - offset.Y
+                                             , Width + offset.X * 2, Height + offset.Y * 2
+                                             , color);
                 Engine.WriteAtScreen(this, xOrigin, yOrigin, 1);
             }
         }
@@ -183,37 +191,37 @@ namespace Util
         {
             if (activeItem == null)
             {
-                activeItem = contents.Find(mi => mi.Active);
+                activeItem = contents.Find(mi => mi.Active);        // this line not duplicated
                 if (activeItem == null) return;
             }
             else
             {
-                activeItem.color = STANDARD;
+                activeItem.highlighted = false;
                 var valid = contents.FindAll(mi => mi.Active);
-                var ndx = valid.IndexOf(activeItem) + 1;
-                if (ndx == valid.Count) ndx = 0;
+                var ndx = valid.IndexOf(activeItem) + 1;            // this line not duplicated
+                if (ndx == valid.Count) ndx = 0;                    // this line not duplicated
                 activeItem = valid[ndx];
             }
-            activeItem.color = HOVERING;
+            activeItem.highlighted = true;
         }
         public void GoPrev()
         {
             if (activeItem == null)
             {
-                activeItem = contents.FindLast(mi => mi.Active);
+                activeItem = contents.FindLast(mi => mi.Active);    // this line not duplicated
                 if (activeItem == null) return;
             }
             else
             {
-                activeItem.color = STANDARD;
+                activeItem.highlighted = false;
                 var valid = contents.FindAll(mi => mi.Active);
-                var ndx = valid.IndexOf(activeItem) - 1;
-                if (ndx < 0) ndx = valid.Count - 1;
+                var ndx = valid.IndexOf(activeItem) - 1;            // this line not duplicated
+                if (ndx < 0) ndx = valid.Count - 1;                 // this line not duplicated
                 activeItem = valid[ndx];
             }
-            activeItem.color = HOVERING;
-
+            activeItem.highlighted = true;
         }
+
         public void InvokeCurrent()
         {
             if (activeItem != null) activeItem.Lambda();
@@ -221,6 +229,7 @@ namespace Util
         #endregion
 
         #region view
+        #region fields, constants, helpers...
         static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
         public const int BORDER_DEPTH = 16;
         /// <summary> MULTIPLE GOTCHA ALERT:
@@ -248,6 +257,7 @@ namespace Util
                 return rval;
             }
         }
+        #endregion
 
         public void Draw()
         {
@@ -286,10 +296,17 @@ namespace Util
         void Draw(int xOrigin, int yOrigin)
         {
             if (contents.Count == 0) return;
+            var y = yOrigin;
             contents.ForEach(mi =>
             {
-                mi.Draw(xOrigin, yOrigin);
-                yOrigin += mi.Height;
+                mi.Draw(xOrigin, y);
+                y += mi.Height;
+            });
+            y = yOrigin;
+            contents.ForEach(mi =>
+            {
+                if (mi.highlighted) mi.Draw(xOrigin, y);
+                y += mi.Height;
             });
         }
         #endregion
