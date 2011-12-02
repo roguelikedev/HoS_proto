@@ -52,5 +52,12 @@ namespace HoS_proto
             }
             public override string ToVerb { get { return "offer"; } }
         }
+
+        public class Idle : Interaction
+        {
+            protected override Color Color { get { return Color.Gray; } }
+            public Idle(Acter from) : base(from, from) { }
+            public override string ToVerb { get { return "wait"; } }
+        }
     }
 }

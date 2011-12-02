@@ -183,19 +183,21 @@ namespace HoS_proto
                     break;
 
                 case State.TALKING:
+                    var context = NPC.Instance.LastInteraction(this);
                     MakeTextBubble().Add("Ask", () =>
                     {
-                        var subject = NPC.Instance.LastInteraction(this);
-                        if (subject)
-                        {
-                            Query(NPC.Instance, Interaction.Atom.MUTUAL_HISTORY);
-                        }
-                        else
-                        {
-                            Query(NPC.Instance, Interaction.Atom.NOTHING);
-                        }
-                    });
+                        Query(NPC.Instance, context ? Interaction.Atom.MUTUAL_HISTORY : Interaction.Atom.NOTHING);
+                    }).Add("OK", () =>
+                    {
+                        Respond(NPC.Instance, true);
+                    }).Add("No", () =>
+                    {
+                        Respond(NPC.Instance, false);
+                    })
+                    ;
                     
+
+                    textBubble.GoNext();
                     Done[Has.SPOKEN] = true;
                     break;
             }

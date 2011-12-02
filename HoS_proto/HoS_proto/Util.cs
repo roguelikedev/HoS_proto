@@ -159,14 +159,16 @@ namespace Util
         MenuItem activeItem;
 
         #region obligatory data structure operations
-        public void Add(string text) { Add(text, Constants.NO_OP); }
-        public void Add(string text, Action Lambda)
+        public Menu Add(string text) { return Add(text, Constants.NO_OP); }
+        public Menu Add(string text, Action Lambda)
         {
             contents.Add(new MenuItem(text, Lambda));
+            return this;
         }
-        public void Add(Interaction interaction, Action Lambda)
+        public Menu Add(Interaction interaction, Action Lambda)
         {
             contents.Add(new MenuItem(interaction, Lambda, interaction));
+            return this;
         }
         public bool AddUnique(string text, Action Lambda)
         {

@@ -19,12 +19,13 @@ namespace HoS_proto
     {
         #region squish
         public const int
-            VERY = 1,
-            CASUAL = 1 << 1,
-            TIGHT_LIPPED = 1 << 2,
-            GENEROUS = 1 << 3,
-            EGOTISTICAL = 1 << 4,
-            OUTGOING = 1 << 5
+            VERY                = 1,
+            CASUAL              = 1 << 1,
+            TIGHT_LIPPED        = 1 << 2,
+            GENEROUS            = 1 << 3,
+            EGOTISTICAL         = 1 << 4,
+            OUTGOING            = 1 << 5,
+            BLUNT               = 1 << 6
             ;
         int value;
         Quirk(int v) { value = v; }
@@ -136,8 +137,20 @@ namespace HoS_proto
             q.SubjectAsAtom = about;
             memory.Add(q);
 
-            if (textBubble == null) MakeTextBubble();
-            textBubble.Add(q, Constants.NO_OP);
+            MakeTextBubble().Add(q, Constants.NO_OP);
+        }
+
+        protected void Respond(Acter who, bool affirm)
+        {
+            Interactee = who;
+
+            var context = who.LastInteraction(this);
+            if (!context) context = new Interaction.Idle(who);
+
+            Interaction.Response a = Interaction.Response.Make(this, who, context, affirm);
+            memory.Add(a);
+
+            MakeTextBubble().Add(a, Constants.NO_OP);
         }
 
         public Interaction LastInteraction(Acter with)

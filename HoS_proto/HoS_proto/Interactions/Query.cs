@@ -18,6 +18,11 @@ namespace HoS_proto
             Interaction __backing_field_for_SubjectAsInteraction;
             #endregion
 
+            protected override Color Color { get { return Color.Yellow; } }
+            public override string ToVerb { get { return "ask"; } }
+
+            public Query(Acter from, Acter to) : base(from, to) { }
+
             public Interaction SubjectAsInteraction
             {
                 get { return __backing_field_for_SubjectAsInteraction; }
@@ -61,9 +66,6 @@ namespace HoS_proto
                 }
             }
 
-            protected override Color Color { get { return Color.Yellow; } }
-            public override string ToVerb { get { return "ask"; } }
-
             public override string ToString()
             {
                 var rval = sender.Hail(receiver) + ", ";
@@ -105,8 +107,6 @@ namespace HoS_proto
                 rval += "?";
                 return rval;
             }
-
-            public Query(Acter from, Acter to) : base(from, to) { }
         }
     }
 }
