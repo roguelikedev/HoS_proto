@@ -54,7 +54,7 @@ namespace HoS_proto
                         rval += Directions(context.SubjectAsExister);
                         break;
 
-                    case Atom.LAST_STATEMENT:
+                    case Atom.INTERACTION:
                         rval += sender.Hail(receiver) + "you're confusing me.";
                         break;
                     case Atom.NEED:

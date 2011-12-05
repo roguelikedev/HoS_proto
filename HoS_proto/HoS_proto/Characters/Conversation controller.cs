@@ -64,7 +64,19 @@ namespace HoS_proto
         {
             Interactee = other;
 
-            var q = new Interaction.Query(this, other, about);
+            Interaction.Query q;
+            switch (about)
+            {
+                case Interaction.Atom.INTERACTION:
+                    q = Interaction.Query.Make(this, other, LastInteraction(other));
+                    break;
+                case Interaction.Atom.NOTHING:
+                    q = Interaction.Query.Make(this, other, (Interaction)null);
+                    break;
+                default:
+                    Debug.Assert(false, "write another case.");
+                    return;
+            }
             memory.Add(q);
 
             ShowLastSentence(q);
@@ -78,8 +90,7 @@ namespace HoS_proto
             switch (about)
             {
                 case Interaction.Atom.PLACE:
-                    var q = new Interaction.Query(this, this, Interaction.Atom.PLACE);
-                    q.SubjectAsExister = Environment.At(0, 0);
+                    var q = Interaction.Query.Make(this, this, Environment.At(0, 0));
                     a = new Interaction.Tell(this, other, q);
                     break;
                 default:

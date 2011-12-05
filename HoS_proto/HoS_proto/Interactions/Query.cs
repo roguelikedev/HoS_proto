@@ -14,32 +14,36 @@ namespace HoS_proto
         {
             #region ugliness
             Atom __backing_field_for_SubjectAsAtom = Atom.NOTHING;
-            Person __backing_field_for_SubjectAsActer;
             Interaction __backing_field_for_SubjectAsInteraction;
             Exister __backing_field_for_SubjectAsExister;
             #endregion
 
+            public override bool ExpectsResponse { get { return true; } }
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "ask"; } }
 
-            public Query(Person from, Person to, Atom subject) : base(from, to) { SubjectAsAtom = subject; }
+            Query(Person from, Person to) : base(from, to) { }
+            public static Query Make(Person from, Person to, Interaction about)
+            {
+                var rval = new Query(from, to);
+                rval.SubjectAsInteraction = about;
+                return rval;
+            }
+            public static Query Make(Person from, Person to, Exister about)
+            {
+                var rval = new Query(from, to);
+                rval.SubjectAsExister = about;
+                return rval;
+            }
+
 
             public Interaction SubjectAsInteraction
             {
                 get { return __backing_field_for_SubjectAsInteraction; }
-                set
+                private set
                 {
+                    SubjectAsAtom = Atom.INTERACTION;
                     __backing_field_for_SubjectAsInteraction = value;
-                    if ((sender == SubjectAsInteraction.sender || sender == SubjectAsInteraction.receiver)
-                        && (receiver == SubjectAsInteraction.receiver || receiver == SubjectAsInteraction.sender))
-                    {
-                        if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.LAST_STATEMENT;
-                        if (!SubjectAsActer)
-                        {
-                            if (sender.Quirks & Quirk.EGOTISTICAL) SubjectAsActer = sender;
-                            else if (sender.Quirks & Quirk.OUTGOING) SubjectAsActer = receiver;
-                        }
-                    }
                 }
             }
             public Atom SubjectAsAtom
@@ -47,39 +51,33 @@ namespace HoS_proto
                 get { return __backing_field_for_SubjectAsAtom; }
                 private set
                 {
-                    Debug.Assert(SubjectAsAtom == Atom.NOTHING);
-                    if (value == Atom.LAST_STATEMENT && !SubjectAsInteraction)
-                    {
-                        var lastInteraction = receiver.LastInteraction(sender);
-                        if (!lastInteraction) lastInteraction = sender.LastInteraction(receiver);
-                        if (lastInteraction) SubjectAsInteraction = lastInteraction;
-                    }
+                    Debug.Assert(SubjectAsAtom == Atom.NOTHING, "all SubjectAs* fields are deliberately readonly.");
                     __backing_field_for_SubjectAsAtom = value;
                 }
             }
             public Person SubjectAsActer
             {
-                get { return __backing_field_for_SubjectAsActer; }
-                set
-                {
-                    __backing_field_for_SubjectAsActer = value;
-                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.PERSON;
-                    if (SubjectAsExister == null) SubjectAsExister = value;
-                }
+                get { return SubjectAsExister ? SubjectAsExister as Person : null; }
             }
             public Exister SubjectAsExister
             {
                 get { return __backing_field_for_SubjectAsExister; }
                 set
                 {
+                    if (value is Person)
+                    {
+                        SubjectAsAtom = Atom.PERSON;
+                    }
+                    else if (value is Environment)
+                    {
+                        SubjectAsAtom = Atom.PLACE;
+                    }
+                    else
+                    {
+                        Debug.Assert(false, "unknown subclass of Exister: " + value.ToString());
+                    }
+
                     __backing_field_for_SubjectAsExister = value;
-                    if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = (value is Person)
-                                                                     ? Atom.PERSON
-                                                                     : ((value is Environment)
-                                                                        ? Atom.PLACE
-                                                                        : Atom.NOTHING
-                                                                        )
-                                                                     ;
                 }
             }
 
@@ -99,7 +97,7 @@ namespace HoS_proto
                     case Atom.NEED:
                         rval += "where is the apple grove";
                         break;
-                    case Atom.LAST_STATEMENT:
+                    case Atom.INTERACTION:
                         if (SubjectAsInteraction)
                         {
                             rval += "what did ";

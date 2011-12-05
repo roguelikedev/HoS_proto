@@ -24,6 +24,7 @@ namespace HoS_proto
         public virtual void Draw() { Engine.DrawAtWorld(spritePath, X, Y); }
 
         public override string ToString() { return spritePath; }
+        public static implicit operator bool(Exister who) { return who != null; }
     }
 
     public abstract partial class Person : Exister
@@ -82,7 +83,6 @@ namespace HoS_proto
         #region object oriented overhead
         static List<Person> all = new List<Person>();
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator bool(Person who) { return who != null; }
         public static implicit operator string(Person who) { return who ? who.ToString() : "no one"; }
 
         protected Person()

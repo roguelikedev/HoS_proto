@@ -192,7 +192,7 @@ namespace HoS_proto
                     var context = NPC.Instance.LastInteraction(this);
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, context ? Interaction.Atom.LAST_STATEMENT : Interaction.Atom.NOTHING);
+                        Query(NPC.Instance, context ? Interaction.Atom.INTERACTION : Interaction.Atom.NOTHING);
                     }, Color.Yellow)
                     .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
                     .Add("No", () => Respond(NPC.Instance, false), Color.Red)

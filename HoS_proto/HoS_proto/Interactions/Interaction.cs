@@ -14,9 +14,10 @@ namespace HoS_proto
 
         public readonly Person sender;
         public readonly Person receiver;
-        protected abstract Color Color { get; }
+        public virtual bool ExpectsResponse { get { return false; } }
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
+        protected abstract Color Color { get; }
         public static implicit operator Color(Interaction interaction) { return interaction.Color; }
         public static implicit operator bool(Interaction interaction) { return interaction != null; }
 

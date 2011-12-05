@@ -15,6 +15,7 @@ namespace HoS_proto
             public readonly Quest quest;
             public Propose(Person questGiver, Person quester, Quest quest) : base(questGiver, quester) { this.quest = quest; }
 
+            public override bool ExpectsResponse { get { return true; } }
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "offer"; } }
 

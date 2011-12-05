@@ -66,7 +66,7 @@ namespace HoS_proto
                 switch (Engine.rand.Next(4) + (playerSaid is Interaction.Query ? 2 : 0))
                 {
                     case 0:
-                        Query(Player.Instance, Interaction.Atom.LAST_STATEMENT);
+                        Query(Player.Instance, Interaction.Atom.INTERACTION);
                         break;
                     case 1:
                         Tell(Player.Instance, Interaction.Atom.PLACE);
