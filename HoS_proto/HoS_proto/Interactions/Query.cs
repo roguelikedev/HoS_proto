@@ -33,7 +33,7 @@ namespace HoS_proto
                     if ((sender == SubjectAsInteraction.sender || sender == SubjectAsInteraction.receiver)
                         && (receiver == SubjectAsInteraction.receiver || receiver == SubjectAsInteraction.sender))
                     {
-                        if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.MUTUAL_HISTORY;
+                        if (SubjectAsAtom == Atom.NOTHING) SubjectAsAtom = Atom.LAST_STATEMENT;
                         if (!SubjectAsActer)
                         {
                             if (sender.Quirks & Quirk.EGOTISTICAL) SubjectAsActer = sender;
@@ -48,7 +48,7 @@ namespace HoS_proto
                 private set
                 {
                     Debug.Assert(SubjectAsAtom == Atom.NOTHING);
-                    if (value == Atom.MUTUAL_HISTORY && !SubjectAsInteraction)
+                    if (value == Atom.LAST_STATEMENT && !SubjectAsInteraction)
                     {
                         var lastInteraction = receiver.LastInteraction(sender);
                         if (!lastInteraction) lastInteraction = sender.LastInteraction(receiver);
@@ -99,7 +99,7 @@ namespace HoS_proto
                     case Atom.FOOD:
                         rval += "where is the apple grove";
                         break;
-                    case Atom.MUTUAL_HISTORY:
+                    case Atom.LAST_STATEMENT:
                         if (SubjectAsInteraction)
                         {
                             rval += "what did ";

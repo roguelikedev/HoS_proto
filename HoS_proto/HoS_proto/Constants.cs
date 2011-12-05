@@ -16,7 +16,7 @@ namespace HoS_proto
     {
         public enum Atom
         {
-            NOTHING, FOOD, PERSON, MUTUAL_HISTORY, PLACE
+            NOTHING, FOOD, PERSON, LAST_STATEMENT, PLACE
         }
     }
 }

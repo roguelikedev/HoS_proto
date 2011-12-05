@@ -109,6 +109,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Characters\Conversation controller.cs" />
     <Compile Include="Characters\NPC.cs" />
     <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
