@@ -16,13 +16,6 @@ namespace HoS_proto
             public override string ToVerb { get { return "answer"; } }
             Response(Person from, Person to, Interaction context) : base(from, to) { this.context = context; }
 
-            public static Interaction Make(Person from, Person to, Interaction context, bool affirm)
-            {
-                if (!affirm) return new No(from, to, context);
-                if (context is Query) return new Tell(from, to, context as Query);
-                return new Ok(from, to, context);
-            }
-
             public class No : Response
             {
                 protected override Color Color { get { return Color.Red; } }

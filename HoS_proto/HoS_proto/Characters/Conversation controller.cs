@@ -54,7 +54,7 @@ namespace HoS_proto
             if (AmbiguousListener)
             {
                 rval += who;
-                rval = char.ToUpper(rval[0]).ToString() + (rval.Length > 1 ? rval.Substring(1) : "");
+                rval = Helper.Capitalize(rval);
             }
             if (rval.Length > 0 && !rval.EndsWith(", ")) rval += ", ";
             return rval;
@@ -98,14 +98,20 @@ namespace HoS_proto
             var context = other.LastInteraction(this);
             if (!context) context = new Interaction.Idle(other);
 
-            Interaction a = Interaction.Response.Make(this, other, context, affirm);
+            Interaction a;
+            if (!affirm) a = new Interaction.Response.No(this, other, context);
+            else if (context is Interaction.Query)
+            {
+                a = new Interaction.Tell(this, other, context as Interaction.Query);
+            }
+            else
+            {
+                a = new Interaction.Response.Ok(this, other, context);
+                if (context is Interaction.Propose) intentions.Add((context as Interaction.Propose).quest);
+            }
+
             memory.Add(a);
             ShowLastSentence(a);
-
-            if (context is Interaction.Propose && affirm)
-            {
-                intentions.Add((context as Interaction.Propose).quest);
-            }
         }
 
         protected void Enlist(Person other, Quest why)

@@ -57,7 +57,7 @@ namespace HoS_proto
                     case Atom.LAST_STATEMENT:
                         rval += sender.Hail(receiver) + "you're confusing me.";
                         break;
-                    case Atom.FOOD:
+                    case Atom.NEED:
                         rval += "I don't know anything about that!!!";
                         break;
                 }

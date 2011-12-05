@@ -8,6 +8,14 @@ using System.Diagnostics;
 
 namespace Util
 {
+    public static class Helper
+    {
+        public static string Capitalize(string str)
+        {
+            return char.ToUpper(str[0]).ToString() + (str.Length > 1 ? str.Substring(1) : "");
+        }
+    }
+
     public class TriangleDrawer
     {
         #region fields

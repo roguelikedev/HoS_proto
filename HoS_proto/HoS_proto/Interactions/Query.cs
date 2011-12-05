@@ -96,7 +96,7 @@ namespace HoS_proto
                         if (sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
                         else rval += "how're you doing";
                         break;
-                    case Atom.FOOD:
+                    case Atom.NEED:
                         rval += "where is the apple grove";
                         break;
                     case Atom.LAST_STATEMENT:
