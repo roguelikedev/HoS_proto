@@ -42,7 +42,7 @@ namespace HoS_proto
                 get { return __backing_field_for_SubjectAsInteraction; }
                 private set
                 {
-                    SubjectAsAtom = Atom.INTERACTION;
+                    SubjectAsAtom = value ? Atom.INTERACTION : Atom.NOTHING;
                     __backing_field_for_SubjectAsInteraction = value;
                 }
             }
@@ -64,7 +64,8 @@ namespace HoS_proto
                 get { return __backing_field_for_SubjectAsExister; }
                 set
                 {
-                    if (value is Person)
+                    if (!value) SubjectAsAtom = Atom.NOTHING;
+                    else if (value is Person)
                     {
                         SubjectAsAtom = Atom.PERSON;
                     }
@@ -88,6 +89,7 @@ namespace HoS_proto
                 switch (SubjectAsAtom)
                 {
                     case Atom.PERSON:
+                        Debug.Assert(SubjectAsActer);
                         rval += SubjectAsActer;
                         break;
                     case Atom.NOTHING:
@@ -98,13 +100,11 @@ namespace HoS_proto
                         rval += "where is the apple grove";
                         break;
                     case Atom.INTERACTION:
-                        if (SubjectAsInteraction)
-                        {
-                            rval += "what did ";
-                            rval += ProOrProperNoun(SubjectAsInteraction.sender);
-                            rval += " mean by " + SubjectAsInteraction.ToVerb + "ing ";
-                            rval += "that?";
-                        }
+                        Debug.Assert(SubjectAsInteraction);
+                        rval += "what did ";
+                        rval += ProOrProperNoun(SubjectAsInteraction.sender);
+                        rval += " mean by " + SubjectAsInteraction.ToVerb + "ing ";
+                        rval += "that?";
                         break;
                     default:
                         Debug.Assert(false);
