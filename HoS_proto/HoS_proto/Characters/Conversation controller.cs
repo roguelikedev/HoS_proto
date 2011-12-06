@@ -77,20 +77,20 @@ namespace HoS_proto
         }
         #endregion
 
-        protected void Query(Person other, Interaction.Atom about)
+        protected void Query(Person other, Subject about)
         {
             Interactee = other;
 
             Interaction.Query q;
             switch (about)
             {
-                case Interaction.Atom.INTERACTION:
+                case Subject.INTERACTION:
                     q = Interaction.Query.Make(this, other, LastInteraction(other));
                     break;
-                case Interaction.Atom.NOTHING:
+                case Subject.NOTHING:
                     q = Interaction.Query.Make(this, other, (Interaction)null);
                     break;
-                case Interaction.Atom.NEED:
+                case Subject.NEED:
                     var need = new List<Need>(Needs.Keys).Find(k => Needs[k]);
                     q = Interaction.Query.Make(this, other, need);
                     break;
@@ -103,26 +103,6 @@ namespace HoS_proto
             ShowLastSentence(q);
         }
 
-        protected void Tell(Person other, Interaction.Atom about)
-        {
-            Interactee = other;
-
-            Interaction a;
-            switch (about)
-            {
-                case Interaction.Atom.PLACE:
-                    var q = Interaction.Query.Make(this, this, Environment.At(0, 0));
-                    a = new Interaction.Tell(this, other, q);
-                    break;
-                default:
-                    Debug.Assert(false, "there's no code here!");
-                    return;
-            }
-
-            memory.Add(a);
-            ShowLastSentence(a);
-        }
-
         protected void Respond(Person other, bool affirm)
         {
             Interactee = other;
@@ -131,15 +111,18 @@ namespace HoS_proto
             if (!context) context = new Interaction.Idle(other);
 
             Interaction a;
-            if (!affirm) a = new Interaction.Response.No(this, other, context);
-            else if (context is Interaction.Query)
+            if (context.ExpectsResponse)
             {
-                a = new Interaction.Tell(this, other, context as Interaction.Query);
+                if (!affirm) a = new Interaction.Reply.No(this, other, context);
+                else
+                {
+                    a = new Interaction.Reply.Ok(this, other, context);
+                    if (context is Interaction.Propose) intentions.Add((context as Interaction.Propose).quest);
+                }
             }
             else
             {
-                a = new Interaction.Response.Ok(this, other, context);
-                if (context is Interaction.Propose) intentions.Add((context as Interaction.Propose).quest);
+                a = new Interaction.Reply.Comment(this, other, context, affirm ? Mood.NICE : Mood.MEAN);
             }
 
             memory.Add(a);

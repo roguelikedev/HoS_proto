@@ -10,7 +10,7 @@ namespace HoS_proto
 {
     public abstract partial class Interaction
     {
-        public static Dictionary<Atom, bool> progress = new Dictionary<Atom, bool>();
+        public static Dictionary<Subject, bool> progress = new Dictionary<Subject, bool>();
 
         public readonly Person sender;
         public readonly Person receiver;

@@ -35,6 +35,10 @@ namespace HoS_proto
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
+
+            Needs[Need.LEARN_TALK] = true;
+            Needs[Need.LEARN_WALK] = true;
+            Needs[Need.FOOD] = true;
         }
         public void GetName()
         {
@@ -142,7 +146,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                Needs[Need.LEARN_WALK] = true;
+                Needs[Need.LEARN_WALK] = false;
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -158,7 +162,7 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (!Needs[Need.LEARN_WALK])
+                    if (Needs[Need.LEARN_WALK])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                         intentions.Add(Quest.New(Verb.TALK, this, Environment.At(NPC.Instance.Location)));
@@ -175,7 +179,7 @@ namespace HoS_proto
                     var context = NPC.Instance.LastInteraction(this);
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, context ? Interaction.Atom.INTERACTION : Interaction.Atom.NOTHING);
+                        Query(NPC.Instance, context ? Subject.INTERACTION : Subject.NOTHING);
                     }, Color.Yellow)
                     .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
                     .Add("No", () => Respond(NPC.Instance, false), Color.Red)
@@ -183,7 +187,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    Needs[Need.LEARN_TALK] = true;
+                    Needs[Need.LEARN_TALK] = false;
                     break;
             }
             state = nextState;
@@ -204,7 +208,7 @@ namespace HoS_proto
                 case State.MOVING:
                     if (NPC.Instance.isInRange(this))
                     {
-                        if (!Needs[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
+                        if (Needs[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
 
                         if (Pressed(Keys.Space))
                         {

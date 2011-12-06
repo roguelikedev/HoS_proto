@@ -12,11 +12,13 @@ namespace HoS_proto
         GO, GET, TALK
     }
 
-    public abstract partial class Interaction
+    public enum Mood
     {
-        public enum Atom
-        {
-            NOTHING, NEED, PERSON, INTERACTION, PLACE
-        }
+        NEUTRAL, MEAN, NICE
+    }
+
+    public enum Subject
+    {
+        NOTHING, NEED, PERSON, INTERACTION, PLACE
     }
 }

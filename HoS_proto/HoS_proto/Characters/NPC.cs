@@ -54,7 +54,7 @@ namespace HoS_proto
 
                 if (!iSaid && !playerSaid)
                 {
-                    Query(Player.Instance, Interaction.Atom.NOTHING);
+                    Query(Player.Instance, Subject.NOTHING);
                     return;
                 }
                 if (!playerSaid) return;
@@ -66,7 +66,7 @@ namespace HoS_proto
                 }
                 else if (Needs[Need.FOOD])
                 {
-                    Query(Player.Instance, Interaction.Atom.NEED);
+                    Query(Player.Instance, Subject.NEED);
                 }
             }
         }

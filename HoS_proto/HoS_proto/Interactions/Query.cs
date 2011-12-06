@@ -13,10 +13,10 @@ namespace HoS_proto
         public class Query : Interaction
         {
             #region ugliness
-            Atom __backing_field_for_SubjectAsAtom = Atom.NOTHING;
-            Interaction __backing_field_for_SubjectAsInteraction;
-            Noun __backing_field_for_SubjectAsExister;
-            Person.Need __backing_field_for_SubjectAsNeed;
+            Subject __backing_field_for_Subject = Subject.NOTHING;
+            Interaction __backing_field_for_AboutInteraction;
+            Noun __backing_field_for_AboutNoun;
+            Person.Need __backing_field_for_AboutNeed;
             #endregion
 
             public override bool ExpectsResponse { get { return true; } }
@@ -27,73 +27,73 @@ namespace HoS_proto
             public static Query Make(Person from, Person to, Interaction about)
             {
                 var rval = new Query(from, to);
-                rval.SubjectAsInteraction = about;
+                rval.AboutInteraction = about;
                 return rval;
             }
             public static Query Make(Person from, Person to, Noun about)
             {
                 var rval = new Query(from, to);
-                rval.SubjectAsExister = about;
+                rval.AboutNoun = about;
                 return rval;
             }
             public static Query Make(Person from, Person to, Person.Need about)
             {
                 var rval = new Query(from, to);
-                rval.SubjectAsNeed = about;
+                rval.AboutNeed = about;
                 return rval;
             }
 
-            public Interaction SubjectAsInteraction
+            public Subject Subject
             {
-                get { return __backing_field_for_SubjectAsInteraction; }
+                get { return __backing_field_for_Subject; }
                 private set
                 {
-                    SubjectAsAtom = value ? Atom.INTERACTION : Atom.NOTHING;
-                    __backing_field_for_SubjectAsInteraction = value;
+                    Debug.Assert(Subject == Subject.NOTHING, "all SubjectAs* fields are deliberately readonly.");
+                    __backing_field_for_Subject = value;
                 }
             }
-            public Atom SubjectAsAtom
+            public Person AboutPerson
             {
-                get { return __backing_field_for_SubjectAsAtom; }
-                private set
-                {
-                    Debug.Assert(SubjectAsAtom == Atom.NOTHING, "all SubjectAs* fields are deliberately readonly.");
-                    __backing_field_for_SubjectAsAtom = value;
-                }
+                get { return AboutNoun ? AboutNoun as Person : null; }
             }
-            public Person SubjectAsActer
+            public Noun AboutNoun
             {
-                get { return SubjectAsExister ? SubjectAsExister as Person : null; }
-            }
-            public Noun SubjectAsExister
-            {
-                get { return __backing_field_for_SubjectAsExister; }
+                get { return __backing_field_for_AboutNoun; }
                 set
                 {
-                    if (!value) SubjectAsAtom = Atom.NOTHING;
+                    if (!value) Subject = Subject.NOTHING;
                     else if (value is Person)
                     {
-                        SubjectAsAtom = Atom.PERSON;
+                        Subject = Subject.PERSON;
                     }
                     else if (value is Environment)
                     {
-                        SubjectAsAtom = Atom.PLACE;
+                        Subject = Subject.PLACE;
                     }
                     else
                     {
                         Debug.Assert(false, "unknown subclass of Exister: " + value.ToString());
                     }
 
-                    __backing_field_for_SubjectAsExister = value;
+                    __backing_field_for_AboutNoun = value;
                 }
             }
-            public Person.Need SubjectAsNeed
+            public Person.Need AboutNeed
             {
-                get { return __backing_field_for_SubjectAsNeed; }
+                get { return __backing_field_for_AboutNeed; }
                 private set
                 {
-                    SubjectAsAtom = Atom.NEED;
-                    __backing_field_for_SubjectAsNeed = value;
+                    Subject = Subject.NEED;
+                    __backing_field_for_AboutNeed = value;
+                }
+            }
+            public Interaction AboutInteraction
+            {
+                get { return __backing_field_for_AboutInteraction; }
+                private set
+                {
+                    Subject = value ? Subject.INTERACTION : Subject.NOTHING;
+                    __backing_field_for_AboutInteraction = value;
                 }
             }
 
@@ -101,25 +101,25 @@ namespace HoS_proto
             {
                 var rval = sender.Hail(receiver);
 
-                switch (SubjectAsAtom)
+                switch (Subject)
                 {
-                    case Atom.PERSON:
-                        Debug.Assert(SubjectAsActer);
-                        rval += SubjectAsActer;
+                    case Subject.PERSON:
+                        Debug.Assert(AboutPerson);
+                        rval += AboutPerson;
                         break;
-                    case Atom.NOTHING:
+                    case Subject.NOTHING:
                         if (sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
                         else rval += "how're you doing";
                         break;
-                    case Atom.NEED:
+                    case Subject.NEED:
                         rval += "do you have any ";
-                        rval += SubjectAsNeed == Person.Need.NOTHING ? "good stories" : SubjectAsNeed.ToString();
+                        rval += AboutNeed == Person.Need.NOTHING ? "good stories" : AboutNeed.ToString();
                         break;
-                    case Atom.INTERACTION:
-                        Debug.Assert(SubjectAsInteraction);
+                    case Subject.INTERACTION:
+                        Debug.Assert(AboutInteraction);
                         rval += "why did ";
-                        rval += ProOrProperNoun(SubjectAsInteraction.sender);
-                        rval += SubjectAsInteraction.ToVerb;
+                        rval += ProOrProperNoun(AboutInteraction.sender) + " ";
+                        rval += AboutInteraction.ToVerb;
                         rval += " that?";
                         break;
                     default:

@@ -55,6 +55,8 @@ namespace HoS_proto
 
         void ShowLastSentence(Interaction interaction)
         {
+            Debug.Assert(interaction.ToString().Length > 0);
+
             MakeTextBubble();
             if (this is Player) textBubble.Add(interaction);
             else if (this is NPC) textBubble.Add(interaction, Constants.NO_OP, interaction);
