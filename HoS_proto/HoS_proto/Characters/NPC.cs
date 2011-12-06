@@ -26,12 +26,9 @@ namespace HoS_proto
             Options = new List<string>();
             spritePath = "dc_caveman";
             name = "weird caveman";
+            Needs[Need.FOOD] = true;
         }
 
-        public void addOption(string opt)
-        {
-            Options.Add(opt);
-        }
         public bool isInRange(Player player)
         {
             double a = (double)(this.X - player.X);
@@ -63,23 +60,13 @@ namespace HoS_proto
                 if (!playerSaid) return;
                 if (iSaid.GUID > playerSaid.GUID) return;
 
-                switch (Engine.rand.Next(4) + (playerSaid is Interaction.Query ? 2 : 0))
+                if (playerSaid.ExpectsResponse)
                 {
-                    case 0:
-                        Query(Player.Instance, Interaction.Atom.INTERACTION);
-                        break;
-                    case 1:
-                        Tell(Player.Instance, Interaction.Atom.PLACE);
-                        break;
-                    case 2:
-                        var where = new Point(X > Environment.WORLD_DIM.X / 2 ? 0 : Environment.WORLD_DIM.X - 1
-                                            , Y > Environment.WORLD_DIM.Y / 2 ? 0 : Environment.WORLD_DIM.Y - 1)
-                                            ;
-                        Enlist(Player.Instance, Quest.New(Verb.GO, Player.Instance, Environment.At(where)));
-                        break;
-                    default:
-                        Respond(Player.Instance, Engine.rand.Next(2) == 1);
-                        break;
+                    Respond(Player.Instance, Engine.rand.Next(2) == 1);
+                }
+                else if (Needs[Need.FOOD])
+                {
+                    Query(Player.Instance, Interaction.Atom.NEED);
                 }
             }
         }

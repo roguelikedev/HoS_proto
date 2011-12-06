@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public class Environment : Exister
+    public class Environment : Noun
     {
         public static Environment NOTHING { get; private set; }
         static Environment()

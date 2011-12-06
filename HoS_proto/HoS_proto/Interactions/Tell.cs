@@ -20,7 +20,7 @@ namespace HoS_proto
 
             public override string ToString()
             {
-                Func<Exister, string> Directions = ex =>
+                Func<Noun, string> Directions = ex =>
                 {
                     var _rval = "You can probably find " + ex + " ";
                     if (ex.Location.Y < sender.Location.Y - 3) _rval += "north";

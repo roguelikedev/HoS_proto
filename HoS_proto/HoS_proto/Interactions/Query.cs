@@ -15,7 +15,8 @@ namespace HoS_proto
             #region ugliness
             Atom __backing_field_for_SubjectAsAtom = Atom.NOTHING;
             Interaction __backing_field_for_SubjectAsInteraction;
-            Exister __backing_field_for_SubjectAsExister;
+            Noun __backing_field_for_SubjectAsExister;
+            Person.Need __backing_field_for_SubjectAsNeed;
             #endregion
 
             public override bool ExpectsResponse { get { return true; } }
@@ -29,13 +30,18 @@ namespace HoS_proto
                 rval.SubjectAsInteraction = about;
                 return rval;
             }
-            public static Query Make(Person from, Person to, Exister about)
+            public static Query Make(Person from, Person to, Noun about)
             {
                 var rval = new Query(from, to);
                 rval.SubjectAsExister = about;
                 return rval;
             }
-
+            public static Query Make(Person from, Person to, Person.Need about)
+            {
+                var rval = new Query(from, to);
+                rval.SubjectAsNeed = about;
+                return rval;
+            }
 
             public Interaction SubjectAsInteraction
             {
@@ -59,7 +65,7 @@ namespace HoS_proto
             {
                 get { return SubjectAsExister ? SubjectAsExister as Person : null; }
             }
-            public Exister SubjectAsExister
+            public Noun SubjectAsExister
             {
                 get { return __backing_field_for_SubjectAsExister; }
                 set
@@ -81,6 +87,15 @@ namespace HoS_proto
                     __backing_field_for_SubjectAsExister = value;
                 }
             }
+            public Person.Need SubjectAsNeed
+            {
+                get { return __backing_field_for_SubjectAsNeed; }
+                private set
+                {
+                    SubjectAsAtom = Atom.NEED;
+                    __backing_field_for_SubjectAsNeed = value;
+                }
+            }
 
             public override string ToString()
             {
@@ -97,14 +112,15 @@ namespace HoS_proto
                         else rval += "how're you doing";
                         break;
                     case Atom.NEED:
-                        rval += "where is the apple grove";
+                        rval += "do you have any ";
+                        rval += SubjectAsNeed == Person.Need.NOTHING ? "good stories" : SubjectAsNeed.ToString();
                         break;
                     case Atom.INTERACTION:
                         Debug.Assert(SubjectAsInteraction);
-                        rval += "what did ";
+                        rval += "why did ";
                         rval += ProOrProperNoun(SubjectAsInteraction.sender);
-                        rval += " mean by " + SubjectAsInteraction.ToVerb + "ing ";
-                        rval += "that?";
+                        rval += SubjectAsInteraction.ToVerb;
+                        rval += " that?";
                         break;
                     default:
                         Debug.Assert(false);

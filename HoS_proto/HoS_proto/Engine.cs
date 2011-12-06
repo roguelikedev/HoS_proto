@@ -59,10 +59,6 @@ namespace HoS_proto
 
             new Player(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
-            NPC.Instance.addOption("Talk.");
-            NPC.Instance.addOption("Kick.");
-            NPC.Instance.addOption("Punch.");
-            NPC.Instance.addOption("Kiss.");
             {
                 int x = -1, y = -1;
                 while (Environment.At(new Point(x, y)).blockMove)

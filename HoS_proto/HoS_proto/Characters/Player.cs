@@ -13,21 +13,6 @@ namespace HoS_proto
         {
             UNINITIALIZED, MOVING, TALKING
         }
-        Dictionary<Need, bool> Has
-        {
-            get
-            {
-                if (__backing_field_for_Has == null)
-                {
-                    __backing_field_for_Has = new Dictionary<Need, bool>();
-                    foreach (var key in typeof(Need).GetEnumValues())
-                    {
-                        __backing_field_for_Has[(Need)key] = false;
-                    }
-                }
-                return __backing_field_for_Has;
-            }
-        }
 
         #region fields
         public static Player Instance { get; private set; }
@@ -38,8 +23,6 @@ namespace HoS_proto
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
-
-        Dictionary<Need, bool> __backing_field_for_Has;
         #endregion
 
         public Player(int x, int y)
@@ -159,7 +142,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                Has[Need.LEARN_WALK] = true;
+                Needs[Need.LEARN_WALK] = true;
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -175,7 +158,7 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (!Has[Need.LEARN_WALK])
+                    if (!Needs[Need.LEARN_WALK])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                         intentions.Add(Quest.New(Verb.TALK, this, Environment.At(NPC.Instance.Location)));
@@ -200,7 +183,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    Has[Need.LEARN_TALK] = true;
+                    Needs[Need.LEARN_TALK] = true;
                     break;
             }
             state = nextState;
@@ -221,7 +204,7 @@ namespace HoS_proto
                 case State.MOVING:
                     if (NPC.Instance.isInRange(this))
                     {
-                        if (!Has[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
+                        if (!Needs[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
 
                         if (Pressed(Keys.Space))
                         {

@@ -16,9 +16,9 @@ namespace HoS_proto
 {
     partial class Person
     {
-        protected enum Need
+        public enum Need
         {
-            LEARN_TALK, LEARN_WALK, FOOD
+            NOTHING, LEARN_TALK, LEARN_WALK, FOOD
         }
 
         #region fields, cantrips
@@ -46,7 +46,6 @@ namespace HoS_proto
         }
 
         protected List<Quest> intentions = new List<Quest>();
-        #endregion
 
         public string Hail(Person who)
         {
@@ -60,6 +59,24 @@ namespace HoS_proto
             return rval;
         }
 
+        Dictionary<Need, bool> __backing_field_for_Needs;
+        protected Dictionary<Need, bool> Needs
+        {
+            get
+            {
+                if (__backing_field_for_Needs == null)
+                {
+                    __backing_field_for_Needs = new Dictionary<Need, bool>();
+                    foreach (var key in typeof(Need).GetEnumValues())
+                    {
+                        __backing_field_for_Needs[(Need)key] = false;
+                    }
+                }
+                return __backing_field_for_Needs;
+            }
+        }
+        #endregion
+
         protected void Query(Person other, Interaction.Atom about)
         {
             Interactee = other;
@@ -72,6 +89,10 @@ namespace HoS_proto
                     break;
                 case Interaction.Atom.NOTHING:
                     q = Interaction.Query.Make(this, other, (Interaction)null);
+                    break;
+                case Interaction.Atom.NEED:
+                    var need = new List<Need>(Needs.Keys).Find(k => Needs[k]);
+                    q = Interaction.Query.Make(this, other, need);
                     break;
                 default:
                     Debug.Assert(false, "write another case.");
