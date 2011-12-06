@@ -24,7 +24,13 @@ namespace HoS_proto
                 public override string ToString()
                 {
                     var rval = sender.Quirks & Quirk.BLUNT ? "" : "Sorry, but ";
-                    if (context is Query) rval += "I don't know.";
+                    if (context is Query)
+                    {
+                        var q = context as Query;
+                        rval += q.AboutNeed == Person.Need.NOTHING
+                                             ? "I don't know."
+                                             : "I don't have any " + q.AboutNeed.ToString() + ".";
+                    }
                     else if (context is Propose)
                     {
                         rval += sender.Quirks & Quirk.BLUNT ? "Do it yourself." : "I'm too busy.";
@@ -53,6 +59,7 @@ namespace HoS_proto
                     }
                     else if (context is Query)
                     {
+                        #region Directions lambda
                         Func<Noun, string> Directions = ex =>
                         {
                             var _rval = "You can probably find " + ex + " ";
@@ -63,6 +70,7 @@ namespace HoS_proto
                             _rval += " of here.";
                             return _rval;
                         };
+                        #endregion
 
                         var question = context as Query;
                         switch (question.Subject)
@@ -70,6 +78,7 @@ namespace HoS_proto
                             case Subject.NOTHING:
                                 rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
                                 break;
+
                             case Subject.PERSON:
                                 Debug.Assert(question.AboutPerson);
                                 rval += ProOrProperNoun(question.AboutPerson) + ", what a";
@@ -88,10 +97,23 @@ namespace HoS_proto
                                 break;
 
                             case Subject.INTERACTION:
-                                rval += sender.Hail(receiver) + "you're confusing me.";
+                                var originalQuestion = question.AboutInteraction as Query;
+                                Debug.Assert(originalQuestion);
+
+                                if (originalQuestion.sender != sender)
+                                {
+                                    rval += "how would I know?  Ask ";
+                                    rval += originalQuestion.sender;
+                                }
+                                else if (originalQuestion.Subject == Subject.NEED)
+                                {
+                                    rval += "because I need " + originalQuestion.AboutNeed.ToString() + ".";
+                                }
+                                else rval += sender.Hail(receiver) + "you're confusing me.";
                                 break;
+
                             case Subject.NEED:
-                                rval += "I don't know anything about that!!!";
+                                rval += "I have loads of " + question.AboutNeed + ".";
                                 break;
                         }
                     }
