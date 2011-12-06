@@ -176,10 +176,11 @@ namespace HoS_proto
                         if (prevStatement) textBubble.Add(prevStatement);
                     }
 
-                    var context = NPC.Instance.LastInteraction(this);
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, context ? Subject.INTERACTION : Subject.NOTHING);
+                        Query(NPC.Instance, NPC.Instance.LastInteraction(this)
+                                            ? Subject.INTERACTION
+                                            : Subject.NOTHING);
                     }, Color.Yellow)
                     .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
                     .Add("No", () => Respond(NPC.Instance, false), Color.Red)

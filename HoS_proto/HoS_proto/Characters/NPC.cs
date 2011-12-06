@@ -68,6 +68,7 @@ namespace HoS_proto
                 {
                     Query(Player.Instance, Subject.NEED);
                 }
+                else Respond(Player.Instance, Engine.rand.Next(2) == 1);
             }
         }
     }

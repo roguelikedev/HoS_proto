@@ -17,7 +17,8 @@ namespace HoS_proto
                             DIRT  = "dirt",
                             ROCK  = "rock"
                             ;
-        public static readonly Point WORLD_DIM = new Point(64, 64);
+        const int __WORLD_DIM_XY = 16;
+        public static readonly Point WORLD_DIM = new Point(__WORLD_DIM_XY, __WORLD_DIM_XY);
 
         static Dictionary<Point, Environment> all = new Dictionary<Point, Environment>();
         public static Environment At(Point p)

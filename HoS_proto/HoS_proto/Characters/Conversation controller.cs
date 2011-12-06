@@ -85,7 +85,7 @@ namespace HoS_proto
             switch (about)
             {
                 case Subject.INTERACTION:
-                    q = Interaction.Query.Make(this, other, LastInteraction(other));
+                    q = Interaction.Query.Make(this, other, other.LastInteraction(this));
                     break;
                 case Subject.NOTHING:
                     q = Interaction.Query.Make(this, other, (Interaction)null);
@@ -111,18 +111,21 @@ namespace HoS_proto
             if (!context) context = new Interaction.Idle(other);
 
             Interaction a;
-            if (context.ExpectsResponse)
+            if (!context.ExpectsResponse)
             {
-                if (!affirm) a = new Interaction.Reply.No(this, other, context);
-                else
+                a = new Interaction.Reply.Comment(this, other, context, affirm ? Mood.NICE : Mood.MEAN);
+            }
+            else
+            {
+                if (affirm)
                 {
                     a = new Interaction.Reply.Ok(this, other, context);
                     if (context is Interaction.Propose) intentions.Add((context as Interaction.Propose).quest);
                 }
-            }
-            else
-            {
-                a = new Interaction.Reply.Comment(this, other, context, affirm ? Mood.NICE : Mood.MEAN);
+                else
+                {
+                    a = new Interaction.Reply.No(this, other, context);
+                }
             }
 
             memory.Add(a);
