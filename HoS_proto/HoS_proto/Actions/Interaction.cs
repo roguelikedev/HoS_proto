@@ -10,8 +10,7 @@ namespace HoS_proto
 {
     public abstract partial class Interaction
     {
-        public static Dictionary<Subject, bool> progress = new Dictionary<Subject, bool>();
-
+        #region fields, properties, conversions
         Act underlyingAct;
         public Person Sender { get { return underlyingAct.acter as Person; } }
         public Person Receiver { get { return underlyingAct.actedOn as Person; } }
@@ -23,8 +22,9 @@ namespace HoS_proto
 
         protected abstract Color Color { get; }
         public virtual bool ExpectsResponse { get { return false; } }
-
         public virtual string ToVerb { get { return "do"; } }
+        #endregion
+
         string ProOrProperNoun(Person who)
         {
             if (who == Sender) return "I";
@@ -35,6 +35,7 @@ namespace HoS_proto
         protected Interaction(Person from, Person to) : this(from.actController.FirstCause(from, Verb.TALK, to)) { }
         protected Interaction(Act act) { underlyingAct = act; }
 
+        #region kruft
         public partial class Utilize : Interaction
         {
             public Utilize(Person from, Person to) : base(from, to) { }
@@ -52,5 +53,6 @@ namespace HoS_proto
             public Idle(Person from) : base(from, from) { }
             public override string ToVerb { get { return "wait"; } }
         }
+        #endregion
     }
 }

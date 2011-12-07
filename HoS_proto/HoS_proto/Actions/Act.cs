@@ -9,6 +9,7 @@ namespace HoS_proto
     {
         static readonly Act NO_ACT = new Act();
 
+        #region fields
         public readonly Noun acter;
         public readonly Verb verb;
         public readonly Noun actedOn;
@@ -18,10 +19,9 @@ namespace HoS_proto
 
         public readonly ulong GUID;
         static uint nextGUID;
+        #endregion
 
-        Act() { GUID = nextGUID++; }
-        Act(Noun s, Verb v, Noun o, Noun io, Act c) : this() { acter = s; verb = v; actedOn = o; other = io; cause = c; }
-
+        #region cantrips, conversions, clutter
         public override string ToString()
         {
             if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
@@ -45,17 +45,22 @@ namespace HoS_proto
         public override bool Equals(object obj) { return obj is Act ? this == obj as Act : false; }
         public override int GetHashCode() { return ToString().GetHashCode(); }
 
+        Act() { GUID = nextGUID++; }
+        Act(Noun s, Verb v, Noun o, Noun io, Act c) : this() { acter = s; verb = v; actedOn = o; other = io; cause = c; }
+        #endregion
+
         public class Controller
         {
+            #region fields, properties
             Dictionary<Act, Act> dependencies = new Dictionary<Act, Act>();
             List<Act> Allocated { get { return new List<Act>(dependencies.Keys); } }
             List<Act> Past { get { return Allocated.FindAll(a => a.Happened); } }
             List<Act> Present { get { return new List<Act>(Allocated.FindAll(a => !a.Happened).Except<Act>(Future)); } }
             List<Act> Future { get { return new List<Act>(dependencies.Values).FindAll(a => a != NO_ACT); } }
+            #endregion
 
+            #region factory helpers
             public Controller() { }
-
-            #region factory overloads
             public Act FirstCause(Noun subject, Verb verb, Noun _object)
             {
                 return FirstCause(subject, verb, _object, Noun.NOTHING);
