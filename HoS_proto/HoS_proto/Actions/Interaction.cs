@@ -14,7 +14,7 @@ namespace HoS_proto
 
         Act underlyingAct;
         public Person Sender { get { return underlyingAct.acter as Person; } }
-        public Person Receiver { get { return underlyingAct.acted as Person; } }
+        public Person Receiver { get { return underlyingAct.actedOn as Person; } }
         public ulong GUID { get { return underlyingAct.GUID; } }
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }

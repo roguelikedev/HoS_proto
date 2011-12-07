@@ -53,9 +53,14 @@ namespace HoS_proto
                 {
                     Respond(Player.Instance, Engine.rand.Next(2) == 1);
                 }
-                else if (Needs[Need.FOOD])
+                else if (Needs.Count > 0)
                 {
-                    Query(Player.Instance, Subject.NEED);
+                    if (iSaid is Interaction.Query)
+                    {
+                        if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
+                        else Enlist(Player.Instance, actController.MakeAct(this, Verb.NEED, Noun.FOOD));
+                    }
+                    else Query(Player.Instance, Subject.NEED);
                 }
                 else Respond(Player.Instance, Engine.rand.Next(2) == 1);
             }

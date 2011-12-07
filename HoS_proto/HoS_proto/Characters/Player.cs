@@ -248,13 +248,13 @@ namespace HoS_proto
             }
             else
             {
-                if (Engine.OnScreen(quest.acted.Location))
+                if (Engine.OnScreen(quest.actedOn.Location))
                 {
-                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.acted.Location.X, quest.acted.Location.Y);
+                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.actedOn.Location.X, quest.actedOn.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(quest.acted.Location.X - X, quest.acted.Location.Y - Y);
+                var dir = new Vector2(quest.actedOn.Location.X - X, quest.actedOn.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

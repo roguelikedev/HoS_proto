@@ -126,11 +126,18 @@ namespace HoS_proto
             ShowLastSentence(a);
         }
 
-        protected void Enlist(Person other, Act why)
+        protected void Enlist(Person other, Act rationale)
         {
             Listener = other;
 
-            Interaction askedForHelp = new Interaction.Propose(this, other, why);
+            Debug.Assert(rationale.verb == Verb.NEED, "unsupported.");
+            var goThere = actController.MakeAct(other, Verb.GO, rationale.actedOn);
+            //var getThat = actController.MakeAct(other, Verb.GET, why.actedOn);
+            //var gimme = actController.MakeAct(other, Verb.GIVE, why.actedOn, this);
+            var please = actController.MakeAct(this, Verb.LIKE, other);
+            actController.Predicate(goThere, please);
+
+            Interaction askedForHelp = new Interaction.Propose(this, other, goThere);
             memory.Add(askedForHelp);
 
             ShowLastSentence(askedForHelp);

@@ -7,11 +7,8 @@ namespace HoS_proto
 {
     public class Environment : Noun
     {
-        public static Environment NOTHING { get; private set; }
-        static Environment()
-        {
-            NOTHING = new Environment(-1, -1, null);
-        }
+        static Dictionary<Point, Environment> all = new Dictionary<Point, Environment>();
+        public static readonly Environment NOWHERE = new Environment(-1, -1, null);
 
         public const string GRASS = "grass",
                             DIRT  = "dirt",
@@ -20,11 +17,10 @@ namespace HoS_proto
         const int __WORLD_DIM_XY = 16;
         public static readonly Point WORLD_DIM = new Point(__WORLD_DIM_XY, __WORLD_DIM_XY);
 
-        static Dictionary<Point, Environment> all = new Dictionary<Point, Environment>();
         public static Environment At(Point p)
         {
             if (all.ContainsKey(p)) return all[p];
-            else return NOTHING;
+            else return NOWHERE;
         }
         public static Environment At(int x, int y) { return At(new Point(x, y)); }
 

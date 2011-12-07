@@ -98,18 +98,20 @@ namespace HoS_proto
 
                             case Subject.INTERACTION:
                                 var originalQuestion = question.AboutInteraction as Query;
-                                Debug.Assert(originalQuestion);
-
-                                if (originalQuestion.Sender != Sender)
+                                if (originalQuestion && originalQuestion.Sender != Sender)
                                 {
                                     rval += "how would I know?  Ask ";
                                     rval += originalQuestion.Sender;
                                 }
-                                else if (originalQuestion.Subject == Subject.NEED)
+                                else if (question.AboutInteraction is Propose)
                                 {
-                                    rval += "because I need " + originalQuestion.AboutNeed.ToString() + ".";
+                                    rval += "because I need " + (question.AboutInteraction as Propose).underlyingAct.actedOn.ToString() + ".";
                                 }
-                                else rval += Sender.Hail(Receiver) + "you're confusing me.";
+                                else
+                                {
+                                    rval += Sender.Hail(Receiver) + "you're confusing me.";
+                                }
+
                                 break;
 
                             case Subject.NEED:
