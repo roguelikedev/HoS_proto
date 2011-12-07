@@ -19,13 +19,14 @@ namespace HoS_proto
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
         bool moveDelayElapsed = true;
         State state = State.UNINITIALIZED;
+        Act.Controller actController;
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
         #endregion
 
-        public Player(int x, int y)
+        public Player(int x, int y, Act.Controller ac)
         {
             Instance = this;
             Location = new Point(x, y);
@@ -35,6 +36,7 @@ namespace HoS_proto
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
+            actController = ac;
 
             Needs[Need.LEARN_TALK] = true;
             Needs[Need.LEARN_WALK] = true;
@@ -165,7 +167,7 @@ namespace HoS_proto
                     if (Needs[Need.LEARN_WALK])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                        intentions.Add(new Act(this, Verb.GO, NPC.Instance));
+                        intentions.Add(actController.MakeAct(this, Verb.GO, NPC.Instance));
                     }
                     break;
 
@@ -249,13 +251,13 @@ namespace HoS_proto
             }
             else
             {
-                if (Engine.OnScreen(quest.obj.Location))
+                if (Engine.OnScreen(quest.acted.Location))
                 {
-                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.obj.Location.X, quest.obj.Location.Y);
+                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.acted.Location.X, quest.acted.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(quest.obj.Location.X - X, quest.obj.Location.Y - Y);
+                var dir = new Vector2(quest.acted.Location.X - X, quest.acted.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

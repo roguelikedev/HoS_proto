@@ -28,6 +28,7 @@ namespace HoS_proto
         public static TriangleDrawer triDrawer;
         Action ModalUpdate;
         Action ModalDraw;
+        Act.Controller actController = new Act.Controller();
 
         public Engine()
         {
@@ -57,7 +58,6 @@ namespace HoS_proto
             for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 5);
 
 
-            new Player(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
             {
                 int x = -1, y = -1;
@@ -66,7 +66,7 @@ namespace HoS_proto
                     x = rand.Next(SCREEN_DIM_IN_TILES);
                     y = rand.Next(SCREEN_DIM_IN_TILES);
                 }
-                new Player(x, y);
+                new Player(x, y, actController);
             }
         }
 
