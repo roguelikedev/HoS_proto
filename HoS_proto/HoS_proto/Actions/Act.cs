@@ -13,13 +13,14 @@ namespace HoS_proto
         public readonly Verb verb;
         public readonly Noun actedOn;
         public readonly Noun other;
+        public readonly Act cause;
         public bool Happened { get; private set; }
 
         public readonly ulong GUID;
         static uint nextGUID;
 
         Act() { GUID = nextGUID++; }
-        Act(Noun s, Verb v, Noun o, Noun io) : this() { acter = s; verb = v; actedOn = o; other = io; }
+        Act(Noun s, Verb v, Noun o, Noun io, Act c) : this() { acter = s; verb = v; actedOn = o; other = io; cause = c; }
 
         public override string ToString()
         {
@@ -54,16 +55,31 @@ namespace HoS_proto
 
             public Controller() { }
 
-            public Act MakeAct(Noun subject, Verb verb, Noun _object)
+            #region factory overloads
+            public Act FirstCause(Noun subject, Verb verb, Noun _object)
             {
-                Debug.Assert(verb != Verb.GIVE, "that's a ternary verb.");
-                return MakeAct(subject, verb, _object, Noun.NOTHING);
+                return FirstCause(subject, verb, _object, Noun.NOTHING);
             }
-
-            public Act MakeAct(Noun subject, Verb verb, Noun _object, Noun indirectObject)
+            public Act FirstCause(Noun subject, Verb verb, Noun _object, Noun indirectObject)
             {
-                var rval = new Act(subject, verb, _object, indirectObject);
-                if (!Allocated.Contains(rval)) dependencies[rval] = NO_ACT;
+                return Because(NO_ACT, subject, verb, _object, indirectObject);
+            }
+            public Act Because(Act cause, Noun subject, Verb verb, Noun _object)
+            {
+                return Because(cause, subject, verb, _object, Noun.NOTHING);
+            }
+            #endregion
+
+            public Act Because(Act cause, Noun subject, Verb verb, Noun _object, Noun indirectObject)
+            {
+                Debug.Assert(indirectObject || verb != Verb.GIVE, "that's a ternary verb.");
+
+                var rval = new Act(subject, verb, _object, indirectObject, cause);
+                if (!Allocated.Contains(rval))
+                {
+                    dependencies[rval] = NO_ACT;
+                    if (cause && !cause.Happened) dependencies[cause] = rval;
+                }
                 return rval;
             }
 
@@ -75,16 +91,6 @@ namespace HoS_proto
 
                 hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
                 dependencies[hasHappened] = NO_ACT; // Present now finds the consequent Act, Future doesn't.
-            }
-
-            public void Predicate(Act preCondition, Act consequence)
-            {
-                Debug.Assert(dependencies.ContainsKey(preCondition));
-                Debug.Assert(dependencies.ContainsKey(consequence));
-
-                if (dependencies[preCondition]) return;
-
-                dependencies[preCondition] = consequence;
             }
 
             public Act Consequence(Act preCondition)

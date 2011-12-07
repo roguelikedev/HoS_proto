@@ -14,6 +14,9 @@ namespace HoS_proto
             spritePath = "dc_caveman";
             name = "weird caveman";
             Needs[Need.FOOD] = true;
+            var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
+            actController.Confirm(hungry);
+            knowledge.Add(hungry);
         }
 
         public bool isInRange(Player player)
@@ -51,14 +54,14 @@ namespace HoS_proto
 
                 if (playerSaid.ExpectsResponse)
                 {
-                    Respond(Player.Instance, Engine.rand.Next(2) == 1);
+                    Respond(Player.Instance, true);
                 }
                 else if (Needs.Count > 0)
                 {
                     if (iSaid is Interaction.Query)
                     {
                         if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
-                        else Enlist(Player.Instance, actController.MakeAct(this, Verb.NEED, Noun.FOOD));
+                        else Enlist(Player.Instance);
                     }
                     else Query(Player.Instance, Subject.NEED);
                 }

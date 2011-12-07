@@ -72,41 +72,41 @@ namespace HoS_proto
                         };
                         #endregion
 
-                        var question = context as Query;
-                        switch (question.Subject)
+                        var youAsked = context as Query;
+                        switch (youAsked.Subject)
                         {
                             case Subject.NOTHING:
                                 rval += Sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
                                 break;
 
                             case Subject.PERSON:
-                                Debug.Assert(question.AboutPerson);
-                                rval += ProOrProperNoun(question.AboutPerson) + ", what a";
-                                if (question.AboutPerson.Quirks & Quirk.EGOTISTICAL)
+                                Debug.Assert(youAsked.AboutPerson);
+                                rval += ProOrProperNoun(youAsked.AboutPerson) + ", what a";
+                                if (youAsked.AboutPerson.Quirks & Quirk.EGOTISTICAL)
                                 {
-                                    rval += question.AboutPerson == Sender ? " cool" : " egotistical";
+                                    rval += youAsked.AboutPerson == Sender ? " cool" : " egotistical";
                                 }
-                                if (question.AboutPerson.Quirks & Quirk.TIGHT_LIPPED) rval += " quiet";
+                                if (youAsked.AboutPerson.Quirks & Quirk.TIGHT_LIPPED) rval += " quiet";
                                 rval += " person.\n";
 
-                                rval += Directions(question.AboutPerson);
+                                rval += Directions(youAsked.AboutPerson);
                                 break;
 
                             case Subject.PLACE:
-                                rval += Directions(question.AboutNoun);
+                                rval += Directions(youAsked.AboutNoun);
                                 break;
 
                             case Subject.INTERACTION:
-                                var originalQuestion = question.AboutInteraction as Query;
+                                var originalQuestion = youAsked.AboutInteraction as Query;
                                 if (originalQuestion && originalQuestion.Sender != Sender)
                                 {
                                     rval += "how would I know?  Ask ";
                                     rval += originalQuestion.Sender;
                                 }
-                                else if (question.AboutInteraction is Propose)
+                                else if (youAsked.AboutInteraction is Propose)
                                 {
-                                    var consequence = Sender.actController.Consequence((question.AboutInteraction as Propose).quest);
-                                    rval += "because then " + consequence + ".";
+                                    var quest = (youAsked.AboutInteraction as Propose).quest;
+                                    rval += "because " + quest.cause + ".";
                                 }
                                 else
                                 {
@@ -116,7 +116,7 @@ namespace HoS_proto
                                 break;
 
                             case Subject.NEED:
-                                rval += "I have loads of " + question.AboutNeed + ".";
+                                rval += "I have loads of " + youAsked.AboutNeed + ".";
                                 break;
                         }
                     }

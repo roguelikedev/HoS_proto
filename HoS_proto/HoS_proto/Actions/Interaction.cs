@@ -32,7 +32,8 @@ namespace HoS_proto
             else return who;
         }
 
-        protected Interaction(Person from, Person to) { underlyingAct = from.actController.MakeAct(from, Verb.TALK, to); }
+        protected Interaction(Person from, Person to) : this(from.actController.FirstCause(from, Verb.TALK, to)) { }
+        protected Interaction(Act act) { underlyingAct = act; }
 
         public partial class Utilize : Interaction
         {

@@ -21,6 +21,7 @@ namespace HoS_proto
         public Quirk Quirks { get; protected set; }
 
         List<Interaction> memory = new List<Interaction>();
+        protected List<Act> knowledge = new List<Act>();
         protected List<Act> intentions = new List<Act>();
         Dictionary<Act, Act> promises = new Dictionary<Act, Act>();
 
@@ -126,16 +127,15 @@ namespace HoS_proto
             ShowLastSentence(a);
         }
 
-        protected void Enlist(Person other, Act rationale)
+        protected void Enlist(Person other)
         {
             Listener = other;
 
-            Debug.Assert(rationale.verb == Verb.NEED, "unsupported.");
-            var goThere = actController.MakeAct(other, Verb.GO, rationale.actedOn);
-            //var getThat = actController.MakeAct(other, Verb.GET, why.actedOn);
-            //var gimme = actController.MakeAct(other, Verb.GIVE, why.actedOn, this);
-            var please = actController.MakeAct(this, Verb.LIKE, other);
-            actController.Predicate(goThere, please);
+            var rationale = knowledge.Find(a => a.acter == this && a.verb == Verb.NEED);
+            var goThere = actController.Because(rationale, other, Verb.GO, rationale.actedOn);
+            Debug.Assert(rationale && goThere.cause == rationale);
+            var please = actController.Because(goThere, this, Verb.LIKE, other);
+            Debug.Assert(please.cause == goThere);
 
             Interaction askedForHelp = new Interaction.Propose(this, other, goThere);
             memory.Add(askedForHelp);

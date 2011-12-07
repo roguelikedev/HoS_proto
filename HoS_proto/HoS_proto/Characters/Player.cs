@@ -164,7 +164,7 @@ namespace HoS_proto
                     if (Needs[Need.LEARN_WALK])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                        intentions.Add(actController.MakeAct(this, Verb.GO, NPC.Instance));
+                        intentions.Add(actController.FirstCause(this, Verb.GO, NPC.Instance));
                     }
                     break;
 
