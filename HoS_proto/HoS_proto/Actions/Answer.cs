@@ -105,7 +105,8 @@ namespace HoS_proto
                                 }
                                 else if (question.AboutInteraction is Propose)
                                 {
-                                    rval += "because I need " + (question.AboutInteraction as Propose).underlyingAct.actedOn.ToString() + ".";
+                                    var consequence = Sender.actController.Consequence((question.AboutInteraction as Propose).quest);
+                                    rval += "because then " + consequence + ".";
                                 }
                                 else
                                 {

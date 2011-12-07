@@ -23,6 +23,8 @@ namespace HoS_proto
 
         public override string ToString()
         {
+            if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
+
             var rval = new List<string>();
             rval.Add(acter.ToString());
             rval.Add(verb.ToString().ToLower());
@@ -36,11 +38,11 @@ namespace HoS_proto
         public static bool operator ==(Act a, Act b)
         {
             if (object.ReferenceEquals(b, null)) return false;
-            return a.acter == b.acter && a.verb == b.verb && a.actedOn == b.actedOn && a.other == b.other;
+            return a.ToString() == b.ToString();
         }
         public static bool operator !=(Act a, Act b) { return !(a == b); }
         public override bool Equals(object obj) { return obj is Act ? this == obj as Act : false; }
-        public override int GetHashCode() { return GUID.GetHashCode(); }
+        public override int GetHashCode() { return ToString().GetHashCode(); }
 
         public class Controller
         {
@@ -79,10 +81,15 @@ namespace HoS_proto
             {
                 Debug.Assert(dependencies.ContainsKey(preCondition));
                 Debug.Assert(dependencies.ContainsKey(consequence));
-                Debug.Assert(dependencies[preCondition] == NO_ACT);
-                Debug.Assert(dependencies[consequence] == NO_ACT);
+
+                if (dependencies[preCondition]) return;
 
                 dependencies[preCondition] = consequence;
+            }
+
+            public Act Consequence(Act preCondition)
+            {
+                return dependencies[preCondition];
             }
         }
     }
