@@ -240,7 +240,7 @@ namespace HoS_proto
             if (intentions.Count == 0) goto LAST_LINE;
 
             var quest = intentions[0];
-            if (quest)
+            if (quest && quest.Happened)
             {
                 Engine.WriteAtWorld("GJ", X, Y, 3);
                 if (quest.verb == Verb.TALK) intentions.RemoveAt(0);

@@ -19,7 +19,7 @@ namespace HoS_proto
         static uint nextGUID;
 
         Act() { GUID = nextGUID++; }
-        Act(Noun s, Verb v, Noun o) { acter = s; verb = v; acted = o; }
+        Act(Noun s, Verb v, Noun o) : this() { acter = s; verb = v; acted = o; }
 
         public override string ToString()
         {
