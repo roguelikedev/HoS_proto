@@ -12,30 +12,27 @@ namespace HoS_proto
     {
         public static Dictionary<Subject, bool> progress = new Dictionary<Subject, bool>();
 
-        public readonly Person sender;
-        public readonly Person receiver;
-        public virtual bool ExpectsResponse { get { return false; } }
+        Act underlyingAct;
+        public Person Sender { get { return underlyingAct.acter as Person; } }
+        public Person Receiver { get { return underlyingAct.acted as Person; } }
+        public ulong GUID { get { return underlyingAct.GUID; } }
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
-        protected abstract Color Color { get; }
         public static implicit operator Color(Interaction interaction) { return interaction.Color; }
         public static implicit operator bool(Interaction interaction) { return interaction != null; }
+
+        protected abstract Color Color { get; }
+        public virtual bool ExpectsResponse { get { return false; } }
 
         public virtual string ToVerb { get { return "do"; } }
         string ProOrProperNoun(Person who)
         {
-            if (who == sender) return "I";
-            else if (who == receiver) return "you";
+            if (who == Sender) return "I";
+            else if (who == Receiver) return "you";
             else return who;
         }
 
-        public readonly ulong GUID;
-        static uint nextGUID;
-        protected Interaction(Person from, Person to)
-        {
-            sender = from; receiver = to;
-            GUID = nextGUID++;
-        }
+        protected Interaction(Person from, Person to) { underlyingAct = from.actController.MakeAct(from, Verb.TALK, to); }
 
         public partial class Utilize : Interaction
         {

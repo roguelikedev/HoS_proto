@@ -58,7 +58,7 @@ namespace HoS_proto
             for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 5);
 
 
-            new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1));
+            new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1), actController);
             {
                 int x = -1, y = -1;
                 while (Environment.At(new Point(x, y)).blockMove)

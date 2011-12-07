@@ -99,7 +99,7 @@ namespace HoS_proto
 
             public override string ToString()
             {
-                var rval = sender.Hail(receiver);
+                var rval = Sender.Hail(Receiver);
 
                 switch (Subject)
                 {
@@ -108,7 +108,7 @@ namespace HoS_proto
                         rval += AboutPerson;
                         break;
                     case Subject.NOTHING:
-                        if (sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
+                        if (Sender.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
                         else rval += "how're you doing";
                         break;
                     case Subject.NEED:
@@ -118,7 +118,7 @@ namespace HoS_proto
                     case Subject.INTERACTION:
                         Debug.Assert(AboutInteraction);
                         rval += "why did ";
-                        rval += ProOrProperNoun(AboutInteraction.sender) + " ";
+                        rval += ProOrProperNoun(AboutInteraction.Sender) + " ";
                         rval += AboutInteraction.ToVerb;
                         rval += " that?";
                         break;

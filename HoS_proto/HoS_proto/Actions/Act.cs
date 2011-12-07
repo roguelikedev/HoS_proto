@@ -7,14 +7,18 @@ namespace HoS_proto
 {
     public class Act
     {
+        static readonly Act NO_ACT = new Act();
+
         public readonly Noun acter;
         public readonly Verb verb;
         public readonly Noun acted;
         public readonly Noun other;
         public bool Happened { get; private set; }
 
-        Act() { }
-        static readonly Act NO_ACT = new Act();
+        public readonly ulong GUID;
+        static uint nextGUID;
+
+        Act() { GUID = nextGUID++; }
         Act(Noun s, Verb v, Noun o) { acter = s; verb = v; acted = o; }
 
         public override string ToString()

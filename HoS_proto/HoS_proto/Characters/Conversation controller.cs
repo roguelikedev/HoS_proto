@@ -1,14 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-using System.Timers;
 using Util;
 using System.Diagnostics;
 
@@ -22,6 +13,8 @@ namespace HoS_proto
         }
 
         #region fields, cantrips
+        public readonly Act.Controller actController;
+
         protected string name = "";
         public override string ToString() { return name; }
         public Person Listener { get; private set; }
@@ -36,16 +29,16 @@ namespace HoS_proto
             get
             {
                 if (memory.Count < 2) return true;
-                return memory.Last().receiver != memory[memory.Count - 2].receiver;
+                return memory.Last().Receiver != memory[memory.Count - 2].Receiver;
             }
         }
 
         public Interaction LastStatement(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(intr => intr.receiver == to)) return null;
+            if (!memory.Exists(intr => intr.Receiver == to)) return null;
 
-            return memory.Last(intr => intr.receiver == to);
+            return memory.Last(intr => intr.Receiver == to);
         }
 
         public string Hail(Person who)

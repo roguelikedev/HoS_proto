@@ -21,7 +21,7 @@ namespace HoS_proto
 
             public override string ToString()
             {
-                var rval = sender.Quirks & Quirk.RUDE ? "" : "Please ";
+                var rval = Sender.Quirks & Quirk.RUDE ? "" : "Please ";
 
                 rval += quest.verb.ToString().ToLower();
                 switch (quest.verb)

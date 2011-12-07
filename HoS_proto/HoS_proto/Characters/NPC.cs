@@ -19,10 +19,9 @@ namespace HoS_proto
         public static NPC Instance { get; private set; }
         public List<string> Options { get; private set; }
 
-        public NPC(int x, int y)
+        public NPC(int x, int y, Act.Controller ac) : base (x, y, ac)
         {
             Instance = this;
-            Location = new Point(x, y);
             Options = new List<string>();
             spritePath = "dc_caveman";
             name = "weird caveman";

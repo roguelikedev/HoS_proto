@@ -23,7 +23,7 @@ namespace HoS_proto
 
                 public override string ToString()
                 {
-                    var rval = sender.Quirks & Quirk.BLUNT ? "" : "Sorry, but ";
+                    var rval = Sender.Quirks & Quirk.BLUNT ? "" : "Sorry, but ";
                     if (context is Query)
                     {
                         var q = context as Query;
@@ -33,7 +33,7 @@ namespace HoS_proto
                     }
                     else if (context is Propose)
                     {
-                        rval += sender.Quirks & Quirk.BLUNT ? "Do it yourself." : "I'm too busy.";
+                        rval += Sender.Quirks & Quirk.BLUNT ? "Do it yourself." : "I'm too busy.";
                     }
                     else
                     {
@@ -51,11 +51,11 @@ namespace HoS_proto
 
                 public override string ToString()
                 {
-                    var rval = sender.Quirks & Quirk.GENEROUS ? "Of course " : "";
+                    var rval = Sender.Quirks & Quirk.GENEROUS ? "Of course " : "";
 
                     if (context is Propose)
                     {
-                        rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "Okay." : "I'll do it.";
+                        rval += Sender.Quirks & Quirk.TIGHT_LIPPED ? "Okay." : "I'll do it.";
                     }
                     else if (context is Query)
                     {
@@ -63,10 +63,10 @@ namespace HoS_proto
                         Func<Noun, string> Directions = ex =>
                         {
                             var _rval = "You can probably find " + ex + " ";
-                            if (ex.Location.Y < sender.Location.Y - 3) _rval += "north";
-                            if (ex.Location.Y > sender.Location.Y + 3) _rval += "south";
-                            if (ex.Location.X < sender.Location.X - 3) _rval += "west";
-                            if (ex.Location.X > sender.Location.X + 3) _rval += "east";
+                            if (ex.Location.Y < Sender.Location.Y - 3) _rval += "north";
+                            if (ex.Location.Y > Sender.Location.Y + 3) _rval += "south";
+                            if (ex.Location.X < Sender.Location.X - 3) _rval += "west";
+                            if (ex.Location.X > Sender.Location.X + 3) _rval += "east";
                             _rval += " of here.";
                             return _rval;
                         };
@@ -76,7 +76,7 @@ namespace HoS_proto
                         switch (question.Subject)
                         {
                             case Subject.NOTHING:
-                                rval += sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
+                                rval += Sender.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
                                 break;
 
                             case Subject.PERSON:
@@ -84,7 +84,7 @@ namespace HoS_proto
                                 rval += ProOrProperNoun(question.AboutPerson) + ", what a";
                                 if (question.AboutPerson.Quirks & Quirk.EGOTISTICAL)
                                 {
-                                    rval += question.AboutPerson == sender ? " cool" : " egotistical";
+                                    rval += question.AboutPerson == Sender ? " cool" : " egotistical";
                                 }
                                 if (question.AboutPerson.Quirks & Quirk.TIGHT_LIPPED) rval += " quiet";
                                 rval += " person.\n";
@@ -100,16 +100,16 @@ namespace HoS_proto
                                 var originalQuestion = question.AboutInteraction as Query;
                                 Debug.Assert(originalQuestion);
 
-                                if (originalQuestion.sender != sender)
+                                if (originalQuestion.Sender != Sender)
                                 {
                                     rval += "how would I know?  Ask ";
-                                    rval += originalQuestion.sender;
+                                    rval += originalQuestion.Sender;
                                 }
                                 else if (originalQuestion.Subject == Subject.NEED)
                                 {
                                     rval += "because I need " + originalQuestion.AboutNeed.ToString() + ".";
                                 }
-                                else rval += sender.Hail(receiver) + "you're confusing me.";
+                                else rval += Sender.Hail(Receiver) + "you're confusing me.";
                                 break;
 
                             case Subject.NEED:

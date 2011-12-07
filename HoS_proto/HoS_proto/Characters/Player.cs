@@ -19,24 +19,21 @@ namespace HoS_proto
         Timer timeSinceMovement = new Timer(1f / 60f * 3000f);
         bool moveDelayElapsed = true;
         State state = State.UNINITIALIZED;
-        Act.Controller actController;
 
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
         #endregion
 
-        public Player(int x, int y, Act.Controller ac)
+        public Player(int x, int y, Act.Controller ac) : base (x, y, ac)
         {
             Instance = this;
-            Location = new Point(x, y);
             timeSinceMovement.AutoReset = false;
             timeSinceMovement.Elapsed += (_, __) => moveDelayElapsed = true;
             spritePath = "dd_tinker";
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
-            actController = ac;
 
             Needs[Need.LEARN_TALK] = true;
             Needs[Need.LEARN_WALK] = true;

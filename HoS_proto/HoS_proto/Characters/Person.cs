@@ -71,10 +71,12 @@ namespace HoS_proto
         static List<Person> all = new List<Person>();
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
 
-        protected Person()
+        protected Person(int x, int y, Act.Controller ac)
         {
+            Location = new Point(x, y);
             Quirks = Quirk.CASUAL;
             all.Add(this);
+            actController = ac;
         }
         #endregion
     }
