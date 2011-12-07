@@ -24,10 +24,13 @@ namespace HoS_proto
         #region fields, cantrips
         protected string name = "";
         public override string ToString() { return name; }
-
-        public Person Interactee { get; private set; }
+        public Person Listener { get; private set; }
         public Quirk Quirks { get; protected set; }
+
         List<Interaction> memory = new List<Interaction>();
+        protected List<Act> intentions = new List<Act>();
+        Dictionary<Act, Act> promises = new Dictionary<Act, Act>();
+
         bool AmbiguousListener
         {
             get
@@ -37,15 +40,13 @@ namespace HoS_proto
             }
         }
 
-        public Interaction LastInteraction(Person with)
+        public Interaction LastStatement(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(intr => intr.receiver == with)) return null;
+            if (!memory.Exists(intr => intr.receiver == to)) return null;
 
-            return memory.Last(intr => intr.receiver == with);
+            return memory.Last(intr => intr.receiver == to);
         }
-
-        protected List<Quest> intentions = new List<Quest>();
 
         public string Hail(Person who)
         {
@@ -79,13 +80,13 @@ namespace HoS_proto
 
         protected void Query(Person other, Subject about)
         {
-            Interactee = other;
+            Listener = other;
 
             Interaction.Query q;
             switch (about)
             {
                 case Subject.INTERACTION:
-                    q = Interaction.Query.Make(this, other, other.LastInteraction(this));
+                    q = Interaction.Query.Make(this, other, other.LastStatement(this));
                     break;
                 case Subject.NOTHING:
                     q = Interaction.Query.Make(this, other, (Interaction)null);
@@ -105,9 +106,9 @@ namespace HoS_proto
 
         protected void Respond(Person other, bool affirm)
         {
-            Interactee = other;
+            Listener = other;
 
-            var context = other.LastInteraction(this);
+            var context = other.LastStatement(this);
             if (!context) context = new Interaction.Idle(other);
 
             Interaction a;
@@ -132,14 +133,25 @@ namespace HoS_proto
             ShowLastSentence(a);
         }
 
-        protected void Enlist(Person other, Quest why)
+        protected void Enlist(Person other, Act why)
         {
-            Interactee = other;
+            Listener = other;
 
             Interaction askedForHelp = new Interaction.Propose(this, other, why);
             memory.Add(askedForHelp);
 
             ShowLastSentence(askedForHelp);
+        }
+
+        public virtual void Update()
+        {
+            if (!Listener) return;
+            var statement = Listener.LastStatement(this);
+            if (!statement) return;
+            if (memory.Contains(statement)) return;
+
+            memory.Add(statement);
+
         }
     }
 }

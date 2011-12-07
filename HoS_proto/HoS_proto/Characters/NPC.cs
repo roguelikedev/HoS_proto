@@ -46,11 +46,13 @@ namespace HoS_proto
 
         public override void Update()
         {
+            base.Update();
+
             if (!isInRange(Player.Instance)) textBubble = null;
             else
             {
-                var iSaid = LastInteraction(Player.Instance);
-                var playerSaid = Player.Instance.LastInteraction(this);
+                var iSaid = LastStatement(Player.Instance);
+                var playerSaid = Player.Instance.LastStatement(this);
 
                 if (!iSaid && !playerSaid)
                 {

@@ -34,7 +34,7 @@ namespace HoS_proto
                 var rval = new Rectangle(origin.X, origin.Y, Menu.FLEXIBLE, Menu.FLEXIBLE);
 
                 #region don't literally talk over someone.
-                if (Interactee != null && Interactee.X > X && Interactee.X < X + 3)
+                if (Listener != null && Listener.X > X && Listener.X < X + 3)
                 #endregion
                 {
                     origin = Engine.ToScreen(origin);
@@ -67,12 +67,9 @@ namespace HoS_proto
         }
         #endregion
 
-        public abstract void Update();
-
         #region object oriented overhead
         static List<Person> all = new List<Person>();
         public static void UpdateAll() { all.ForEach(a => a.Update()); }
-        public static implicit operator string(Person who) { return who ? who.ToString() : "no one"; }
 
         protected Person()
         {

@@ -12,6 +12,10 @@ namespace HoS_proto
         public virtual void Draw() { Engine.DrawAtWorld(spritePath, X, Y); }
 
         public override string ToString() { return spritePath; }
-        public static implicit operator bool(Noun who) { return who != null; }
+        public static implicit operator bool(Noun what) { return what != null; }
+        public static implicit operator string(Noun what) { return what ? what.ToString() : "nothing"; }
+
+        public static readonly Noun FOOD = new Null();
+        class Null : Noun { }
     }
 }

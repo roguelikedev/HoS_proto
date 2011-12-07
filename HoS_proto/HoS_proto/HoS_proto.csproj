@@ -110,13 +110,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Characters\Conversation controller.cs" />
+    <Compile Include="Characters\Act.cs" />
     <Compile Include="Characters\Noun.cs" />
     <Compile Include="Characters\NPC.cs" />
     <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Characters\Person.cs" />
     <Compile Include="Interactions\Comment.cs" />
-    <Compile Include="Quest.cs" />
     <Compile Include="Characters\Quirk.cs" />
     <Compile Include="Interactions\Propose.cs" />
     <Compile Include="Interactions\Query.cs" />

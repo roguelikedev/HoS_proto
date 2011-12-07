@@ -4,12 +4,12 @@ namespace HoS_proto
 {
     public static class Constants
     {
-        public static Action NO_OP = () => { };
+        public static readonly Action NO_OP = () => { };
     }
 
     public enum Verb
     {
-        GO, GET, TALK
+        GO, GET, TALK, HAS, GIVE
     }
 
     public enum Mood

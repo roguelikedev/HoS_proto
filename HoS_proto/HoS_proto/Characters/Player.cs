@@ -165,20 +165,20 @@ namespace HoS_proto
                     if (Needs[Need.LEARN_WALK])
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                        intentions.Add(Quest.New(Verb.TALK, this, Environment.At(NPC.Instance.Location)));
+                        intentions.Add(new Act(this, Verb.GO, NPC.Instance));
                     }
                     break;
 
                 case State.TALKING:
                     MakeTextBubble();
                     {
-                        var prevStatement = LastInteraction(NPC.Instance);
+                        var prevStatement = LastStatement(NPC.Instance);
                         if (prevStatement) textBubble.Add(prevStatement);
                     }
 
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, NPC.Instance.LastInteraction(this)
+                        Query(NPC.Instance, NPC.Instance.LastStatement(this)
                                             ? Subject.INTERACTION
                                             : Subject.NOTHING);
                     }, Color.Yellow)
@@ -197,6 +197,7 @@ namespace HoS_proto
 
         public override void Update()
         {
+            base.Update();
             old_kbs = kbs;
             kbs = Keyboard.GetState();
 
@@ -240,7 +241,7 @@ namespace HoS_proto
             if (intentions.Count == 0) goto LAST_LINE;
 
             var quest = intentions[0];
-            if (quest.Completed)
+            if (quest)
             {
                 Engine.WriteAtWorld("GJ", X, Y, 3);
                 if (quest.verb == Verb.TALK) intentions.RemoveAt(0);
@@ -248,13 +249,13 @@ namespace HoS_proto
             }
             else
             {
-                if (Engine.OnScreen(quest.Location))
+                if (Engine.OnScreen(quest.obj.Location))
                 {
-                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.Location.X, quest.Location.Y);
+                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.obj.Location.X, quest.obj.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(quest.Location.X - X, quest.Location.Y - Y);
+                var dir = new Vector2(quest.obj.Location.X - X, quest.obj.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

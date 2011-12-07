@@ -12,8 +12,8 @@ namespace HoS_proto
     {
         public partial class Propose : Interaction
         {
-            public readonly Quest quest;
-            public Propose(Person questGiver, Person quester, Quest quest) : base(questGiver, quester) { this.quest = quest; }
+            public readonly Act quest;
+            public Propose(Person questGiver, Person quester, Act quest) : base(questGiver, quester) { this.quest = quest; }
 
             public override bool ExpectsResponse { get { return true; } }
             protected override Color Color { get { return Color.Yellow; } }
