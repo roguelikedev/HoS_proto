@@ -99,7 +99,7 @@ namespace Util
         #region fields
         public Action Lambda;
         public Color color = STANDARD;
-        public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
+        public bool Active { get { return Lambda != null && Lambda != Constant.NO_OP; } }
         public bool highlighted;
 
         readonly string rawText;
@@ -178,7 +178,7 @@ namespace Util
         MenuItem activeItem;
 
         #region obligatory data structure operations
-        public Menu Add(string text) { return Add(text, Constants.NO_OP); }
+        public Menu Add(string text) { return Add(text, Constant.NO_OP); }
         public Menu Add(string text, Action Lambda)
         {
             contents.Add(new MenuItem(text, Lambda));
@@ -324,17 +324,17 @@ namespace Util
     public class Notification
     {
         public Action Draw { get; private set; }
-        public bool Visible { get { return Draw != Constants.NO_OP; } }
+        public bool Visible { get { return Draw != Constant.NO_OP; } }
 
         public Notification(string what, int x, int y)
         {
-            var contents = new MenuItem(what, Constants.NO_OP, Color.Gold);
+            var contents = new MenuItem(what, Constant.NO_OP, Color.Gold);
             var alpha = contents.color.A;
             Draw = () =>
             {
                 contents.color.A = alpha -= 3;
                 contents.Draw(x, y);
-                if (alpha <= 5) Draw = Constants.NO_OP;
+                if (alpha <= 5) Draw = Constant.NO_OP;
             };
         }
     }

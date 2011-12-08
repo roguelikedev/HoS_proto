@@ -50,7 +50,7 @@ namespace HoS_proto
 
             MakeTextBubble();
             if (this is Player) textBubble.Add(interaction);
-            else if (this is NPC) textBubble.Add(interaction, Constants.NO_OP, interaction);
+            else if (this is NPC) textBubble.Add(interaction, Constant.NO_OP, interaction);
             else
             {
                 Debug.Assert(false, "what class is THAT");

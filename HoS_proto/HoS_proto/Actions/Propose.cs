@@ -17,13 +17,13 @@ namespace HoS_proto
 
             public override bool ExpectsResponse { get { return true; } }
             protected override Color Color { get { return Color.Yellow; } }
-            public override string ToVerb { get { return "offer"; } }
+            public override string ToVerb { get { return "want"; } }
 
             public override string ToString()
             {
                 var rval = Sender.Quirks & Quirk.RUDE ? "" : "Please ";
 
-                rval += quest.verb.ToString().ToLower();
+                rval += quest;
                 switch (quest.verb)
                 {
                     case Verb.GO:

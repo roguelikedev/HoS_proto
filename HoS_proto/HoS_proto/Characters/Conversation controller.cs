@@ -138,9 +138,7 @@ namespace HoS_proto
 
             var rationale = knowledge.Find(a => a.acter == this && a.verb == Verb.NEED);
             var goThere = actController.Because(rationale, other, Verb.GO, rationale.actedOn);
-            Debug.Assert(rationale && goThere.cause == rationale);
             var please = actController.Because(goThere, this, Verb.LIKE, other);
-            Debug.Assert(please.cause == goThere);
 
             Commit(new Interaction.Propose(this, other, goThere));
         }

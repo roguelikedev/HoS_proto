@@ -43,7 +43,8 @@ namespace HoS_proto
                 }
                 else if (Needs.Count > 0)
                 {
-                    if (iSaid is Interaction.Query)
+                    var q = iSaid as Interaction.Query;
+                    if (q && q.Subject == Subject.NEED)
                     {
                         if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
                         else Enlist(Player.Instance);

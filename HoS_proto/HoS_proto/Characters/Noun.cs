@@ -30,8 +30,8 @@ namespace HoS_proto
         public static implicit operator bool(Noun what) { return what != null && what != NOTHING; }
         public static implicit operator string(Noun what) { return what ? what.ToString() : "nothing"; }
 
-        public static readonly Noun NOTHING = new Null("NOTHING_CONST"),
-                                    FOOD = new Null("FOOD_CONST")
+        public static readonly Noun NOTHING = new Null("NOTHING_NOUN"),
+                                    FOOD = new Null("food")
                                     ;
         class Null : Noun { public Null(string t) { spritePath = t; } }
     }

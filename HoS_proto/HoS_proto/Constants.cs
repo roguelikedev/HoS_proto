@@ -2,10 +2,12 @@
 
 namespace HoS_proto
 {
-    public static class Constants
+    public class Constant
     {
         public static readonly Action NO_OP = () => { };
     }
+
+
 
     public enum Verb
     {
