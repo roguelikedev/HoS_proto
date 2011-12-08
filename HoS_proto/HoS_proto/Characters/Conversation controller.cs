@@ -94,7 +94,7 @@ namespace HoS_proto
                     q = Interaction.Query.Make(this, other, (Interaction)null);
                     break;
                 case Subject.NEED:
-                    var need = new List<Need>(Needs.Keys).Find(k => Needs[k]);
+                    var need = knowledge.Find(a => a.acter == this && a.verb == Verb.NEED);
                     q = Interaction.Query.Make(this, other, need);
                     break;
                 default:

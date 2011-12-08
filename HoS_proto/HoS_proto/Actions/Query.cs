@@ -24,6 +24,7 @@ namespace HoS_proto
             public override string ToVerb { get { return "ask"; } }
 
             Query(Person from, Person to) : base(from, to) { }
+            Query(Act about) : base(about) { }
             public static Query Make(Person from, Person to, Interaction about)
             {
                 var rval = new Query(from, to);
@@ -41,6 +42,10 @@ namespace HoS_proto
                 var rval = new Query(from, to);
                 rval.AboutNeed = about;
                 return rval;
+            }
+            public static Query Make(Person from, Person to, Act about)
+            {
+                return new Query(about.Cause(from, Verb.TALK, to));
             }
 
             public Subject Subject
