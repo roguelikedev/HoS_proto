@@ -55,7 +55,7 @@ namespace HoS_proto
                 Environment.Streamer(whereNext.X, whereNext.Y, Environment.GRASS, 14);
                 Environment.Streamer(whereNext.X, whereNext.Y, Environment.GRASS, 14);
             }
-            for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 5);
+            for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 3);
 
 
             new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1), actController);

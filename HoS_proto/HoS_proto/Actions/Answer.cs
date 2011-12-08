@@ -13,7 +13,11 @@ namespace HoS_proto
         public abstract partial class Reply : Interaction
         {
             public readonly Interaction context;
-            Reply(Person from, Person to, Interaction context) : base(from, to) { this.context = context; }
+            Reply(Person from, Person to, Interaction context)
+                : base(context.underlyingAct.Cause(from, Verb.TALK, to))
+            {
+                this.context = context;
+            }
 
             public class No : Reply
             {
@@ -97,20 +101,16 @@ namespace HoS_proto
                                 break;
 
                             case Subject.INTERACTION:
-                                var originalQuestion = youAsked.AboutInteraction as Query;
-                                if (originalQuestion && originalQuestion.Sender != Sender)
+                                if (youAsked.AboutInteraction.Sender != Sender)
                                 {
                                     rval += "how would I know?  Ask ";
-                                    rval += originalQuestion.Sender;
-                                }
-                                else if (youAsked.AboutInteraction is Propose)
-                                {
-                                    var quest = (youAsked.AboutInteraction as Propose).quest;
-                                    rval += "because " + quest.cause + ".";
+                                    rval += youAsked.AboutInteraction.Sender;
                                 }
                                 else
                                 {
-                                    rval += Sender.Hail(Receiver) + "you're confusing me.";
+                                    var reason = youAsked.AboutInteraction.underlyingAct.cause;
+                                    if (reason) rval += "because " + reason + ".";
+                                    else rval += Sender.Hail(Receiver) + "you're confusing me.";
                                 }
 
                                 break;

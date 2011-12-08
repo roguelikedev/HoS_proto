@@ -15,6 +15,7 @@ namespace HoS_proto
             public class Comment : Reply
             {
                 protected override Color Color { get { return Color.Yellow; } }
+                public override string ToVerb { get { return "say"; } }
                 readonly Mood mood;
 
                 public Comment(Person from, Person to, Interaction about, Mood mood)

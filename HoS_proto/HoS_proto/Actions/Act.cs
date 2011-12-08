@@ -19,6 +19,8 @@ namespace HoS_proto
 
         public readonly ulong GUID;
         static uint nextGUID;
+
+        System.Action<Act> Register;
         #endregion
 
         #region cantrips, conversions, clutter
@@ -46,8 +48,19 @@ namespace HoS_proto
         public override int GetHashCode() { return ToString().GetHashCode(); }
 
         Act() { GUID = nextGUID++; }
-        Act(Noun s, Verb v, Noun o, Noun io, Act c) : this() { acter = s; verb = v; actedOn = o; other = io; cause = c; }
+        Act(Noun s, Verb v, Noun o, Noun io, Act c, System.Action<Act> R) : this()
+        {
+            acter = s; verb = v; actedOn = o; other = io; cause = c; Register = R;
+            Register(this);
+        }
         #endregion
+
+        public Act Cause(Noun subject, Verb verb, Noun _object) { return Cause(subject, verb, _object, Noun.NOTHING); }
+
+        public Act Cause(Noun subject, Verb verb, Noun _object, Noun indirectObject)
+        {
+            return new Act(subject, verb, _object, indirectObject, this, Register);
+        }
 
         public class Controller
         {
@@ -59,33 +72,26 @@ namespace HoS_proto
             List<Act> Future { get { return new List<Act>(dependencies.Values).FindAll(a => a != NO_ACT); } }
             #endregion
 
-            #region factory helpers
+            void Register(Act what)
+            {
+                if (Allocated.Contains(what)) return;
+
+                dependencies[what] = NO_ACT;
+                var parent = what.cause;
+                if (parent && !parent.Happened) dependencies[parent] = what;
+            }
+
             public Controller() { }
             public Act FirstCause(Noun subject, Verb verb, Noun _object)
             {
                 return FirstCause(subject, verb, _object, Noun.NOTHING);
             }
-            public Act FirstCause(Noun subject, Verb verb, Noun _object, Noun indirectObject)
-            {
-                return Because(NO_ACT, subject, verb, _object, indirectObject);
-            }
-            public Act Because(Act cause, Noun subject, Verb verb, Noun _object)
-            {
-                return Because(cause, subject, verb, _object, Noun.NOTHING);
-            }
-            #endregion
 
-            public Act Because(Act cause, Noun subject, Verb verb, Noun _object, Noun indirectObject)
+            public Act FirstCause(Noun subject, Verb verb, Noun _object, Noun indirectObject)
             {
                 Debug.Assert(indirectObject || verb != Verb.GIVE, "that's a ternary verb.");
 
-                var rval = new Act(subject, verb, _object, indirectObject, cause);
-                if (!Allocated.Contains(rval))
-                {
-                    dependencies[rval] = NO_ACT;
-                    if (cause && !cause.Happened) dependencies[cause] = rval;
-                }
-                return rval;
+                return new Act(subject, verb, _object, indirectObject, NO_ACT, Register);
             }
 
             public void Confirm(Act hasHappened)

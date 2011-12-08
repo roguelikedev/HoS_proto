@@ -21,9 +21,10 @@ namespace HoS_proto
         public static implicit operator bool(Interaction interaction) { return interaction != null; }
 
         protected abstract Color Color { get; }
+        #endregion
+
         public virtual bool ExpectsResponse { get { return false; } }
         public virtual string ToVerb { get { return "do"; } }
-        #endregion
 
         string ProOrProperNoun(Person who)
         {
