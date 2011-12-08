@@ -90,8 +90,7 @@ namespace HoS_proto
 
             public void Confirm(Act hasHappened)
             {
-                Debug.Assert(Present.Contains(hasHappened));
-                Debug.Assert(!Past.Contains(hasHappened));
+                Debug.Assert(Allocated.Contains(hasHappened));
                 Debug.Assert(!Future.Contains(hasHappened));
 
                 hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
@@ -101,6 +100,21 @@ namespace HoS_proto
             public Act Consequence(Act preCondition)
             {
                 return dependencies[preCondition];
+            }
+
+            void Update(Act act)
+            {
+                switch (act.verb)
+                {
+                    case Verb.GO:
+                        act.Happened = act.acter.Adjacent(act.actedOn);
+                        break;
+                }
+            }
+
+            public void Update()
+            {
+                Present.ForEach(Update);
             }
         }
     }

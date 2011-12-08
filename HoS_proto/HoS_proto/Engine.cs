@@ -75,6 +75,7 @@ namespace HoS_proto
             if (Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
             if (ModalUpdate == null)
             {
+                #region prompt player for name, display it.
                 ModalUpdate = Player.Instance.GetName;
                 Action<string, int> Write = (str, line) =>
                 {
@@ -89,10 +90,13 @@ namespace HoS_proto
                     Write("Hello,", 1);
                     Write("\"" + Player.Instance + "\"", 2);
                 };
+                #endregion
             }
             if (ModalUpdate == Player.Instance.GetName && !Player.Instance.Pausing)
             {
                 ModalUpdate = Person.UpdateAll;
+                ModalUpdate += actController.Update;
+                #region ModalDraw
                 ModalDraw = () =>
                 {
                     Environment.DrawAll();
@@ -106,6 +110,7 @@ namespace HoS_proto
                     NPC.Instance.Draw();
                     Player.Instance.Draw();
                 };
+                #endregion
             }
             ModalUpdate();
         }

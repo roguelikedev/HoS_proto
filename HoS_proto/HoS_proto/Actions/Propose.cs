@@ -29,9 +29,6 @@ namespace HoS_proto
                     case Verb.GO:
                         rval += " over there.";
                         break;
-                    case Verb.GET:
-                        rval += " that.";
-                        break;
                     default:
                         Debug.Assert(false, "BARF");
                         break;

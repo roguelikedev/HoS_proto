@@ -72,6 +72,14 @@ namespace HoS_proto
         }
         #endregion
 
+        void Commit(Interaction what)
+        {
+            Debug.Assert(what);
+            memory.Add(what);
+            actController.Confirm(what.underlyingAct);
+            ShowLastSentence(what);
+        }
+
         protected void Query(Person other, Subject about)
         {
             Listener = other;
@@ -93,9 +101,7 @@ namespace HoS_proto
                     Debug.Assert(false, "write another case.");
                     return;
             }
-            memory.Add(q);
-
-            ShowLastSentence(q);
+            Commit(q);
         }
 
         protected void Respond(Person other, bool affirm)
@@ -123,8 +129,7 @@ namespace HoS_proto
                 }
             }
 
-            memory.Add(a);
-            ShowLastSentence(a);
+            Commit(a);
         }
 
         protected void Enlist(Person other)
@@ -137,10 +142,7 @@ namespace HoS_proto
             var please = actController.Because(goThere, this, Verb.LIKE, other);
             Debug.Assert(please.cause == goThere);
 
-            Interaction askedForHelp = new Interaction.Propose(this, other, goThere);
-            memory.Add(askedForHelp);
-
-            ShowLastSentence(askedForHelp);
+            Commit(new Interaction.Propose(this, other, goThere));
         }
 
         public virtual void Update()
@@ -151,7 +153,6 @@ namespace HoS_proto
             if (memory.Contains(statement)) return;
 
             memory.Add(statement);
-
         }
     }
 }

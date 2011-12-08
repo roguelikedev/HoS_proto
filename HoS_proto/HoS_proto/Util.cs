@@ -92,87 +92,88 @@ namespace Util
         }
     }
 
-    public class Menu
+    class MenuItem
     {
-        class MenuItem
+        public static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
+
+        #region fields
+        public Action Lambda;
+        public Color color = STANDARD;
+        public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
+        public bool highlighted;
+
+        readonly string rawText;
+        List<string> lines = new List<string>();
+        int __backing_field_for_Width = -1;
+        #endregion
+        #region cantrips, constructors
+        Point RawTextSize
         {
-            #region constructors
-            public MenuItem(string s, Action L)
+            get
             {
-                rawText = s; Lambda = L;
-                lines.Add(rawText);
-            }
-            public MenuItem(string s, Action L, Color c) : this(s, L) { color = c; }
-            #endregion
-            #region fields
-            public Action Lambda;
-            public Color color = STANDARD;
-            public bool Active { get { return Lambda != null && Lambda != Constants.NO_OP; } }
-            public bool highlighted;
-
-            readonly string rawText;
-            List<string> lines = new List<string>();
-            int __backing_field_for_Width = -1;
-            #endregion
-            #region helpers
-            Point RawTextSize
-            {
-                get
-                {
-                    return new Point((int)Engine.Font.MeasureString(rawText).X
-                                   , (int)Engine.Font.MeasureString(rawText).Y);
-                }
-            }
-            public override string ToString() { return lines.Count > 1 ? string.Join("\n", lines) : rawText; }
-            public static implicit operator string(MenuItem mi) { return mi.ToString(); }
-
-            /// <summary> in pixels. </summary>
-            public int Height { get { return RawTextSize.Y * lines.Count; } }
-            #endregion
-
-            /// <summary> in pixels. </summary>
-            public int Width
-            {
-                get { return __backing_field_for_Width == -1 ? RawTextSize.X : __backing_field_for_Width; }
-                set
-                {
-                    Debug.Assert(value > 0);
-                    __backing_field_for_Width = value;
-                    lines.Clear();
-
-                    var words = rawText.Split();
-                    var currentLine = "";
-                    foreach (var currentWord in words)
-                    {
-                        var prospectiveLine = currentLine
-                                            + (currentLine.Length == 0 ? "" : " ")
-                                            + currentWord;
-                        if (Engine.Font.MeasureString(prospectiveLine).X > __backing_field_for_Width)
-                        {
-                            lines.Add(currentLine);
-                            currentLine = currentWord;
-                        }
-                        else currentLine = prospectiveLine;
-                    }
-                    lines.Add(currentLine);
-                }
-            }
-
-            public void Draw(int xOrigin, int yOrigin)
-            {
-                Debug.Assert(Width > 0);
-                var offset = new Point(BORDER_DEPTH, 0);
-                if (highlighted)
-                {
-                    offset.X += BORDER_DEPTH / 2;
-                    offset.Y = BORDER_DEPTH / 2;
-                }
-                Engine.DrawAtScreen("lozenge", xOrigin - offset.X, yOrigin - offset.Y
-                                             , Width + offset.X * 2, Height + offset.Y * 2
-                                             , color);
-                Engine.WriteAtScreen(this, xOrigin, yOrigin, 1);
+                return new Point((int)Engine.Font.MeasureString(rawText).X
+                               , (int)Engine.Font.MeasureString(rawText).Y);
             }
         }
+        /// <summary> in pixels. </summary>
+        public int Height { get { return RawTextSize.Y * lines.Count; } }
+        public override string ToString() { return lines.Count > 1 ? string.Join("\n", lines) : rawText; }
+        public static implicit operator string(MenuItem mi) { return mi.ToString(); }
+
+        public MenuItem(string s, Action L, Color c) : this(s, L) { color = c; }
+        public MenuItem(string s, Action L)
+        {
+            rawText = s; Lambda = L;
+            lines.Add(rawText);
+        }
+        #endregion
+
+        /// <summary> in pixels. </summary>
+        public int Width
+        {
+            get { return __backing_field_for_Width == -1 ? RawTextSize.X : __backing_field_for_Width; }
+            set
+            {
+                Debug.Assert(value > 0);
+                __backing_field_for_Width = value;
+                lines.Clear();
+
+                var words = rawText.Split();
+                var currentLine = "";
+                foreach (var currentWord in words)
+                {
+                    var prospectiveLine = currentLine
+                                        + (currentLine.Length == 0 ? "" : " ")
+                                        + currentWord;
+                    if (Engine.Font.MeasureString(prospectiveLine).X > __backing_field_for_Width)
+                    {
+                        lines.Add(currentLine);
+                        currentLine = currentWord;
+                    }
+                    else currentLine = prospectiveLine;
+                }
+                lines.Add(currentLine);
+            }
+        }
+
+        public void Draw(int xOrigin, int yOrigin)
+        {
+            Debug.Assert(Width > 0);
+            var offset = new Point(Menu.BORDER_DEPTH, 0);
+            if (highlighted)
+            {
+                offset.X += Menu.BORDER_DEPTH / 2;
+                offset.Y = Menu.BORDER_DEPTH / 2;
+            }
+            Engine.DrawAtScreen("lozenge", xOrigin - offset.X, yOrigin - offset.Y
+                                         , Width + offset.X * 2, Height + offset.Y * 2
+                                         , color);
+            Engine.WriteAtScreen(this, xOrigin, yOrigin, 1);
+        }
+    }
+
+    public class Menu
+    {
         List<MenuItem> contents = new List<MenuItem>();
         MenuItem activeItem;
 
@@ -239,7 +240,6 @@ namespace Util
 
         #region view
         #region fields, constants, helpers...
-        static readonly Color STANDARD = Color.Gray, HOVERING = Color.White;
         public const int BORDER_DEPTH = 16;
         /// <summary> MULTIPLE GOTCHA ALERT:
         /// if Draw(x,y,w,h) gets Menu.FLEXIBLE as an arg or Draw() is called
@@ -319,5 +319,23 @@ namespace Util
             });
         }
         #endregion
+    }
+
+    public class Notification
+    {
+        public Action Draw { get; private set; }
+        public bool Visible { get { return Draw != Constants.NO_OP; } }
+
+        public Notification(string what, int x, int y)
+        {
+            var contents = new MenuItem(what, Constants.NO_OP, Color.Gold);
+            var alpha = contents.color.A;
+            Draw = () =>
+            {
+                contents.color.A = alpha -= 3;
+                contents.Draw(x, y);
+                if (alpha <= 5) Draw = Constants.NO_OP;
+            };
+        }
     }
 }

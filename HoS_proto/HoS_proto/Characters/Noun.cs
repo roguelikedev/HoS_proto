@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using System;
 
 namespace HoS_proto
 {
@@ -7,6 +8,20 @@ namespace HoS_proto
         public Point Location { get; protected set; }
         public int X { get { return Location.X; } protected set { Location = new Point(value, Location.Y); } }
         public int Y { get { return Location.Y; } protected set { Location = new Point(Location.X, value); } }
+        public bool Adjacent(Noun to)
+        {
+            double a = (double)(this.X - to.X);
+            double b = (double)(this.Y - to.Y);
+
+            if (Math.Sqrt(a * a + b * b) < 2)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         protected string spritePath;
 
         public virtual void Draw() { Engine.DrawAtWorld(spritePath, X, Y); }

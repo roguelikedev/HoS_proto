@@ -11,7 +11,7 @@ namespace HoS_proto
     public abstract partial class Interaction
     {
         #region fields, properties, conversions
-        Act underlyingAct;
+        public readonly Act underlyingAct;
         public Person Sender { get { return underlyingAct.acter as Person; } }
         public Person Receiver { get { return underlyingAct.actedOn as Person; } }
         public ulong GUID { get { return underlyingAct.GUID; } }

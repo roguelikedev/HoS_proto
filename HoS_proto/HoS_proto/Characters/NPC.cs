@@ -19,26 +19,11 @@ namespace HoS_proto
             knowledge.Add(hungry);
         }
 
-        public bool isInRange(Player player)
-        {
-            double a = (double)(this.X - player.X);
-            double b = (double)(this.Y - player.Y);
-
-            if (Math.Sqrt(a * a + b * b) < 2)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-
         public override void Update()
         {
             base.Update();
 
-            if (!isInRange(Player.Instance)) textBubble = null;
+            if (!Adjacent(Player.Instance)) textBubble = null;
             else
             {
                 var iSaid = LastStatement(Player.Instance);

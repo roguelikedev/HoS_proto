@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using System.Timers;
 using System.Diagnostics;
+using Util;
 
 namespace HoS_proto
 {
@@ -23,6 +24,8 @@ namespace HoS_proto
         KeyboardState kbs, old_kbs;
         bool Pressed(Keys k) { return kbs.IsKeyDown(k) && old_kbs.IsKeyUp(k); }
         public bool Pausing { get; private set; }
+
+        List<Notification> popups = new List<Notification>();
         #endregion
 
         public Player(int x, int y, Act.Controller ac) : base (x, y, ac)
@@ -154,7 +157,6 @@ namespace HoS_proto
         }
         #endregion
 
-        #region state machine
         bool Enter(State nextState)
         {
             switch (nextState)
@@ -207,7 +209,7 @@ namespace HoS_proto
                     break;
 
                 case State.MOVING:
-                    if (NPC.Instance.isInRange(this))
+                    if (Adjacent(NPC.Instance))
                     {
                         if (Needs[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
 
@@ -233,7 +235,6 @@ namespace HoS_proto
                     break;
             }
         }
-        #endregion
 
         public override void Draw()
         {
@@ -242,9 +243,8 @@ namespace HoS_proto
             var quest = intentions[0];
             if (quest && quest.Happened)
             {
-                Engine.WriteAtWorld("GJ", X, Y, 3);
-                if (quest.verb == Verb.TALK) intentions.RemoveAt(0);
-                return;
+                popups.Add(new Notification("YOU DID SOMETHING! GJ", 13, 13));
+                intentions.RemoveAt(0);
             }
             else
             {
@@ -269,6 +269,11 @@ namespace HoS_proto
             }
 
         LAST_LINE:
+            popups.ForEach(n =>
+            {
+                n.Draw();
+                if (!n.Visible) popups.Remove(n);
+            });
             base.Draw();
         }
     }
