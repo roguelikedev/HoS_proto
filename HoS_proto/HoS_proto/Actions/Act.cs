@@ -7,7 +7,7 @@ namespace HoS_proto
 {
     public class Act
     {
-        static readonly Act NO_ACT = new Act();
+        public static readonly Act NO_ACT = new Act();
 
         #region fields
         public readonly Noun acter;

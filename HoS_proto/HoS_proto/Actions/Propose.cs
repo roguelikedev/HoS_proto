@@ -13,11 +13,13 @@ namespace HoS_proto
         public partial class Propose : Interaction
         {
             public readonly Act quest;
-            public Propose(Person questGiver, Person quester, Act quest) : base(questGiver, quester) { this.quest = quest; }
+            public Propose(Person from, Person to, Act quest) : base(from, to) { this.quest = quest; }
 
             public override bool ExpectsResponse { get { return true; } }
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "want"; } }
+
+            protected override Act Reason { get { return quest.cause; } }
 
             public override string ToString()
             {

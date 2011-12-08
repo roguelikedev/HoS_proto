@@ -25,6 +25,7 @@ namespace HoS_proto
 
         public virtual bool ExpectsResponse { get { return false; } }
         public virtual string ToVerb { get { return "do"; } }
+        protected virtual Act Reason { get { return underlyingAct.cause; } }
 
         string ProOrProperNoun(Person who)
         {
@@ -37,21 +38,21 @@ namespace HoS_proto
         protected Interaction(Act act) { underlyingAct = act; }
 
         #region kruft
-        public partial class Utilize : Interaction
-        {
-            public Utilize(Person from, Person to) : base(from, to) { }
+        //public partial class Utilize : Interaction
+        //{
+        //    public Utilize(Person from, Person to) : base(from, to) { }
 
-            protected override Color Color
-            {
-                get { throw new NotImplementedException(); }
-            }
-            public override string ToVerb { get { return "use"; } }
-        }
+        //    protected override Color Color
+        //    {
+        //        get { throw new NotImplementedException(); }
+        //    }
+        //    public override string ToVerb { get { return "use"; } }
+        //}
 
         public class Idle : Interaction
         {
             protected override Color Color { get { return Color.Gray; } }
-            public Idle(Person from) : base(from, from) { }
+            public Idle(Person who) : base(who.actController.FirstCause(who, Verb.IDLE, Environment.At(who.Location))) { }
             public override string ToVerb { get { return "wait"; } }
         }
         #endregion

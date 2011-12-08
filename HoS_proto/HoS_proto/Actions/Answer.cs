@@ -108,9 +108,9 @@ namespace HoS_proto
                                 }
                                 else
                                 {
-                                    var reason = youAsked.AboutInteraction.underlyingAct.cause;
+                                    var reason = youAsked.AboutInteraction.Reason;
                                     if (reason) rval += "because " + reason + ".";
-                                    else rval += Sender.Hail(Receiver) + "you're confusing me.";
+                                    else rval += Sender.Hail(Receiver) + "I like doing things like that.";
                                 }
 
                                 break;
