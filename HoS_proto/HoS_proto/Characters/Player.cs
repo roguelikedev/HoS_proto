@@ -162,7 +162,7 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (!memory.Exists(a => a.Acter == this && a.Verb == _Verb.GO && a is Act && (a as Act).Happened))
+                    if (quests.Exists(a => a.Verb == _Verb.GO && a.ActedOn == Noun.NOTHING))
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                     }
