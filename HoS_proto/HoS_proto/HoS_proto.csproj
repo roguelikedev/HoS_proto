@@ -116,12 +116,7 @@
     <Compile Include="Characters\Player.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Characters\Person.cs" />
-    <Compile Include="Actions\Comment.cs" />
     <Compile Include="Characters\Quirk.cs" />
-    <Compile Include="Actions\Propose.cs" />
-    <Compile Include="Actions\Query.cs" />
-    <Compile Include="Actions\Answer.cs" />
-    <Compile Include="Actions\Interaction.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

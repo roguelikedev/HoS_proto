@@ -31,11 +31,15 @@ namespace HoS_proto
             if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
 
             var rval = new List<string>();
-            rval.Add(acter.ToString());
+            rval.Add(acter);
             rval.Add(verb.ToString().ToLower());
-            if (other) rval.Add(other.ToString());
-            rval.Add(actedOn.ToString());
-            return string.Join(" ", rval);
+            if (other) rval.Add(other);
+            rval.Add(actedOn);
+
+            if (parent) rval.Add("(" + parent + ")");
+            else rval.Add("nothing");
+
+            return string.Join(" ", rval) + (verb == Verb.ASK ? "?" : "");
         }
 
         public static implicit operator Color(Act a) { return Color.Gray; }

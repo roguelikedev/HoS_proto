@@ -42,12 +42,7 @@ namespace HoS_proto
                 }
                 else if (quests.Count > 0)
                 {
-                    var q = iSaid as Interaction.Query;
-                    if (q && q.parent.verb == Verb.NEED)
-                    {
-                        if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
-                        else Enlist(Player.Instance);
-                    }
+                    if (iSaid.RootCause.verb == Verb.NEED) Enlist(Player.Instance);
                     else Query(Player.Instance, quests[0]);
                 }
                 else Respond(Player.Instance, Engine.rand.Next(2) == 1);
