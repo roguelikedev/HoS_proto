@@ -13,10 +13,9 @@ namespace HoS_proto
             Instance = this;
             spritePath = "dc_caveman";
             name = "weird caveman";
-            Needs[Need.FOOD] = true;
-            var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
+            var hungry = actController.FirstCause(this, _Verb.NEED, Noun.FOOD);
             actController.Confirm(hungry);
-            knowledge.Add(hungry);
+            memory.Add(hungry.ToI);
         }
 
         public override void Update()
@@ -31,7 +30,7 @@ namespace HoS_proto
 
                 if (!iSaid && !playerSaid)
                 {
-                    Query(Player.Instance, Subject.NOTHING);
+                    Query(Player.Instance, Player.Instance.actController.FirstCause(Player.Instance, _Verb.IDLE, Noun.NOTHING));
                     return;
                 }
                 if (!playerSaid) return;
@@ -41,15 +40,15 @@ namespace HoS_proto
                 {
                     Respond(Player.Instance, true);
                 }
-                else if (Needs.Count > 0)
+                else if (quests.Count > 0)
                 {
                     var q = iSaid as Interaction.Query;
-                    if (q && q.Subject == Subject.NEED)
+                    if (q && q.underlyingAct.Verb == _Verb.NEED)
                     {
                         if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
                         else Enlist(Player.Instance);
                     }
-                    else Query(Player.Instance, Subject.NEED);
+                    else Query(Player.Instance, quests[0]);
                 }
                 else Respond(Player.Instance, Engine.rand.Next(2) == 1);
             }

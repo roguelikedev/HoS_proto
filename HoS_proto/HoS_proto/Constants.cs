@@ -7,7 +7,7 @@ namespace HoS_proto
         public static readonly Action NO_OP = () => { };
     }
 
-    public enum Verb
+    public enum _Verb
     {
         IDLE, GO, TALK, GIVE, NEED, LIKE
     }
@@ -17,8 +17,8 @@ namespace HoS_proto
         NEUTRAL, MEAN, NICE
     }
 
-    public enum Subject
-    {
-        NOTHING, NEED, PERSON, INTERACTION, PLACE
-    }
+    //public enum Subject
+    //{
+    //    NOTHING, NEED, PERSON, INTERACTION, PLACE
+    //}
 }

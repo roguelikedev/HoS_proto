@@ -8,33 +8,36 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public abstract partial class Interaction
+    public abstract partial class Interaction : IAct
     {
         #region fields, properties, conversions
         public readonly Act underlyingAct;
-        public Person Sender { get { return underlyingAct.acter as Person; } }
-        public Person Receiver { get { return underlyingAct.actedOn as Person; } }
+        public Person Acter { get { return underlyingAct.Acter; } }
+        public Noun ActedOn { get { return underlyingAct.ActedOn; } }
+        public _Verb Verb { get { return HoS_proto._Verb.TALK; } }
+        public virtual IAct Parent { get { return underlyingAct.Parent; } }
         public ulong GUID { get { return underlyingAct.GUID; } }
+        public Noun Other { get { return underlyingAct.Other; } }
 
         public static implicit operator string(Interaction interaction) { return interaction.ToString(); }
         public static implicit operator Color(Interaction interaction) { return interaction.Color; }
         public static implicit operator bool(Interaction interaction) { return interaction != null; }
+        public IAct ToI { get { return (IAct)this; } }
 
         protected abstract Color Color { get; }
         #endregion
 
         public virtual bool ExpectsResponse { get { return false; } }
         public virtual string ToVerb { get { return "do"; } }
-        protected virtual Act Reason { get { return underlyingAct.cause; } }
 
         string ProOrProperNoun(Person who)
         {
-            if (who == Sender) return "I";
-            else if (who == Receiver) return "you";
+            if (who == Acter) return "I";
+            else if (who == ActedOn) return "you";
             else return who;
         }
 
-        protected Interaction(Person from, Person to) : this(from.actController.FirstCause(from, Verb.TALK, to)) { }
+        protected Interaction(Person from, Person to) : this(from.actController.FirstCause(from, _Verb.TALK, to)) { }
         protected Interaction(Act act) { underlyingAct = act; }
 
         #region kruft
@@ -52,7 +55,7 @@ namespace HoS_proto
         public class Idle : Interaction
         {
             protected override Color Color { get { return Color.Gray; } }
-            public Idle(Person who) : base(who.actController.FirstCause(who, Verb.IDLE, Environment.At(who.Location))) { }
+            public Idle(Person who) : base(who.actController.FirstCause(who, _Verb.IDLE, Environment.At(who.Location))) { }
             public override string ToVerb { get { return "wait"; } }
         }
         #endregion

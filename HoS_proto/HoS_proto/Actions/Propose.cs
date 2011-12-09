@@ -19,16 +19,16 @@ namespace HoS_proto
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "want"; } }
 
-            protected override Act Reason { get { return quest.cause; } }
+            public override IAct Parent { get { return quest.Parent; } }
 
             public override string ToString()
             {
-                var rval = Sender.Quirks & Quirk.RUDE ? "" : "Please ";
+                var rval = Acter.Quirks & Quirk.RUDE ? "" : "Please ";
 
                 rval += quest;
-                switch (quest.verb)
+                switch (quest.Verb)
                 {
-                    case Verb.GO:
+                    case _Verb.GO:
                         rval += " over there.";
                         break;
                     default:

@@ -38,9 +38,8 @@ namespace HoS_proto
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
 
-            Needs[Need.LEARN_TALK] = true;
-            Needs[Need.LEARN_WALK] = true;
-            Needs[Need.FOOD] = true;
+            quests.Add(actController.FirstCause(this, _Verb.GO, Noun.NOTHING));
+            quests.Add(actController.FirstCause(this, _Verb.TALK, NPC.Instance));
         }
         public void GetName()
         {
@@ -148,7 +147,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                Needs[Need.LEARN_WALK] = false;
+                quests.RemoveAll(a => a.Verb == _Verb.GO && a.ActedOn == Noun.NOTHING);
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -163,10 +162,9 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (Needs[Need.LEARN_WALK])
+                    if (!memory.Exists(a => a.Acter == this && a.Verb == _Verb.GO && a is Act && (a as Act).Happened))
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                        intentions.Add(actController.FirstCause(this, Verb.GO, NPC.Instance));
                     }
                     break;
 
@@ -179,9 +177,7 @@ namespace HoS_proto
 
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, NPC.Instance.LastStatement(this)
-                                            ? Subject.INTERACTION
-                                            : Subject.NOTHING);
+                        Query(NPC.Instance, NPC.Instance.LastStatement(this).underlyingAct);
                     }, Color.Yellow)
                     .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
                     .Add("No", () => Respond(NPC.Instance, false), Color.Red)
@@ -189,7 +185,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    Needs[Need.LEARN_TALK] = false;
+                    quests.RemoveAll(a => a.Verb == _Verb.TALK && a.ActedOn == NPC.Instance);
                     break;
             }
             state = nextState;
@@ -211,8 +207,10 @@ namespace HoS_proto
                 case State.MOVING:
                     if (Adjacent(NPC.Instance))
                     {
-                        if (Needs[Need.LEARN_TALK]) MakeTextBubble().Add("press space bar to talk");
-
+                        if (quests.Exists(a => a.Verb == _Verb.TALK && a.ActedOn == NPC.Instance))
+                        {
+                            MakeTextBubble().Add("press space bar to talk");
+                        }
                         if (Pressed(Keys.Space))
                         {
                             Enter(State.TALKING);
@@ -238,23 +236,23 @@ namespace HoS_proto
 
         public override void Draw()
         {
-            if (intentions.Count == 0) goto LAST_LINE;
+            if (quests.Count == 0) goto LAST_LINE;
 
-            var quest = intentions[0];
-            if (quest && quest.Happened)
+            var q = quests[0];
+            if (q.Happened)
             {
                 popups.Add(new Notification("YOU DID SOMETHING! GJ", 13, 13));
-                intentions.RemoveAt(0);
+                quests.Remove(q);
             }
             else
             {
-                if (Engine.OnScreen(quest.actedOn.Location))
+                if (Engine.OnScreen(q.ActedOn.Location))
                 {
-                    if (quest.verb == Verb.GO) Engine.DrawAtWorld("halo", quest.actedOn.Location.X, quest.actedOn.Location.Y);
+                    if (q.Verb == _Verb.GO) Engine.DrawAtWorld("halo", q.ActedOn.Location.X, q.ActedOn.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(quest.actedOn.Location.X - X, quest.actedOn.Location.Y - Y);
+                var dir = new Vector2(q.ActedOn.Location.X - X, q.ActedOn.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

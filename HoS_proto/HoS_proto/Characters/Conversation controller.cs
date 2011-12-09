@@ -7,11 +7,6 @@ namespace HoS_proto
 {
     partial class Person
     {
-        public enum Need
-        {
-            NOTHING, LEARN_TALK, LEARN_WALK, FOOD
-        }
-
         #region fields, cantrips
         public readonly Act.Controller actController;
 
@@ -20,26 +15,27 @@ namespace HoS_proto
         public Person Listener { get; private set; }
         public Quirk Quirks { get; protected set; }
 
-        List<Interaction> memory = new List<Interaction>();
-        protected List<Act> knowledge = new List<Act>();
-        protected List<Act> intentions = new List<Act>();
-        Dictionary<Act, Act> promises = new Dictionary<Act, Act>();
+        protected List<Act> quests = new List<Act>();
+
+        protected List<IAct> memory = new List<IAct>();
 
         bool AmbiguousListener
         {
             get
             {
                 if (memory.Count < 2) return true;
-                return memory.Last().Receiver != memory[memory.Count - 2].Receiver;
+                return memory.Last().ActedOn != memory[memory.Count - 2].ActedOn;
             }
         }
 
         public Interaction LastStatement(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(intr => intr.Receiver == to)) return null;
+            if (!memory.Exists(intr => intr.ActedOn == to)) return null;
 
-            return memory.Last(intr => intr.Receiver == to);
+            var rval = memory.Last(intr => intr.ActedOn == to);
+            Debug.Assert(rval is Interaction);
+            return rval as Interaction;
         }
 
         public string Hail(Person who)
@@ -53,55 +49,20 @@ namespace HoS_proto
             if (rval.Length > 0 && !rval.EndsWith(", ")) rval += ", ";
             return rval;
         }
-
-        Dictionary<Need, bool> __backing_field_for_Needs;
-        protected Dictionary<Need, bool> Needs
-        {
-            get
-            {
-                if (__backing_field_for_Needs == null)
-                {
-                    __backing_field_for_Needs = new Dictionary<Need, bool>();
-                    foreach (var key in typeof(Need).GetEnumValues())
-                    {
-                        __backing_field_for_Needs[(Need)key] = false;
-                    }
-                }
-                return __backing_field_for_Needs;
-            }
-        }
         #endregion
 
         void Commit(Interaction what)
         {
             Debug.Assert(what);
-            memory.Add(what);
+            memory.Add(what.ToI);
             actController.Confirm(what.underlyingAct);
             ShowLastSentence(what);
         }
 
-        protected void Query(Person other, Subject about)
+        protected void Query(Person other, Act about)
         {
             Listener = other;
-
-            Interaction.Query q;
-            switch (about)
-            {
-                case Subject.INTERACTION:
-                    q = Interaction.Query.Make(this, other, other.LastStatement(this));
-                    break;
-                case Subject.NOTHING:
-                    q = Interaction.Query.Make(this, other, (Interaction)null);
-                    break;
-                case Subject.NEED:
-                    var need = knowledge.Find(a => a.acter == this && a.verb == Verb.NEED);
-                    q = Interaction.Query.Make(this, other, need);
-                    break;
-                default:
-                    Debug.Assert(false, "write another case.");
-                    return;
-            }
-            Commit(q);
+            Commit(Interaction.Query.Make(this, other, about));
         }
 
         protected void Respond(Person other, bool affirm)
@@ -121,7 +82,7 @@ namespace HoS_proto
                 if (affirm)
                 {
                     a = new Interaction.Reply.Ok(this, other, context);
-                    if (context is Interaction.Propose) intentions.Add((context as Interaction.Propose).quest);
+                    if (context is Interaction.Propose) quests.Add((context as Interaction.Propose).quest);
                 }
                 else
                 {
@@ -136,9 +97,9 @@ namespace HoS_proto
         {
             Listener = other;
 
-            var rationale = knowledge.Find(a => a.acter == this && a.verb == Verb.NEED);
-            var goThere = rationale.Cause(other, Verb.GO, rationale.actedOn);
-            var please = goThere.Cause(this, Verb.LIKE, other);
+            var rationale = memory.Find(a => a.Acter == this && a.Verb == _Verb.NEED) as Act;
+            var goThere = rationale.Cause(other, _Verb.GO, rationale.ActedOn);
+            var please = goThere.Cause(this, _Verb.LIKE, other);
 
             Commit(new Interaction.Propose(this, other, goThere));
         }
