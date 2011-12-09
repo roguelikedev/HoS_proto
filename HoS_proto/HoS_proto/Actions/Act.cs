@@ -96,7 +96,7 @@ namespace HoS_proto
                 if (parent && !parent.Happened) dependencies[parent] = what;
             }
 
-            public Controller() { }
+            public Controller() { if (NO_ACT.Register == null) NO_ACT.Register = Register; }
             public Act FirstCause(Person subject, _Verb verb, Noun _object)
             {
                 return FirstCause(subject, verb, _object, Noun.NOTHING);
@@ -105,14 +105,13 @@ namespace HoS_proto
             public Act FirstCause(Person subject, _Verb verb, Noun _object, Noun indirectObject)
             {
                 Debug.Assert(indirectObject || verb != _Verb.GIVE, "that's a ternary verb.");
-
                 return new Act(subject, verb, _object, indirectObject, NO_ACT, Register);
             }
 
             public void Confirm(Act hasHappened)
             {
                 Debug.Assert(Allocated.Contains(hasHappened));
-                Debug.Assert(!Future.Contains(hasHappened));
+                Debug.Assert(Present.Contains(hasHappened));
 
                 hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
                 dependencies[hasHappened] = NO_ACT; // Present now finds the consequent Act, Future doesn't.

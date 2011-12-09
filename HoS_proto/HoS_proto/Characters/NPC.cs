@@ -30,7 +30,7 @@ namespace HoS_proto
 
                 if (!iSaid && !playerSaid)
                 {
-                    Query(Player.Instance, Player.Instance.actController.FirstCause(Player.Instance, _Verb.IDLE, Noun.NOTHING));
+                    Query(Player.Instance, Act.NO_ACT);
                     return;
                 }
                 if (!playerSaid) return;
