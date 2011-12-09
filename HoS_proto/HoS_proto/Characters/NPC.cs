@@ -13,9 +13,9 @@ namespace HoS_proto
             Instance = this;
             spritePath = "dc_caveman";
             name = "weird caveman";
-            var hungry = actController.FirstCause(this, _Verb.NEED, Noun.FOOD);
+            var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
             actController.Confirm(hungry);
-            memory.Add(hungry.ToI);
+            memory.Add(hungry);
         }
 
         public override void Update()
@@ -25,8 +25,8 @@ namespace HoS_proto
             if (!Adjacent(Player.Instance)) textBubble = null;
             else
             {
-                var iSaid = LastStatement(Player.Instance);
-                var playerSaid = Player.Instance.LastStatement(this);
+                var iSaid = LastInteraction(Player.Instance);
+                var playerSaid = Player.Instance.LastInteraction(this);
 
                 if (!iSaid && !playerSaid)
                 {
@@ -36,14 +36,14 @@ namespace HoS_proto
                 if (!playerSaid) return;
                 if (iSaid.GUID > playerSaid.GUID) return;
 
-                if (playerSaid.ExpectsResponse)
+                if (playerSaid.verb == Verb.ASK)
                 {
                     Respond(Player.Instance, true);
                 }
                 else if (quests.Count > 0)
                 {
                     var q = iSaid as Interaction.Query;
-                    if (q && q.underlyingAct.Verb == _Verb.NEED)
+                    if (q && q.parent.verb == Verb.NEED)
                     {
                         if (playerSaid is Interaction.Reply.No) Respond(Player.Instance, false);
                         else Enlist(Player.Instance);

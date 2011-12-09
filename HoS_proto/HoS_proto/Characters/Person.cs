@@ -44,7 +44,7 @@ namespace HoS_proto
             return textBubble;
         }
 
-        void ShowLastSentence(Interaction interaction)
+        void ShowLastSentence(Act interaction)
         {
             Debug.Assert(interaction.ToString().Length > 0);
 

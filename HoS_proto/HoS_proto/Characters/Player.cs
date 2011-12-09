@@ -38,8 +38,8 @@ namespace HoS_proto
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
 
-            quests.Add(actController.FirstCause(this, _Verb.GO, Noun.NOTHING));
-            quests.Add(actController.FirstCause(this, _Verb.TALK, NPC.Instance));
+            quests.Add(actController.FirstCause(this, Verb.GO, Noun.NOTHING));
+            quests.Add(actController.FirstCause(this, Verb.SAY, NPC.Instance));
         }
         public void GetName()
         {
@@ -147,7 +147,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                quests.RemoveAll(a => a.Verb == _Verb.GO && a.ActedOn == Noun.NOTHING);
+                quests.RemoveAll(a => a.verb == Verb.GO && a.actedOn == Noun.NOTHING);
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -162,7 +162,7 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (quests.Exists(a => a.Verb == _Verb.GO && a.ActedOn == Noun.NOTHING))
+                    if (quests.Exists(a => a.verb == Verb.GO && a.actedOn == Noun.NOTHING))
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                     }
@@ -171,13 +171,13 @@ namespace HoS_proto
                 case State.TALKING:
                     MakeTextBubble();
                     {
-                        var prevStatement = LastStatement(NPC.Instance);
+                        var prevStatement = LastInteraction(NPC.Instance);
                         if (prevStatement) textBubble.Add(prevStatement);
                     }
 
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, NPC.Instance.LastStatement(this).underlyingAct);
+                        Query(NPC.Instance, NPC.Instance.LastInteraction(this));
                     }, Color.Yellow)
                     .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
                     .Add("No", () => Respond(NPC.Instance, false), Color.Red)
@@ -185,7 +185,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    quests.RemoveAll(a => a.Verb == _Verb.TALK && a.ActedOn == NPC.Instance);
+                    quests.RemoveAll(a => a.verb == Verb.SAY && a.actedOn == NPC.Instance);
                     break;
             }
             state = nextState;
@@ -207,7 +207,7 @@ namespace HoS_proto
                 case State.MOVING:
                     if (Adjacent(NPC.Instance))
                     {
-                        if (quests.Exists(a => a.Verb == _Verb.TALK && a.ActedOn == NPC.Instance))
+                        if (quests.Exists(a => a.verb == Verb.SAY && a.actedOn == NPC.Instance))
                         {
                             MakeTextBubble().Add("press space bar to talk");
                         }
@@ -246,13 +246,13 @@ namespace HoS_proto
             }
             else
             {
-                if (Engine.OnScreen(q.ActedOn.Location))
+                if (Engine.OnScreen(q.actedOn.Location))
                 {
-                    if (q.Verb == _Verb.GO) Engine.DrawAtWorld("halo", q.ActedOn.Location.X, q.ActedOn.Location.Y);
+                    if (q.verb == Verb.GO) Engine.DrawAtWorld("halo", q.actedOn.Location.X, q.actedOn.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(q.ActedOn.Location.X - X, q.ActedOn.Location.Y - Y);
+                var dir = new Vector2(q.actedOn.Location.X - X, q.actedOn.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

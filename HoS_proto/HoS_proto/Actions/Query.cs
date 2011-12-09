@@ -16,33 +16,32 @@ namespace HoS_proto
             protected override Color Color { get { return Color.Yellow; } }
             public override string ToVerb { get { return "ask"; } }
 
-            Query(Act about) : base(about) { }
             public static Query Make(Person from, Person to, Act about)
             {
-                return new Query(about.Cause(from, _Verb.TALK, to));
+                throw new Exception();
+                //return new Query(about.Cause(from, Verb.TALK, to));
             }
 
             public override string ToString()
             {
-                var rval = Acter.Hail(ActedOn as Person);
+                var rval = acter.Hail(actedOn as Person);
 
-                var context = underlyingAct.Parent;
-                switch (context.Verb)
+                switch (parent.verb)
                 {
-                    case _Verb.IDLE:
-                        if (Acter.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
+                    case Verb.IDLE:
+                        if (acter.Quirks & Quirk.TIGHT_LIPPED) rval = rval.Replace(", ", "...");
                         else rval += "how're you doing";
                         break;
-                    case _Verb.NEED:
+                    case Verb.NEED:
                         rval += "do you have any ";
-                        rval += context.ActedOn ? "good stories" : context.ActedOn;
+                        rval += parent.actedOn ? "good stories" : parent.actedOn;
                         break;
-                    case _Verb.TALK:
-                        rval += "why did ";
-                        rval += ProOrProperNoun(context.Acter as Person) + " ";
-                        rval += context.Verb;
-                        rval += " that?";
-                        break;
+                    //case Verb.TALK:
+                    //    rval += "why did ";
+                    //    rval += ProOrProperNoun(parent.acter as Person) + " ";
+                    //    rval += parent.verb;
+                    //    rval += " that?";
+                    //    break;
                     default:
                         Debug.Assert(false);
                         break;

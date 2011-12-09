@@ -13,31 +13,31 @@ namespace HoS_proto
         public abstract partial class Reply : Interaction
         {
             public readonly Interaction context;
-            Reply(Person from, Person to, Interaction context)
-                : base(context.underlyingAct.Cause(from, _Verb.TALK, to))
-            {
-                this.context = context;
-            }
+            //Reply(Person from, Person to, Interaction context)
+            //    : base(context.underlyingAct.Cause(from, Verb.TALK, to))
+            //{
+            //    this.context = context;
+            //}
 
             public class No : Reply
             {
                 protected override Color Color { get { return Color.Red; } }
                 public override string ToVerb { get { return "disagree"; } }
-                public No(Person from, Person to, Interaction context) : base(from, to, context) { }
+                //public No(Person from, Person to, Interaction context) : base(from, to, context) { }
 
                 public override string ToString()
                 {
-                    var rval = Acter.Quirks & Quirk.BLUNT ? "" : "Sorry, but ";
+                    var rval = acter.Quirks & Quirk.BLUNT ? "" : "Sorry, but ";
                     if (context is Query)
                     {
                         var q = context as Query;
-                        rval += q.Parent.Verb == HoS_proto._Verb.NEED
-                                               ? "I don't have any " + q.Parent.ActedOn + "."
+                        rval += q.parent.verb == HoS_proto.Verb.NEED
+                                               ? "I don't have any " + q.parent.actedOn + "."
                                                : "I don't know.";
                     }
                     else if (context is Propose)
                     {
-                        rval += Acter.Quirks & Quirk.BLUNT ? "Do it yourself." : "I'm too busy.";
+                        rval += acter.Quirks & Quirk.BLUNT ? "Do it yourself." : "I'm too busy.";
                     }
                     else
                     {
@@ -51,15 +51,15 @@ namespace HoS_proto
             {
                 protected override Color Color { get { return Color.Green; } }
                 public override string ToVerb { get { return "agree"; } }
-                public Ok(Person from, Person to, Interaction context) : base(from, to, context) { }
+                //public Ok(Person from, Person to, Interaction context) : base(from, to, context) { }
 
                 public override string ToString()
                 {
-                    var rval = Acter.Quirks & Quirk.GENEROUS ? "Of course " : "";
+                    var rval = acter.Quirks & Quirk.GENEROUS ? "Of course " : "";
 
                     if (context is Propose)
                     {
-                        rval += Acter.Quirks & Quirk.TIGHT_LIPPED ? "Okay." : "I'll do it.";
+                        rval += acter.Quirks & Quirk.TIGHT_LIPPED ? "Okay." : "I'll do it.";
                     }
                     else if (context is Query)
                     {
@@ -67,20 +67,20 @@ namespace HoS_proto
                         Func<Noun, string> Directions = ex =>
                         {
                             var _rval = "You can probably find " + ex + " ";
-                            if (ex.Location.Y < Acter.Location.Y - 3) _rval += "north";
-                            if (ex.Location.Y > Acter.Location.Y + 3) _rval += "south";
-                            if (ex.Location.X < Acter.Location.X - 3) _rval += "west";
-                            if (ex.Location.X > Acter.Location.X + 3) _rval += "east";
+                            if (ex.Location.Y < acter.Location.Y - 3) _rval += "north";
+                            if (ex.Location.Y > acter.Location.Y + 3) _rval += "south";
+                            if (ex.Location.X < acter.Location.X - 3) _rval += "west";
+                            if (ex.Location.X > acter.Location.X + 3) _rval += "east";
                             _rval += " of here.";
                             return _rval;
                         };
                         #endregion
 
                         var youAsked = context as Query;
-                        switch (youAsked.Parent.Verb)
+                        switch (youAsked.parent.verb)
                         {
-                            case _Verb.IDLE:
-                                rval += Acter.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
+                            case Verb.IDLE:
+                                rval += acter.Quirks & Quirk.TIGHT_LIPPED ? "*grunt*" : "Oh, you know.";
                                 break;
 
                             //case _Verb.:
@@ -100,23 +100,23 @@ namespace HoS_proto
                             //    rval += Directions(youAsked.AboutNoun);
                             //    break;
 
-                            case _Verb.TALK:
-                                if (youAsked.Parent.Acter != Acter)
-                                {
-                                    rval += "how would I know?  Ask ";
-                                    rval += youAsked.Parent.Acter;
-                                }
-                                else
-                                {
-                                    var reason = youAsked.Parent.Parent as Interaction;
-                                    if (reason) rval += "because " + reason + ".";
-                                    else rval += Acter.Hail(ActedOn as Person) + "I like doing things like that.";
-                                }
+                            //case Verb.TALK:
+                            //    if (youAsked.parent.acter != acter)
+                            //    {
+                            //        rval += "how would I know?  Ask ";
+                            //        rval += youAsked.parent.acter;
+                            //    }
+                            //    else
+                            //    {
+                            //        var reason = youAsked.parent.parent as Interaction;
+                            //        if (reason) rval += "because " + reason + ".";
+                            //        else rval += acter.Hail(actedOn as Person) + "I like doing things like that.";
+                            //    }
 
-                                break;
+                            //    break;
 
-                            case _Verb.NEED:
-                                rval += "I have loads of " + youAsked.ActedOn + ".";
+                            case Verb.NEED:
+                                rval += "I have loads of " + youAsked.actedOn + ".";
                                 break;
                         }
                     }

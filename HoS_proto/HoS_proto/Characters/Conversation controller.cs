@@ -16,26 +16,23 @@ namespace HoS_proto
         public Quirk Quirks { get; protected set; }
 
         protected List<Act> quests = new List<Act>();
-
-        protected List<IAct> memory = new List<IAct>();
+        protected List<Act> memory = new List<Act>();
 
         bool AmbiguousListener
         {
             get
             {
                 if (memory.Count < 2) return true;
-                return memory.Last().ActedOn != memory[memory.Count - 2].ActedOn;
+                return memory.Last().actedOn != memory[memory.Count - 2].actedOn;
             }
         }
 
-        public Interaction LastStatement(Person to)
+        public Act LastInteraction(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(intr => intr.ActedOn == to)) return null;
+            if (!memory.Exists(intr => intr.actedOn == to)) return null;
 
-            var rval = memory.Last(intr => intr.ActedOn == to);
-            Debug.Assert(rval is Interaction);
-            return rval as Interaction;
+            return memory.Last(intr => intr.actedOn == to);
         }
 
         public string Hail(Person who)
@@ -51,44 +48,38 @@ namespace HoS_proto
         }
         #endregion
 
-        void Commit(Interaction what)
+        void Commit(Act what)
         {
             Debug.Assert(what);
-            memory.Add(what.ToI);
-            actController.Confirm(what.underlyingAct);
+            memory.Add(what);
+            actController.Confirm(what);
             ShowLastSentence(what);
         }
 
         protected void Query(Person other, Act about)
         {
             Listener = other;
-            Commit(Interaction.Query.Make(this, other, about));
+            Commit(about.Cause(this, Verb.ASK, other));
         }
 
         protected void Respond(Person other, bool affirm)
         {
             Listener = other;
 
-            var context = other.LastStatement(this);
-            if (!context) context = new Interaction.Idle(other);
+            var context = other.LastInteraction(this);
+            if (!context) context = Act.NO_ACT;
 
-            Interaction a;
-            if (!context.ExpectsResponse)
-            {
-                a = new Interaction.Reply.Comment(this, other, context, affirm ? Mood.NICE : Mood.MEAN);
-            }
-            else
+            Act a;
+            if (context.acter == this)
             {
                 if (affirm)
                 {
-                    a = new Interaction.Reply.Ok(this, other, context);
-                    if (context is Interaction.Propose) quests.Add((context as Interaction.Propose).quest);
+                    a = context.Cause(this, Verb.PROMISE, other);
+                    quests.Add(a);
                 }
-                else
-                {
-                    a = new Interaction.Reply.No(this, other, context);
-                }
+                else a = context.Cause(this, Verb.IDLE, other);
             }
+            else a = context.Cause(this, Verb.SAY, other);
 
             Commit(a);
         }
@@ -97,19 +88,19 @@ namespace HoS_proto
         {
             Listener = other;
 
-            var rationale = memory.Find(a => a.Acter == this && a.Verb == _Verb.NEED) as Act;
-            var goThere = rationale.Cause(other, _Verb.GO, rationale.ActedOn);
-            var please = goThere.Cause(this, _Verb.LIKE, other);
+            var rationale = memory.Find(a => a.acter == this && a.verb == Verb.NEED);
+            Debug.Assert(rationale.Happened);
+            var goThere = rationale.Cause(other, Verb.GO, rationale.actedOn);
 
-            Commit(new Interaction.Propose(this, other, goThere));
+            Commit(goThere);
         }
 
         public virtual void Update()
         {
             if (!Listener) return;
-            var statement = Listener.LastStatement(this);
+            var statement = Listener.LastInteraction(this);
             if (!statement) return;
-            if (memory.Contains(statement)) return;
+            if (memory.Last() == statement) return;
 
             memory.Add(statement);
         }

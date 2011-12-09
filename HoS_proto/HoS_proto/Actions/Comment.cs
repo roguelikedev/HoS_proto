@@ -18,11 +18,11 @@ namespace HoS_proto
                 public override string ToVerb { get { return "say"; } }
                 readonly Mood mood;
 
-                public Comment(Person from, Person to, Interaction about, Mood mood)
-                    : base(from, to, about)
-                {
-                    this.mood = mood;
-                }
+                //public Comment(Person from, Person to, Interaction about, Mood mood)
+                //    : base(from, to, about)
+                //{
+                //    this.mood = mood;
+                //}
 
                 public override string ToString()
                 {

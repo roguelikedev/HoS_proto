@@ -7,9 +7,9 @@ namespace HoS_proto
         public static readonly Action NO_OP = () => { };
     }
 
-    public enum _Verb
+    public enum Verb
     {
-        IDLE, GO, TALK, GIVE, NEED, LIKE
+        IDLE, GO, SAY, GIVE, NEED, LIKE, PROMISE, ASK
     }
 
     public enum Mood
