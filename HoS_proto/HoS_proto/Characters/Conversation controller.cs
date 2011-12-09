@@ -79,7 +79,7 @@ namespace HoS_proto
                 }
                 else a = context.Cause(this, Verb.IDLE, other);
             }
-            else a = context.Cause(this, Verb.SAY, other);
+            else a = context.Cause(this, Verb.TALK, other);
 
             Commit(a);
         }

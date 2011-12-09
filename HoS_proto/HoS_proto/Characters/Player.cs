@@ -39,7 +39,7 @@ namespace HoS_proto
             name = "man";
 
             quests.Add(actController.FirstCause(this, Verb.GO, Noun.NOTHING));
-            quests.Add(actController.FirstCause(this, Verb.SAY, NPC.Instance));
+            quests.Add(actController.FirstCause(this, Verb.TALK, NPC.Instance));
         }
         public void GetName()
         {
@@ -185,7 +185,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    quests.RemoveAll(a => a.verb == Verb.SAY && a.actedOn == NPC.Instance);
+                    quests.RemoveAll(a => a.verb == Verb.TALK && a.actedOn == NPC.Instance);
                     break;
             }
             state = nextState;
@@ -207,7 +207,7 @@ namespace HoS_proto
                 case State.MOVING:
                     if (Adjacent(NPC.Instance))
                     {
-                        if (quests.Exists(a => a.verb == Verb.SAY && a.actedOn == NPC.Instance))
+                        if (quests.Exists(a => a.verb == Verb.TALK && a.actedOn == NPC.Instance))
                         {
                             MakeTextBubble().Add("press space bar to talk");
                         }

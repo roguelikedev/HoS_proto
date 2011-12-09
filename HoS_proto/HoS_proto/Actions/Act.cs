@@ -26,22 +26,6 @@ namespace HoS_proto
         #endregion
 
         #region cantrips, conversions, clutter
-        public override string ToString()
-        {
-            if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
-
-            var rval = new List<string>();
-            rval.Add(acter);
-            rval.Add(verb.ToString().ToLower());
-            if (other) rval.Add(other);
-            rval.Add(actedOn);
-
-            if (parent) rval.Add("(" + parent + ")");
-            else rval.Add("nothing");
-
-            return string.Join(" ", rval) + (verb == Verb.ASK ? "?" : "");
-        }
-
         public static implicit operator Color(Act a) { return Color.Gray; }
         public static implicit operator string(Act a) { return a.ToString(); }
         public static implicit operator bool(Act a) { return !object.ReferenceEquals(a, null) && a != NO_ACT; }
@@ -63,6 +47,70 @@ namespace HoS_proto
             Register(this);
         }
         #endregion
+
+        public override string ToString()
+        {
+            if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
+
+            var rval = acter.Hail(acter.Listener);
+            System.Action<string> Cat = str =>
+            {
+                if (rval.Length > 0 && !rval.EndsWith(" ")) rval += " ";
+                rval += str;
+            };
+
+            switch (verb)
+            {
+                case Verb.ASK:
+                    #region squish
+                    Cat("why");
+                    if (!parent)
+                    {
+                        Cat(acter.Listener);
+                        Cat("so ugly");
+                    }
+                    else
+                    {
+                        Cat(parent.acter);
+                        Cat(parent.verb.ToString().ToLower());
+                        Cat(parent.actedOn);
+                    }
+                    rval += "?";
+                    break;
+                    #endregion
+                case Verb.TALK:
+                    if (!parent) Cat("what a quiet one you are.");
+                    else
+                    {
+                        Cat("just keep on");
+                        Cat(verb.ToString().ToLower() + "ing");
+                    }
+                    break;
+
+                case Verb.NEED:
+                case Verb.LIKE:
+                case Verb.GIVE:
+                case Verb.GO:
+                    Cat(acter);
+                    Cat(verb.ToString().ToLower());
+                    if (other) Cat(other);
+                    Cat(actedOn);
+
+                    break;
+                default:
+                    Cat(acter);
+                    Cat(verb.ToString().ToLower());
+                    if (other) Cat(other);
+                    Cat(actedOn);
+
+                    if (parent) Cat("(" + parent + ")");
+                    else Cat("nothing");
+                    break;
+            }
+
+            if (!rval.EndsWith("?")) rval += ".";
+            return rval;
+        }
 
         public Act Cause(Person subject, Verb verb, Noun _object) { return Cause(subject, verb, _object, Noun.NOTHING); }
 
