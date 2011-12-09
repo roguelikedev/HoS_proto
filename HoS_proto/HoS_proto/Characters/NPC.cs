@@ -16,6 +16,7 @@ namespace HoS_proto
             var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
             actController.Confirm(hungry);
             memory.Add(hungry);
+            quests.Add(hungry.Cause(this, Verb.ASK, Noun.FOOD, Player.Instance));
         }
 
         public override void Update()

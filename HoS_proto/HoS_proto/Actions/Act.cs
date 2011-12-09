@@ -153,6 +153,7 @@ namespace HoS_proto
             public void Confirm(Act hasHappened)
             {
                 Debug.Assert(Allocated.Contains(hasHappened));
+                Debug.Assert(!hasHappened.parent || History.Contains(hasHappened.parent));
                 Debug.Assert(TalkedAbout.Contains(hasHappened));
 
                 hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
