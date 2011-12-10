@@ -37,9 +37,6 @@ namespace HoS_proto
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
-
-            quests.Add(actController.FirstCause(this, Verb.GO, Noun.NOTHING));
-            quests.Add(actController.FirstCause(this, Verb.TALK, NPC.Instance));
         }
         public void GetName()
         {
@@ -171,21 +168,21 @@ namespace HoS_proto
                 case State.TALKING:
                     MakeTextBubble();
                     {
-                        var prevStatement = LastInteraction(NPC.Instance);
+                        var prevStatement = LastInteraction(Listener);
                         if (prevStatement) textBubble.Add(prevStatement);
                     }
 
                     textBubble.Add("Ask", () =>
                     {
-                        Query(NPC.Instance, NPC.Instance.LastInteraction(this));
+                        Query(Listener, Listener.LastInteraction(this));
                     }, Color.Yellow)
-                    .Add("OK", () => Respond(NPC.Instance, true), Color.Green)
-                    .Add("No", () => Respond(NPC.Instance, false), Color.Red)
+                    .Add("OK", () => Respond(Listener, true), Color.Green)
+                    .Add("No", () => Respond(Listener, false), Color.Red)
                     .Add("Bye", () => Enter(State.MOVING), Color.Red)
                     ;
 
                     textBubble.GoNext();
-                    quests.RemoveAll(a => a.verb == Verb.TALK && a.actedOn == NPC.Instance);
+                    quests.RemoveAll(a => a.verb == Verb.TALK && a.actedOn == Listener);
                     break;
             }
             state = nextState;
@@ -198,16 +195,19 @@ namespace HoS_proto
             old_kbs = kbs;
             kbs = Keyboard.GetState();
 
+            var nearestNPC = actController.ClosestPerson(this);
             switch (state)
             {
                 case State.UNINITIALIZED:
+                    quests.Add(actController.FirstCause(this, Verb.GO, Noun.NOTHING));
+                    quests.Add(actController.FirstCause(this, Verb.TALK, nearestNPC));
                     Enter(State.MOVING);
                     break;
 
                 case State.MOVING:
-                    if (Adjacent(NPC.Instance))
+                    if (Adjacent(nearestNPC))
                     {
-                        if (quests.Exists(a => a.verb == Verb.TALK && a.actedOn == NPC.Instance))
+                        if (quests.Exists(a => a.verb == Verb.TALK && a.actedOn == nearestNPC))
                         {
                             MakeTextBubble().Add("press space bar to talk");
                         }

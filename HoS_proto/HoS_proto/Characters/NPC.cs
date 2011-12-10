@@ -6,11 +6,8 @@ namespace HoS_proto
 {
     public class NPC : Person
     {
-        public static NPC Instance { get; private set; }
-
         public NPC(int x, int y, Act.Controller ac) : base (x, y, ac)
         {
-            Instance = this;
             spritePath = "dc_caveman";
             name = "weird caveman";
             var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);

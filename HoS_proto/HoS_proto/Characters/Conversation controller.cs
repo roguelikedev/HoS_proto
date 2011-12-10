@@ -12,7 +12,13 @@ namespace HoS_proto
 
         protected string name = "";
         public override string ToString() { return name; }
-        public Person Listener { get; private set; }
+        Person __Listener__;
+        public Person Listener
+        {
+            get { return __Listener__ ? __Listener__ : Closest.Adjacent(this) ? Closest : null; }
+            private set { __Listener__ = value; }
+        }
+        public Person Closest { get { return actController.ClosestPerson(this); } }
         public Quirk Quirks { get; protected set; }
 
         protected List<Act> quests = new List<Act>();
@@ -100,7 +106,7 @@ namespace HoS_proto
             if (!Listener) return;
             var statement = Listener.LastInteraction(this);
             if (!statement) return;
-            if (memory.Last() == statement) return;
+            if (memory.Count == 0 || memory.Last() == statement) return;
 
             memory.Add(statement);
         }

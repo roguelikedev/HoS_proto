@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
+using System;
 
 namespace HoS_proto
 {
@@ -138,15 +139,16 @@ namespace HoS_proto
             List<Act> History { get { return Allocated.FindAll(a => a.Happened); } }
             List<Act> TalkedAbout { get { return new List<Act>(Allocated.FindAll(a => !a.Happened).Except<Act>(Promises)); } }
             List<Act> Promises { get { return new List<Act>(dependencies.Values).FindAll(a => a != NO_ACT); } }
+            HashSet<Person> acters = new HashSet<Person>();
             #endregion
 
             void Register(Act what)
             {
-                Debug.Assert(!Allocated.Contains(what));
-
                 dependencies[what] = NO_ACT;
                 var parent = what.parent;
                 if (parent && !parent.Happened) dependencies[parent] = what;
+                acters.Add(what.acter);
+                if (what.other is Person) acters.Add(what.other as Person);
             }
 
             public Controller() { if (NO_ACT.Register == null) NO_ACT.Register = Register; }
@@ -189,6 +191,18 @@ namespace HoS_proto
             public void Update()
             {
                 TalkedAbout.ForEach(Update);
+            }
+
+            public Person ClosestPerson(Person whoIsAsking)
+            {
+                var tmp = new List<Person>(acters);
+                tmp.Remove(whoIsAsking);
+                return tmp.OrderBy(p =>
+                {
+                    var delta = new Vector2(p.X - whoIsAsking.X, p.Y - whoIsAsking.Y );
+                    delta *= delta;
+                    return delta.Length();
+                }).First();
             }
         }
     }

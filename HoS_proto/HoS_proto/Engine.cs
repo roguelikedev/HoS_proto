@@ -29,6 +29,7 @@ namespace HoS_proto
         Action ModalUpdate;
         Action ModalDraw;
         Act.Controller actController = new Act.Controller();
+        public static NPC NPC { get; private set; }
 
         public Engine()
         {
@@ -57,8 +58,6 @@ namespace HoS_proto
             }
             for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 3);
 
-
-            new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1), actController);
             {
                 int x = -1, y = -1;
                 while (Environment.At(new Point(x, y)).blockMove)
@@ -68,6 +67,7 @@ namespace HoS_proto
                 }
                 new Player(x, y, actController);
             }
+            NPC = new NPC(rand.Next(Environment.WORLD_DIM.X + 1), rand.Next(Environment.WORLD_DIM.Y + 1), actController);
         }
 
         protected override void Update(GameTime gameTime)
@@ -107,7 +107,7 @@ namespace HoS_proto
                     triDrawer.End();
 
                     spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-                    NPC.Instance.Draw();
+                    NPC.Draw();
                     Player.Instance.Draw();
                 };
                 #endregion
