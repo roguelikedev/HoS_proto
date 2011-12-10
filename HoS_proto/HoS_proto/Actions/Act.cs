@@ -30,14 +30,9 @@ namespace HoS_proto
         public static implicit operator string(Act a) { return a.ToString(); }
         public static implicit operator bool(Act a) { return !object.ReferenceEquals(a, null) && a != NO_ACT; }
 
-        public static bool operator ==(Act a, Act b)
-        {
-            Debug.Assert(!object.ReferenceEquals(a, null));
-            if (object.ReferenceEquals(b, null)) return false;
-            return a.GUID == b.GUID;
-        }
+        public static bool operator ==(Act a, Act b) { return a.Equals(b); }
         public static bool operator !=(Act a, Act b) { return !(a == b); }
-        public override bool Equals(object obj) { return obj is Act ? this == obj as Act : false; }
+        public override bool Equals(object obj) { return base.Equals(obj); }
         public override int GetHashCode() { return GUID.GetHashCode(); }
 
         protected Act() { GUID = nextGUID++; }
@@ -47,6 +42,22 @@ namespace HoS_proto
             Register(this);
         }
         #endregion
+
+        /// <summary> She pours tequila. </summary>
+        /// <param name="subject"> She </param>
+        /// <param name="verb"> pours </param>
+        /// <param name="_object"> tequila. </param>
+        public Act Cause(Person subject, Verb verb, Noun _object) { return Cause(subject, verb, Noun.NOTHING, _object); }
+
+        /// <summary> [you] Give me food. </summary>
+        /// <param name="subject"> you </param>
+        /// <param name="verb"> Give </param>
+        /// <param name="indirectObject"> me </param>
+        /// <param name="_object"> food. </param>
+        public Act Cause(Person subject, Verb verb, Noun indirectObject, Noun _object)
+        {
+            return new Act(subject, verb, _object, indirectObject, this, Register);
+        }
 
         public override string ToString()
         {
@@ -112,11 +123,11 @@ namespace HoS_proto
             return rval;
         }
 
-        public Act Cause(Person subject, Verb verb, Noun _object) { return Cause(subject, verb, _object, Noun.NOTHING); }
-
-        public Act Cause(Person subject, Verb verb, Noun _object, Noun indirectObject)
+        public bool DescendantOf(Act rootCause)
         {
-            return new Act(subject, verb, _object, indirectObject, this, Register);
+            Debug.Assert(this != rootCause, "not how the algorithm was intended to work.");
+            if (parent == rootCause) return true;
+            return parent ? parent.DescendantOf(rootCause) : false;
         }
 
         public class Controller
@@ -141,10 +152,10 @@ namespace HoS_proto
             public Controller() { if (NO_ACT.Register == null) NO_ACT.Register = Register; }
             public Act FirstCause(Person subject, Verb verb, Noun _object)
             {
-                return FirstCause(subject, verb, _object, Noun.NOTHING);
+                return FirstCause(subject, verb, Noun.NOTHING, _object);
             }
 
-            public Act FirstCause(Person subject, Verb verb, Noun _object, Noun indirectObject)
+            public Act FirstCause(Person subject, Verb verb, Noun indirectObject, Noun _object)
             {
                 Debug.Assert(indirectObject || verb != Verb.GIVE, "that's a ternary verb.");
                 return new Act(subject, verb, _object, indirectObject, NO_ACT, Register);

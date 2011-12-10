@@ -16,7 +16,9 @@ namespace HoS_proto
             var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
             actController.Confirm(hungry);
             memory.Add(hungry);
-            quests.Add(hungry.Cause(this, Verb.ASK, Noun.FOOD, Player.Instance));
+            var gimme = hungry.Cause(Player.Instance, Verb.GIVE, Noun.FOOD);
+            var please = gimme.Cause(this, Verb.TALK, Player.Instance, Noun.FOOD);
+            quests.Add(please);
         }
 
         public override void Update()
@@ -29,6 +31,7 @@ namespace HoS_proto
                 var iSaid = LastInteraction(Player.Instance);
                 var playerSaid = Player.Instance.LastInteraction(this);
 
+                #region sanitize *Said
                 if (!iSaid && !playerSaid)
                 {
                     Query(Player.Instance, Act.NO_ACT);
@@ -36,17 +39,18 @@ namespace HoS_proto
                 }
                 if (!playerSaid) return;
                 if (iSaid.GUID > playerSaid.GUID) return;
+                #endregion
 
-                if (playerSaid.verb == Verb.ASK)
+                var quest = quests.Find(q => q.other == Player.Instance);
+
+                if (playerSaid.verb == Verb.ASK || !quest)
                 {
-                    Respond(Player.Instance, true);
+                    Respond(Player.Instance, Engine.rand.Next(2) == 1);
+                    return;
                 }
-                else if (quests.Count > 0)
-                {
-                    if (iSaid.RootCause.verb == Verb.NEED) Enlist(Player.Instance);
-                    else Query(Player.Instance, quests[0]);
-                }
-                else Respond(Player.Instance, Engine.rand.Next(2) == 1);
+                ;
+                if (iSaid.DescendantOf(quest)) Enlist(Player.Instance);
+                else Query(Player.Instance, quest);
             }
         }
     }
