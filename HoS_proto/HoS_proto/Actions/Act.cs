@@ -12,12 +12,11 @@ namespace HoS_proto
         public static readonly Act NO_ACT = new Act();
 
         #region fields
-        public readonly Person acter;
+        public readonly Person subject;
         public readonly Verb verb;
-        public readonly Noun actedOn;
-        public readonly Noun other;
+        public readonly Noun primaryObject;
+        public readonly Noun secondaryObject;
         public readonly Act parent;
-        public Act RootCause { get { return parent ? parent.RootCause : this; } }
         public bool Happened { get; private set; }
 
         public readonly ulong GUID;
@@ -26,7 +25,9 @@ namespace HoS_proto
         System.Action<Act> Register;
         #endregion
 
-        #region cantrips, conversions, clutter
+        public Act RootCause { get { return parent ? parent.RootCause : this; } }
+
+        #region conversions, constructors, code cancer
         public static implicit operator Color(Act a) { return Color.Gray; }
         public static implicit operator string(Act a) { return a.ToString(); }
         public static implicit operator bool(Act a) { return !object.ReferenceEquals(a, null) && a != NO_ACT; }
@@ -37,9 +38,9 @@ namespace HoS_proto
         public override int GetHashCode() { return GUID.GetHashCode(); }
 
         protected Act() { GUID = nextGUID++; }
-        Act(Person s, Verb v, Noun o, Noun io, Act c, System.Action<Act> R) : this()
+        Act(Person s, Verb v, Noun o1, Noun o2, Act c, System.Action<Act> R) : this()
         {
-            acter = s; verb = v; actedOn = o; other = io; parent = c; Register = R;
+            subject = s; verb = v; primaryObject = o1; secondaryObject = o2; parent = c; Register = R;
             Register(this);
         }
         #endregion
@@ -48,23 +49,23 @@ namespace HoS_proto
         /// <param name="subject"> She </param>
         /// <param name="verb"> pours </param>
         /// <param name="_object"> tequila. </param>
-        public Act Cause(Person subject, Verb verb, Noun _object) { return Cause(subject, verb, Noun.NOTHING, _object); }
+        public Act Cause(Person subject, Verb verb, Noun _object) { return Cause(subject, verb, _object, Noun.NOTHING); }
 
-        /// <summary> [you] Give me food. </summary>
-        /// <param name="subject"> you </param>
-        /// <param name="verb"> Give </param>
-        /// <param name="indirectObject"> me </param>
-        /// <param name="_object"> food. </param>
-        public Act Cause(Person subject, Verb verb, Noun indirectObject, Noun _object)
+        /// <summary> She pours tequila on him. </summary>
+        /// <param name="subject"> She </param>
+        /// <param name="verb"> pours </param>
+        /// <param name="primaryObject"> tequila </param>
+        /// <param name="secondaryObject"> him </param>
+        public Act Cause(Person subject, Verb verb, Noun primaryObject, Noun secondaryObject)
         {
-            return new Act(subject, verb, _object, indirectObject, this, Register);
+            return new Act(subject, verb, primaryObject, secondaryObject, this, Register);
         }
 
         public override string ToString()
         {
             if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
 
-            var rval = acter.Hail(acter.Listener);
+            var rval = subject.Hail(subject.Listener);
             System.Action<string> Cat = str =>
             {
                 if (rval.Length > 0 && !rval.EndsWith(" ")) rval += " ";
@@ -78,14 +79,14 @@ namespace HoS_proto
                     Cat("why");
                     if (!parent)
                     {
-                        Cat(acter.Listener);
+                        Cat(subject.Listener);
                         Cat("so ugly");
                     }
                     else
                     {
-                        Cat(parent.acter);
+                        Cat(parent.subject);
                         Cat(parent.verb.ToString().ToLower());
-                        Cat(parent.actedOn);
+                        Cat(parent.primaryObject);
                     }
                     rval += "?";
                     break;
@@ -94,8 +95,9 @@ namespace HoS_proto
                     if (!parent) Cat("what a quiet one you are.");
                     else
                     {
-                        Cat("just keep on");
-                        Cat(verb.ToString().ToLower() + "ing");
+                        Debug.Assert(subject.Listener && subject.Listener == primaryObject, "if you don't know/remember why this assert is here, delete it.");
+                        Cat("let's talk about");
+                        Cat(secondaryObject);
                     }
                     break;
 
@@ -103,17 +105,17 @@ namespace HoS_proto
                 case Verb.LIKE:
                 case Verb.GIVE:
                 case Verb.GO:
-                    Cat(acter);
+                    Cat(subject);
                     Cat(verb.ToString().ToLower());
-                    if (other) Cat(other);
-                    Cat(actedOn);
+                    if (secondaryObject) Cat(secondaryObject);
+                    Cat(primaryObject);
 
                     break;
                 default:
-                    Cat(acter);
+                    Cat(subject);
                     Cat(verb.ToString().ToLower());
-                    if (other) Cat(other);
-                    Cat(actedOn);
+                    if (secondaryObject) Cat(secondaryObject);
+                    Cat(primaryObject);
 
                     if (parent) Cat("(" + parent + ")");
                     else Cat("nothing");
@@ -139,7 +141,6 @@ namespace HoS_proto
             List<Act> History { get { return Allocated.FindAll(a => a.Happened); } }
             List<Act> TalkedAbout { get { return new List<Act>(Allocated.FindAll(a => !a.Happened).Except<Act>(Promises)); } }
             List<Act> Promises { get { return new List<Act>(dependencies.Values).FindAll(a => a != NO_ACT); } }
-            HashSet<Person> acters = new HashSet<Person>();
             #endregion
 
             void Register(Act what)
@@ -147,20 +148,20 @@ namespace HoS_proto
                 dependencies[what] = NO_ACT;
                 var parent = what.parent;
                 if (parent && !parent.Happened) dependencies[parent] = what;
-                acters.Add(what.acter);
-                if (what.other is Person) acters.Add(what.other as Person);
+                acters.Add(what.subject);
+                if (what.secondaryObject is Person) acters.Add(what.secondaryObject as Person);
             }
 
             public Controller() { if (NO_ACT.Register == null) NO_ACT.Register = Register; }
             public Act FirstCause(Person subject, Verb verb, Noun _object)
             {
-                return FirstCause(subject, verb, Noun.NOTHING, _object);
+                return FirstCause(subject, verb, _object, Noun.NOTHING);
             }
 
-            public Act FirstCause(Person subject, Verb verb, Noun indirectObject, Noun _object)
+            public Act FirstCause(Person subject, Verb verb, Noun primaryObject, Noun secondaryObject)
             {
-                Debug.Assert(indirectObject || verb != Verb.GIVE, "that's a ternary verb.");
-                return new Act(subject, verb, _object, indirectObject, NO_ACT, Register);
+                Debug.Assert(primaryObject || verb != Verb.GIVE, "that's a ternary verb.");
+                return NO_ACT.Cause(subject, verb, primaryObject, secondaryObject);
             }
 
             public void Confirm(Act hasHappened)
@@ -183,7 +184,7 @@ namespace HoS_proto
                 switch (act.verb)
                 {
                     case Verb.GO:
-                        act.Happened = act.acter.Adjacent(act.actedOn);
+                        act.Happened = act.subject.Adjacent(act.primaryObject);
                         break;
                 }
             }
@@ -193,6 +194,8 @@ namespace HoS_proto
                 TalkedAbout.ForEach(Update);
             }
 
+            // this almost certainly doesn't belong here...
+            HashSet<Person> acters = new HashSet<Person>();
             public Person ClosestPerson(Person whoIsAsking)
             {
                 var tmp = new List<Person>(acters);

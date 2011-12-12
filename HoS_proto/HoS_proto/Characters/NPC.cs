@@ -22,33 +22,36 @@ namespace HoS_proto
         {
             base.Update();
 
-            if (!Adjacent(Player.Instance)) textBubble = null;
-            else
+            if (!Adjacent(Player.Instance))
             {
-                var iSaid = LastInteraction(Player.Instance);
-                var playerSaid = Player.Instance.LastInteraction(this);
-
-                #region sanitize *Said
-                if (!iSaid && !playerSaid)
-                {
-                    Query(Player.Instance, Act.NO_ACT);
-                    return;
-                }
-                if (!playerSaid) return;
-                if (iSaid.GUID > playerSaid.GUID) return;
-                #endregion
-
-                var quest = quests.Find(q => q.other == Player.Instance);
-
-                if (playerSaid.verb == Verb.ASK || !quest)
-                {
-                    Respond(Player.Instance, Engine.rand.Next(2) == 1);
-                    return;
-                }
-                ;
-                if (iSaid.DescendantOf(quest)) Enlist(Player.Instance);
-                else Query(Player.Instance, quest);
+                textBubble = null;
+                return;
             }
+
+            var iSaid = LastInteraction(Player.Instance);
+            var playerSaid = Player.Instance.LastInteraction(this);
+
+            #region sanitize *Said
+            if (!iSaid && !playerSaid)
+            {
+                Query(Player.Instance, Noun.NOTHING, Act.NO_ACT);
+                return;
+            }
+            if (!playerSaid) return;
+            Debug.Assert(iSaid != playerSaid);
+            if (iSaid.GUID > playerSaid.GUID) return;
+            #endregion
+
+            var quest = quests.Find(q => q.secondaryObject == Player.Instance);
+
+            if (playerSaid.verb == Verb.ASK || !quest)
+            {
+                Respond(Player.Instance, Engine.rand.Next(2) == 1);
+                return;
+            }
+
+            if (iSaid.DescendantOf(quest)) Enlist(Player.Instance);
+            else Query(Player.Instance, quest.secondaryObject, quest);
         }
     }
 }
