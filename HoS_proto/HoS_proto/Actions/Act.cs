@@ -135,45 +135,32 @@ namespace HoS_proto
             switch (verb)
             {
                 case Verb.ASK_WHY:
-                    #region squish
-                    Cat("why");
+                    Cat(subject);
+                    Cat("ask");
+                    Cat(primaryObject);
                     if (parent)
                     {
+                        Cat("why");
                         Cat(parent.subject);
                         Cat(parent.verb.ToS);
-                        Cat(parent.primaryObject);
-                        if (parent.secondaryObject)
-                        {
-                            switch (parent.verb)
-                            {
-                                case Verb.ASK_WHY:
-                                case Verb.TALK:
-                                    Cat("about");
-                                    break;
-                                case Verb.GIVE:
-                                case Verb.GO:
-                                    Cat("to");
-                                    break;
-                            }
-                            Cat(parent.secondaryObject);
-                        }
+                    }
+                    else if (secondaryObject)
+                    {
+                        Cat("about");
+                        Cat(secondaryObject);
                     }
                     rval += "?";
                     break;
-                    #endregion
                 case Verb.TALK:
                     #region squish
                     if (parent && parent.verb == Verb.ASK_WHY) Cat("because");
 
-                    if (RootCause)
+                    if (parent)
                     {
-                        if (RootCause.verb != Verb.NEED) Cat("... no reason");
-                        else
-                        {
-                            Cat(RootCause.subject);
-                            Cat("need");
-                            Cat(RootCause.args.What);
-                        }
+
+                        Cat(RootCause.subject);
+                        Cat(RootCause.verb.ToS);
+                        Cat(RootCause.args.What);
                     }
                     else if (subject.Listener && subject.Listener == primaryObject)
                     {
@@ -187,6 +174,9 @@ namespace HoS_proto
                     Cat(subject);
                     Cat(verb.ToS);
                     Cat(primaryObject);
+                    Cat("<");
+                    Cat(parent ? parent.verb.ToS : "-");
+                    Cat(">");
                     Cat(secondaryObject);
                     break;
             }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace HoS_proto
 {
@@ -46,59 +47,9 @@ namespace HoS_proto
             get
             {
             #endregion
-                var _ = typeof(Verb).GetFields(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public);
-                var __ = new List<System.Reflection.FieldInfo>(_);
-                var rval = __.Find(i => value == (char)i.GetValue(new Verb(0))).Name;
-                return rval;
-                switch (value)
-                {
-                    case Verb.ASK_WHY:
-                        return "asks why";
-                    case Verb.ASK_FOR:
-                        return "asks for";
-                    case Verb.DECLINE:
-                        return "declines";
-                    case Verb.GIVE:
-                        return "gives";
-                    case Verb.GO:
-                        return act.args.Who ? act.args.What ? "travels with"
-                                                            : "meets"
-                                            : "travels to"
-                        ;
-                    case Verb.IDLE:
-                        return "stands around" + (act.args.Who ? " with" : "");
-                    case Verb.TALK:
-                    case Verb.NEED:
-                    case Verb.LIKE:
-                    //Cat(subject);
-                    //Cat(verb.ToString().ToLower());
-                    //Cat(primaryObject);
-                    //if (secondaryObject) Cat(secondaryObject);
-                    //break;
-                    case Verb.AGREE:
-                    //Cat(subject);
-                    //Cat("agrees with");
-                    //Cat(args.Who + ",");
-                    //Cat(args.Last);
-                    //Cat("is great");
-                    //break;
-                    case Verb.PROMISE:
-                    //Cat(subject);
-                    //Cat("will definitely bring");
-                    //Cat(args.Who);
-                    //Cat(args.What);
-                    //break;
-                    default:
-                        return "what?";
-                    //Cat("Unknown Act:");
-                    //Cat("<" + subject);
-                    //Cat(verb.ToString().ToLower());
-                    //Cat(primaryObject);
-                    //if (secondaryObject) Cat(secondaryObject);
-
-                    //if (parent) Cat("(" + parent + ")>");
-                    //else Cat("nothing>");
-                }
+                // get name of constant value corresponding to my own.
+                var _ = new List<FieldInfo>(typeof(Verb).GetFields(BindingFlags.Static | BindingFlags.Public));
+                return _.Find(i => value == (char)i.GetValue(new Verb(0))).Name.ToLower().Replace('_', ' ');
             #region -
             }
             #endregion
