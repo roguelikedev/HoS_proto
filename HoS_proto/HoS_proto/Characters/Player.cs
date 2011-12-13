@@ -8,7 +8,7 @@ using Util;
 
 namespace HoS_proto
 {
-    public class Player : Person
+    class Player : Person
     {
         public enum State
         {

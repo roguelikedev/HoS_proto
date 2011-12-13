@@ -5,8 +5,11 @@ using System.Diagnostics;
 
 namespace HoS_proto
 {
-    public abstract partial class Person : Noun
+    public partial class Person : Noun
     {
+        public static readonly Person NO_ONE = new Person();
+        Person() { Debug.Assert(object.ReferenceEquals(NO_ONE, null)); }
+
         #region view
         protected Menu textBubble;
 

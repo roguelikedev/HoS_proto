@@ -118,6 +118,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Characters\Person.cs" />
     <Compile Include="Characters\Quirk.cs" />
+    <Compile Include="Actions\Verb.cs" />
     <Compile Include="Environment.cs" />
     <Compile Include="Util.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

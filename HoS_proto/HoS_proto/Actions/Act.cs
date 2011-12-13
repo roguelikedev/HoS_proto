@@ -10,7 +10,7 @@ namespace HoS_proto
     public partial class Act
     {
         public static readonly Act NO_ACT = new Act();
-        static int Arity(Verb verb)
+        static int Arity(char verb)
         {
             switch (verb)
             {
@@ -140,7 +140,7 @@ namespace HoS_proto
                     if (parent)
                     {
                         Cat(parent.subject);
-                        Cat(parent.verb.ToString().ToLower());
+                        Cat(parent.verb.ToS);
                         Cat(parent.primaryObject);
                         if (parent.secondaryObject)
                         {
@@ -183,58 +183,11 @@ namespace HoS_proto
                     else Cat("I'm so confused.");
                     break;
                     #endregion
-                case Verb.NEED:
-                case Verb.LIKE:
-                case Verb.GIVE:
-                case Verb.GO:
-                    Cat(subject);
-                    Cat(verb.ToString().ToLower());
-                    Cat(primaryObject);
-                    if (secondaryObject) Cat(secondaryObject);
-                    break;
-                case Verb.AGREE:
-                    Cat(subject);
-                    Cat("agrees with");
-                    Cat(args.Who + ",");
-                    Cat(args.Last);
-                    Cat("is great");
-                    break;
-                case Verb.ARGUE:
-                    Cat(subject);
-                    Cat("thinks");
-                    Cat(args.Who);
-                    Cat("is wrong and");
-                    Cat(args.Last);
-                    Cat("sucks");
-                    break;
-                case Verb.PROMISE:
-                    Cat(subject);
-                    Cat("will definitely bring");
-                    Cat(args.Who);
-                    Cat(args.What);
-                    break;
-                case Verb.ASK_FOR:
-                    Cat(subject);
-                    Cat("wants");
-                    Cat(args.Who);
-                    Cat("to give");
-                    Cat(args.What);
-                    break;
-                case Verb.IDLE:
-                    Cat(subject);
-                    Cat("stands around");
-                    if (args.Who) Cat("with " + args.Who);
-                    if (args.What) Cat("at " + args.What);
-                    Cat("doing nothing");
-                    break;
                 default:
                     Cat(subject);
-                    Cat(verb.ToString().ToLower());
+                    Cat(verb.ToS);
                     Cat(primaryObject);
-                    if (secondaryObject) Cat(secondaryObject);
-
-                    if (parent) Cat("(" + parent + ")");
-                    else Cat("nothing");
+                    Cat(secondaryObject);
                     break;
             }
 
