@@ -165,17 +165,20 @@ namespace HoS_proto
                     #region squish
                     if (parent && parent.verb == Verb.ASK_WHY) Cat("because");
 
-                    if (subject.Listener && subject.Listener == primaryObject)
+                    if (RootCause)
+                    {
+                        if (RootCause.verb != Verb.NEED) Cat("... no reason");
+                        else
+                        {
+                            Cat(RootCause.subject);
+                            Cat("need");
+                            Cat(RootCause.args.What);
+                        }
+                    }
+                    else if (subject.Listener && subject.Listener == primaryObject)
                     {
                         Cat(secondaryObject);
                         if (subject == secondaryObject) Cat("is amazing");
-                    }
-                    else if (parent)
-                    {
-                        Cat(parent.subject);
-                        Cat(parent.verb.ToString());
-                        if (parent.secondaryObject) Cat("to " + parent.primaryObject + " about");
-                        Cat(parent.secondaryObject);
                     }
                     else Cat("I'm so confused.");
                     break;
@@ -186,8 +189,8 @@ namespace HoS_proto
                 case Verb.GO:
                     Cat(subject);
                     Cat(verb.ToString().ToLower());
-                    if (secondaryObject) Cat(secondaryObject);
                     Cat(primaryObject);
+                    if (secondaryObject) Cat(secondaryObject);
                     break;
                 case Verb.AGREE:
                     Cat(subject);
@@ -209,6 +212,20 @@ namespace HoS_proto
                     Cat("will definitely bring");
                     Cat(args.Who);
                     Cat(args.What);
+                    break;
+                case Verb.ASK_FOR:
+                    Cat(subject);
+                    Cat("wants");
+                    Cat(args.Who);
+                    Cat("to give");
+                    Cat(args.What);
+                    break;
+                case Verb.IDLE:
+                    Cat(subject);
+                    Cat("stands around");
+                    if (args.Who) Cat("with " + args.Who);
+                    if (args.What) Cat("at " + args.What);
+                    Cat("doing nothing");
                     break;
                 default:
                     Cat(subject);
