@@ -9,7 +9,7 @@ namespace HoS_proto
 
     public enum Verb
     {
-        IDLE, GO, TALK, GIVE, NEED, LIKE, HATE, PROMISE, ASK_ABOUT, ASK_FOR
+        IDLE, GO, TALK, GIVE, NEED, LIKE, AGREE, ARGUE, PROMISE, ASK_WHY, ASK_FOR
     }
 
     public enum Mood

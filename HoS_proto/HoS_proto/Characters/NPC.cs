@@ -13,8 +13,6 @@ namespace HoS_proto
             var hungry = actController.FirstCause(this, Verb.NEED, Noun.FOOD);
             actController.Confirm(hungry);
             memory.Add(hungry);
-            var please = hungry.Cause(this, Verb.TALK, Player.Instance, Noun.FOOD);
-            quests.Add(please);
         }
 
         public override void Update()
@@ -41,19 +39,21 @@ namespace HoS_proto
             if (iSaid.TimeStamp > playerSaid.TimeStamp) return;
             #endregion
 
-            var quest = quests.Find(q => q.primaryObject == Player.Instance);
+            var hungry = memory.Find(a => a.subject == this && a.verb == Verb.NEED);
 
-            if (playerSaid.verb == Verb.ASK_ABOUT || !quest)
+            if (playerSaid.verb == Verb.ASK_WHY || !hungry)
             {
                 Respond(Player.Instance, Engine.rand.Next(2) == 1);
                 return;
             }
 
-            if (iSaid.Descendant(quest)) Enlist(Player.Instance);
+            if (iSaid.Descendant(hungry))
+            {
+                Enlist(Player.Instance, iSaid);
+            }
             else
             {
-                Commit(quest);
-                quests.Remove(quest);
+                Commit(hungry.Cause(this, Verb.TALK, Player.Instance, hungry.args.What));
             }
         }
     }

@@ -10,10 +10,25 @@ namespace HoS_proto
     public partial class Act
     {
         public static readonly Act NO_ACT = new Act();
+        static int Arity(Verb verb)
+        {
+            switch (verb)
+            {
+                case Verb.AGREE:
+                case Verb.ARGUE:
+                case Verb.ASK_WHY:
+                case Verb.ASK_FOR:
+                case Verb.GIVE:
+                    return 3;
+                default:
+                    return 2;
+            }
+        }
 
         #region fields
         public readonly Person subject;
         public readonly Verb verb;
+        public readonly IVerbArguments args;
         public readonly Noun primaryObject;
         public readonly Noun secondaryObject;
 
@@ -31,16 +46,34 @@ namespace HoS_proto
         #endregion
 
         #region accessors
-        Noun FilterObjects(Func<Noun, Noun> Pred)
+        public interface IVerbArguments
         {
-            var po = Pred(primaryObject);
-            var so = Pred(secondaryObject);
-
-            Debug.Assert(!so || !po, "ambiguity alert.");
-            return po ? po : so;
+            Noun First { get; }
+            Noun Second { get; }
+            Noun Last { get; }
+            Person Who { get; }
+            Noun What { get; }
         }
-        public Person OtherPerson { get { return (Person)FilterObjects(n => n == subject ? null : n as Person); } }
-        public Noun NonPersonNoun { get { return FilterObjects(n => n is Person ? null : n); } }
+        class VerbArguments : IVerbArguments
+        {
+            public VerbArguments(Act client) { this.client = client; }
+
+            readonly Act client;
+            public Noun First { get { return client.primaryObject; } }
+            public Noun Second { get { return client.secondaryObject; } }
+            public Noun Last { get { return Second ? Second : First; } }
+
+            Noun FilterObjects(Func<Noun, Noun> Pred)
+            {
+                var po = Pred(First);
+                var so = Pred(Second);
+
+                Debug.Assert(!so || !po || so == po, "ambiguity alert.");
+                return po ? po : so;
+            }
+            public Person Who { get { return (Person)FilterObjects(n => n == client.subject ? null : n as Person); } }
+            public Noun What { get { return FilterObjects(n => n is Person ? null : n); } }
+        }
 
         public Act RootCause { get { return parent ? parent.RootCause : this; } }
 
@@ -65,7 +98,9 @@ namespace HoS_proto
         protected Act() { GUID = nextGUID++; }
         Act(Person s, Verb v, Noun o1, Noun o2, Act c, System.Action<Act> R) : this()
         {
+            //Debug.Assert(Arity(v) == 2 || o2, v.ToString() + " is a ternary verb.");
             subject = s; verb = v; primaryObject = o1; secondaryObject = o2; parent = c; Register = R;
+            args = new VerbArguments(this);
             Register(this);
         }
         #endregion
@@ -99,7 +134,7 @@ namespace HoS_proto
 
             switch (verb)
             {
-                case Verb.ASK_ABOUT:
+                case Verb.ASK_WHY:
                     #region squish
                     Cat("why");
                     if (parent)
@@ -111,7 +146,7 @@ namespace HoS_proto
                         {
                             switch (parent.verb)
                             {
-                                case Verb.ASK_ABOUT:
+                                case Verb.ASK_WHY:
                                 case Verb.TALK:
                                     Cat("about");
                                     break;
@@ -128,7 +163,7 @@ namespace HoS_proto
                     #endregion
                 case Verb.TALK:
                     #region squish
-                    if (parent && parent.verb == Verb.ASK_ABOUT) Cat("because");
+                    if (parent && parent.verb == Verb.ASK_WHY) Cat("because");
 
                     if (subject.Listener && subject.Listener == primaryObject)
                     {
@@ -153,7 +188,22 @@ namespace HoS_proto
                     Cat(verb.ToString().ToLower());
                     if (secondaryObject) Cat(secondaryObject);
                     Cat(primaryObject);
-
+                    break;
+                case Verb.AGREE:
+                    Cat(subject);
+                    Cat("agrees with");
+                    Cat(args.Who);
+                    Cat(", ");
+                    Cat(args.Last);
+                    Cat("is great.");
+                    break;
+                case Verb.ARGUE:
+                    Cat(subject);
+                    Cat("thinks");
+                    Cat(args.Who);
+                    Cat("is wrong and");
+                    Cat(args.Last);
+                    Cat("sucks");
                     break;
                 default:
                     Cat(subject);

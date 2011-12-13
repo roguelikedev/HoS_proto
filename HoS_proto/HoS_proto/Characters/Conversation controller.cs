@@ -28,19 +28,19 @@ namespace HoS_proto
         {
             get
             {
-                var speechActs = memory.FindAll(a => a.OtherPerson);
-                return speechActs.Count == 0 || speechActs.Last().OtherPerson != Listener;
+                var speechActs = memory.FindAll(a => a.args.Who);
+                return speechActs.Count == 0 || speechActs.Last().args.Who != Listener;
             }
         }
 
         public Act LastInteraction(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(a => a.subject == this && a.primaryObject == to)) return null;
+            if (!memory.Exists(a => a.subject == this && a.args.Who == to)) return null;
 
             // double thanks for not supporting conversion from Predicate<Act> to Func<Act, bool>
             // fuck code reuse anyway
-            return memory.Last(a => a.subject == this && a.primaryObject == to);
+            return memory.Last(a => a.subject == this && a.args.Who == to);
         }
 
         public string Hail(Person who)
@@ -57,15 +57,14 @@ namespace HoS_proto
         }
         #endregion
 
-        #region private helpers
+        #region helpers
         protected void Commit(Act what)
         {
             Debug.Assert(what);
             memory.Add(what);
-            actController.Confirm(what);
+            if (what.subject == this) actController.Confirm(what);
             ShowLastSentence(what);
         }
-
         Act Babble() { return actController.FirstCause(this, Verb.TALK, Listener, this); }
         Act Babble(Act ignoredContext)
         {
@@ -77,7 +76,7 @@ namespace HoS_proto
         protected void Query(Person other, Noun about, Act because)
         {
             Listener = other;
-            Commit(because.Cause(this, Verb.ASK_ABOUT, other, about));
+            Commit(because.Cause(this, Verb.ASK_WHY, other, about));
         }
 
         protected void Respond(Person other, bool affirm)
@@ -100,7 +99,7 @@ namespace HoS_proto
                     else a = context.Cause(this, Verb.IDLE, other);
                     break;
                 case Verb.TALK:
-                    a = context.Cause(this, affirm ? Verb.LIKE : Verb.HATE, context.NonPersonNoun);
+                    a = context.Cause(this, affirm ? Verb.AGREE : Verb.ARGUE, other, context.args.Last);
                     break;
                 default:
                     a = Babble(context);
@@ -110,13 +109,12 @@ namespace HoS_proto
             Commit(a);
         }
 
-        protected void Enlist(Person other)
+        protected void Enlist(Person other, Act askedForHelp)
         {
             Listener = other;
 
-            var rationale = memory.Find(a => a.subject == this && a.verb == Verb.NEED);
-            Debug.Assert(rationale.Happened);
-            var gimme = rationale.Cause(other, Verb.GIVE, this, rationale.primaryObject);
+            Debug.Assert(askedForHelp.parent.verb == Verb.NEED);
+            var gimme = askedForHelp.Cause(other, Verb.GIVE, this, askedForHelp.parent.args.What);
 
             Commit(gimme);
         }
