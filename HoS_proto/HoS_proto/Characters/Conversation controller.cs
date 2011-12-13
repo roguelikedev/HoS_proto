@@ -24,7 +24,14 @@ namespace HoS_proto
         protected List<Act> quests = new List<Act>();
         protected List<Act> memory = new List<Act>();
 
-        bool AmbiguousListener { get { return LastInteraction(Listener) != memory.Last(); } }
+        bool AmbiguousListener
+        {
+            get
+            {
+                var speechActs = memory.FindAll(a => a.OtherPerson);
+                return speechActs.Count == 0 || speechActs.Last().OtherPerson != Listener;
+            }
+        }
 
         public Act LastInteraction(Person to)
         {
@@ -93,7 +100,7 @@ namespace HoS_proto
                     else a = context.Cause(this, Verb.IDLE, other);
                     break;
                 case Verb.TALK:
-                    a = context.Cause(this, affirm ? Verb.LIKE : Verb.HATE, context.secondaryObject);
+                    a = context.Cause(this, affirm ? Verb.LIKE : Verb.HATE, context.NonPersonNoun);
                     break;
                 default:
                     a = Babble(context);

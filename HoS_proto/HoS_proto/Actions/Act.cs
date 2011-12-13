@@ -94,7 +94,7 @@ namespace HoS_proto
             System.Action<string> Cat = str =>
             {
                 if (rval.Length > 0 && !rval.EndsWith(" ")) rval += " ";
-                rval += str;
+                rval += str.Replace('_', ' ');
             };
 
             switch (verb)
@@ -112,11 +112,11 @@ namespace HoS_proto
                             switch (parent.verb)
                             {
                                 case Verb.ASK_ABOUT:
+                                case Verb.TALK:
                                     Cat("about");
                                     break;
                                 case Verb.GIVE:
                                 case Verb.GO:
-                                case Verb.TALK:
                                     Cat("to");
                                     break;
                             }
@@ -127,6 +127,7 @@ namespace HoS_proto
                     break;
                     #endregion
                 case Verb.TALK:
+                    #region squish
                     if (parent && parent.verb == Verb.ASK_ABOUT) Cat("because");
 
                     if (subject.Listener && subject.Listener == primaryObject)
@@ -143,7 +144,7 @@ namespace HoS_proto
                     }
                     else Cat("I'm so confused.");
                     break;
-
+                    #endregion
                 case Verb.NEED:
                 case Verb.LIKE:
                 case Verb.GIVE:

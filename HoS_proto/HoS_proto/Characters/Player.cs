@@ -168,7 +168,7 @@ namespace HoS_proto
                 case State.TALKING:
                     MakeTextBubble();
                     {
-                        var prevStatement = LastInteraction(Listener);
+                        var prevStatement = memory.FindLast(a => a.subject == this);
                         if (prevStatement) textBubble.Add(prevStatement);
                     }
 
