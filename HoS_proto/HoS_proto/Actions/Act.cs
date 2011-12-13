@@ -125,7 +125,9 @@ namespace HoS_proto
         {
             if (object.ReferenceEquals(this, NO_ACT)) return "NO_ACT";
 
-            var rval = subject.Hail(subject.Listener);
+            var rval = "";
+            if (subject.Listener) rval += subject.Hail(subject.Listener);
+
             System.Action<string> Cat = str =>
             {
                 if (rval.Length > 0 && !rval.EndsWith(" ")) rval += " ";
@@ -177,7 +179,7 @@ namespace HoS_proto
                     Cat(subject);
                     Cat(verb.ToS);
                     Cat(primaryObject);
-                    Cat(secondaryObject);
+                    if (secondaryObject) Cat(secondaryObject);
                     break;
             }
 

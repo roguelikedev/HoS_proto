@@ -179,6 +179,7 @@ namespace HoS_proto
         {
             if (!act) return act;
 
+            if (!act.Happened)
             {
                 var shouldConfirm = false;
                 switch (act.verb)
@@ -225,7 +226,11 @@ namespace HoS_proto
                     MakeTextBubble();
                     {
                         var prevStatement = memory.FindLast(a => a.subject == this);
-                        if (prevStatement) textBubble.Add(prevStatement);
+                        if (prevStatement)
+                        {
+                            textBubble.Add(prevStatement);
+                            CompleteQuest(Tutorial[TUTORIAL_TALK]);
+                        }
                     }
 
                     textBubble.Add("Ask", () =>
@@ -238,7 +243,6 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    quests.RemoveAll(a => a.verb == Verb.TALK && a.args.Who == Listener);
                     break;
             }
             state = nextState;
@@ -268,7 +272,6 @@ namespace HoS_proto
                         CompleteQuest(Tutorial[TUTORIAL_GOTO]);
                         if (Pressed(Keys.Space))
                         {
-                            CompleteQuest(Tutorial[TUTORIAL_TALK]);
                             Enter(State.TALKING);
                             return;
                         }
