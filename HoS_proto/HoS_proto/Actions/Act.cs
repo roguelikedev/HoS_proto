@@ -29,8 +29,8 @@ namespace HoS_proto
         public readonly Person subject;
         public readonly Verb verb;
         public readonly IVerbArguments args;
-        public readonly Noun primaryObject;
-        public readonly Noun secondaryObject;
+        readonly Noun primaryObject;
+        readonly Noun secondaryObject;
 
         public readonly Act parent;
         public bool Happened { get; private set; }
@@ -192,10 +192,9 @@ namespace HoS_proto
                 case Verb.AGREE:
                     Cat(subject);
                     Cat("agrees with");
-                    Cat(args.Who);
-                    Cat(", ");
+                    Cat(args.Who + ",");
                     Cat(args.Last);
-                    Cat("is great.");
+                    Cat("is great");
                     break;
                 case Verb.ARGUE:
                     Cat(subject);
@@ -205,11 +204,17 @@ namespace HoS_proto
                     Cat(args.Last);
                     Cat("sucks");
                     break;
+                case Verb.PROMISE:
+                    Cat(subject);
+                    Cat("will definitely bring");
+                    Cat(args.Who);
+                    Cat(args.What);
+                    break;
                 default:
                     Cat(subject);
                     Cat(verb.ToString().ToLower());
-                    if (secondaryObject) Cat(secondaryObject);
                     Cat(primaryObject);
+                    if (secondaryObject) Cat(secondaryObject);
 
                     if (parent) Cat("(" + parent + ")");
                     else Cat("nothing");

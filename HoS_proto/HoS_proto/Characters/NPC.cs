@@ -49,7 +49,7 @@ namespace HoS_proto
 
             if (iSaid.Descendant(hungry))
             {
-                Enlist(Player.Instance, iSaid);
+                Enlist(Player.Instance, hungry);
             }
             else
             {

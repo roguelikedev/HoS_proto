@@ -144,7 +144,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                quests.RemoveAll(a => a.verb == Verb.GO && a.primaryObject == Noun.NOTHING);
+                quests.RemoveAll(a => a.verb == Verb.GO && a.args.What == Noun.NOTHING);
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -159,7 +159,7 @@ namespace HoS_proto
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (quests.Exists(a => a.verb == Verb.GO && a.primaryObject == Noun.NOTHING))
+                    if (quests.Exists(a => a.verb == Verb.GO && a.args.What == Noun.NOTHING))
                     {
                         MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
                     }
@@ -182,7 +182,7 @@ namespace HoS_proto
                     ;
 
                     textBubble.GoNext();
-                    quests.RemoveAll(a => a.verb == Verb.TALK && a.primaryObject == Listener);
+                    quests.RemoveAll(a => a.verb == Verb.TALK && a.args.Who == Listener);
                     break;
             }
             state = nextState;
@@ -207,7 +207,7 @@ namespace HoS_proto
                 case State.MOVING:
                     if (Adjacent(nearestNPC))
                     {
-                        if (quests.Exists(a => a.verb == Verb.TALK && a.primaryObject == nearestNPC))
+                        if (quests.Exists(a => a.verb == Verb.TALK && a.args.Who == nearestNPC))
                         {
                             MakeTextBubble().Add("press space bar to talk");
                         }
@@ -246,13 +246,13 @@ namespace HoS_proto
             }
             else
             {
-                if (Engine.OnScreen(q.primaryObject.Location))
+                if (Engine.OnScreen(q.args.First.Location))
                 {
-                    if (q.verb == Verb.GO) Engine.DrawAtWorld("halo", q.primaryObject.Location.X, q.primaryObject.Location.Y);
+                    if (q.verb == Verb.GO) Engine.DrawAtWorld("halo", q.args.First.Location.X, q.args.First.Location.Y);
                     goto LAST_LINE;
                 }
 
-                var dir = new Vector2(q.primaryObject.Location.X - X, q.primaryObject.Location.Y - Y);
+                var dir = new Vector2(q.args.First.Location.X - X, q.args.First.Location.Y - Y);
                 Debug.Assert(dir != Vector2.Zero);
                 dir.Normalize();
                 var rot = (float)Math.Asin(dir.X) + MathHelper.PiOver2;

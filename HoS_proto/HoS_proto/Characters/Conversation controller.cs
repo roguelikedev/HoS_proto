@@ -62,7 +62,7 @@ namespace HoS_proto
         {
             Debug.Assert(what);
             memory.Add(what);
-            if (what.subject == this) actController.Confirm(what);
+            actController.Confirm(what);
             ShowLastSentence(what);
         }
         Act Babble() { return actController.FirstCause(this, Verb.TALK, Listener, this); }
@@ -90,10 +90,9 @@ namespace HoS_proto
             switch (context.verb)
             {
                 case Verb.ASK_FOR:
-                    Debug.Assert(false, "write me.");
                     if (affirm)
                     {
-                        a = context.Cause(this, Verb.PROMISE, other);
+                        a = context.Cause(this, Verb.PROMISE, other, context.args.What);
                         quests.Add(a);
                     }
                     else a = context.Cause(this, Verb.IDLE, other);
@@ -109,12 +108,12 @@ namespace HoS_proto
             Commit(a);
         }
 
-        protected void Enlist(Person other, Act askedForHelp)
+        protected void Enlist(Person other, Act need)
         {
             Listener = other;
 
-            Debug.Assert(askedForHelp.parent.verb == Verb.NEED);
-            var gimme = askedForHelp.Cause(other, Verb.GIVE, this, askedForHelp.parent.args.What);
+            Debug.Assert(need.verb == Verb.NEED);
+            var gimme = need.Cause(this, Verb.ASK_FOR, other, need.args.What);
 
             Commit(gimme);
         }
