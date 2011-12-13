@@ -29,11 +29,11 @@ namespace HoS_proto
         public Act LastInteraction(Person to)
         {
             // wtf thanks for the undocumented "derr I couldn't find one" exception you M$ retards
-            if (!memory.Exists(a => a.subject == this && (a.primaryObject == to || a.secondaryObject == to))) return null;
+            if (!memory.Exists(a => a.subject == this && a.primaryObject == to)) return null;
 
             // double thanks for not supporting conversion from Predicate<Act> to Func<Act, bool>
             // fuck code reuse anyway
-            return memory.Last(a => a.subject == this && (a.primaryObject == to || a.secondaryObject == to));
+            return memory.Last(a => a.subject == this && a.primaryObject == to);
         }
 
         public string Hail(Person who)
@@ -51,7 +51,7 @@ namespace HoS_proto
         #endregion
 
         #region private helpers
-        void Commit(Act what)
+        protected void Commit(Act what)
         {
             Debug.Assert(what);
             memory.Add(what);
@@ -70,14 +70,7 @@ namespace HoS_proto
         protected void Query(Person other, Noun about, Act because)
         {
             Listener = other;
-
-            if (!about)
-            {
-                if (because) about = because.secondaryObject ? because.secondaryObject : because.primaryObject;
-                if (!about) about = other;
-            }
-
-            Commit(because.Cause(this, Verb.ASK, other, about));
+            Commit(because.Cause(this, Verb.ASK_ABOUT, other, about));
         }
 
         protected void Respond(Person other, bool affirm)
@@ -88,16 +81,24 @@ namespace HoS_proto
             if (!context) context = Act.NO_ACT;
 
             Act a;
-            if (context.subject == this)
+            switch (context.verb)
             {
-                if (affirm)
-                {
-                    a = context.Cause(this, Verb.PROMISE, other);
-                    quests.Add(a);
-                }
-                else a = context.Cause(this, Verb.IDLE, other);
+                case Verb.ASK_FOR:
+                    Debug.Assert(false, "write me.");
+                    if (affirm)
+                    {
+                        a = context.Cause(this, Verb.PROMISE, other);
+                        quests.Add(a);
+                    }
+                    else a = context.Cause(this, Verb.IDLE, other);
+                    break;
+                case Verb.TALK:
+                    a = context.Cause(this, affirm ? Verb.LIKE : Verb.HATE, context.secondaryObject);
+                    break;
+                default:
+                    a = Babble(context);
+                    break;
             }
-            else a = Babble();
 
             Commit(a);
         }
@@ -108,9 +109,9 @@ namespace HoS_proto
 
             var rationale = memory.Find(a => a.subject == this && a.verb == Verb.NEED);
             Debug.Assert(rationale.Happened);
-            var goThere = rationale.Cause(other, Verb.GO, rationale.primaryObject);
+            var gimme = rationale.Cause(other, Verb.GIVE, this, rationale.primaryObject);
 
-            Commit(goThere);
+            Commit(gimme);
         }
 
         public virtual void Update()

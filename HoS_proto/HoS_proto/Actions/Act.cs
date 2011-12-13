@@ -7,7 +7,7 @@ using System;
 
 namespace HoS_proto
 {
-    public class Act
+    public partial class Act
     {
         public static readonly Act NO_ACT = new Act();
 
@@ -16,16 +16,41 @@ namespace HoS_proto
         public readonly Verb verb;
         public readonly Noun primaryObject;
         public readonly Noun secondaryObject;
+
         public readonly Act parent;
         public bool Happened { get; private set; }
 
-        public readonly ulong GUID;
-        static uint nextGUID;
+        readonly ulong GUID;
+        static ulong nextGUID;
+
+        public const ulong NEVER_HAPPENED = 0;
+        static ulong nextTimeStamp = NEVER_HAPPENED + 1;
+        public ulong TimeStamp { get; private set; }
 
         System.Action<Act> Register;
         #endregion
 
+        #region accessors
+        Noun FilterObjects(Func<Noun, Noun> Pred)
+        {
+            var po = Pred(primaryObject);
+            var so = Pred(secondaryObject);
+
+            Debug.Assert(!so || !po, "ambiguity alert.");
+            return po ? po : so;
+        }
+        public Person OtherPerson { get { return (Person)FilterObjects(n => n == subject ? null : n as Person); } }
+        public Noun NonPersonNoun { get { return FilterObjects(n => n is Person ? null : n); } }
+
         public Act RootCause { get { return parent ? parent.RootCause : this; } }
+
+        public bool Descendant(Act rootCause)
+        {
+            Debug.Assert(this != rootCause, "not how the algorithm was intended to work.");
+            if (parent == rootCause) return true;
+            return parent ? parent.Descendant(rootCause) : false;
+        }
+        #endregion
 
         #region conversions, constructors, code cancer
         public static implicit operator Color(Act a) { return Color.Gray; }
@@ -74,31 +99,49 @@ namespace HoS_proto
 
             switch (verb)
             {
-                case Verb.ASK:
+                case Verb.ASK_ABOUT:
                     #region squish
                     Cat("why");
-                    if (!parent)
-                    {
-                        Cat(subject.Listener);
-                        Cat("so ugly");
-                    }
-                    else
+                    if (parent)
                     {
                         Cat(parent.subject);
                         Cat(parent.verb.ToString().ToLower());
                         Cat(parent.primaryObject);
+                        if (parent.secondaryObject)
+                        {
+                            switch (parent.verb)
+                            {
+                                case Verb.ASK_ABOUT:
+                                    Cat("about");
+                                    break;
+                                case Verb.GIVE:
+                                case Verb.GO:
+                                case Verb.TALK:
+                                    Cat("to");
+                                    break;
+                            }
+                            Cat(parent.secondaryObject);
+                        }
                     }
                     rval += "?";
                     break;
                     #endregion
                 case Verb.TALK:
-                    if (!parent) Cat("what a quiet one you are.");
-                    else
+                    if (parent && parent.verb == Verb.ASK_ABOUT) Cat("because");
+
+                    if (subject.Listener && subject.Listener == primaryObject)
                     {
-                        Debug.Assert(subject.Listener && subject.Listener == primaryObject, "if you don't know/remember why this assert is here, delete it.");
-                        Cat("let's talk about");
                         Cat(secondaryObject);
+                        if (subject == secondaryObject) Cat("is amazing");
                     }
+                    else if (parent)
+                    {
+                        Cat(parent.subject);
+                        Cat(parent.verb.ToString());
+                        if (parent.secondaryObject) Cat("to " + parent.primaryObject + " about");
+                        Cat(parent.secondaryObject);
+                    }
+                    else Cat("I'm so confused.");
                     break;
 
                 case Verb.NEED:
@@ -124,89 +167,6 @@ namespace HoS_proto
 
             if (!rval.EndsWith("?")) rval += ".";
             return rval;
-        }
-
-        public bool DescendantOf(Act rootCause)
-        {
-            Debug.Assert(this != rootCause, "not how the algorithm was intended to work.");
-            if (parent == rootCause) return true;
-            return parent ? parent.DescendantOf(rootCause) : false;
-        }
-
-        public class Controller
-        {
-            #region fields, properties
-            Dictionary<Act, Act> dependencies = new Dictionary<Act, Act>();
-            List<Act> Allocated { get { return new List<Act>(dependencies.Keys); } }
-            List<Act> History { get { return Allocated.FindAll(a => a.Happened); } }
-            List<Act> TalkedAbout { get { return new List<Act>(Allocated.FindAll(a => !a.Happened).Except<Act>(Promises)); } }
-            List<Act> Promises { get { return new List<Act>(dependencies.Values).FindAll(a => a != NO_ACT); } }
-            #endregion
-
-            void Register(Act what)
-            {
-                dependencies[what] = NO_ACT;
-                var parent = what.parent;
-                if (parent && !parent.Happened) dependencies[parent] = what;
-                acters.Add(what.subject);
-                if (what.secondaryObject is Person) acters.Add(what.secondaryObject as Person);
-            }
-
-            public Controller() { if (NO_ACT.Register == null) NO_ACT.Register = Register; }
-            public Act FirstCause(Person subject, Verb verb, Noun _object)
-            {
-                return FirstCause(subject, verb, _object, Noun.NOTHING);
-            }
-
-            public Act FirstCause(Person subject, Verb verb, Noun primaryObject, Noun secondaryObject)
-            {
-                Debug.Assert(primaryObject || verb != Verb.GIVE, "that's a ternary verb.");
-                return NO_ACT.Cause(subject, verb, primaryObject, secondaryObject);
-            }
-
-            public void Confirm(Act hasHappened)
-            {
-                Debug.Assert(Allocated.Contains(hasHappened));
-                Debug.Assert(!hasHappened.parent || History.Contains(hasHappened.parent));
-                Debug.Assert(TalkedAbout.Contains(hasHappened));
-
-                hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
-                dependencies[hasHappened] = NO_ACT; // Present now finds the consequent Act, Future doesn't.
-            }
-
-            public Act Consequence(Act preCondition)
-            {
-                return dependencies[preCondition];
-            }
-
-            void Update(Act act)
-            {
-                switch (act.verb)
-                {
-                    case Verb.GO:
-                        act.Happened = act.subject.Adjacent(act.primaryObject);
-                        break;
-                }
-            }
-
-            public void Update()
-            {
-                TalkedAbout.ForEach(Update);
-            }
-
-            // this almost certainly doesn't belong here...
-            HashSet<Person> acters = new HashSet<Person>();
-            public Person ClosestPerson(Person whoIsAsking)
-            {
-                var tmp = new List<Person>(acters);
-                tmp.Remove(whoIsAsking);
-                return tmp.OrderBy(p =>
-                {
-                    var delta = new Vector2(p.X - whoIsAsking.X, p.Y - whoIsAsking.Y );
-                    delta *= delta;
-                    return delta.Length();
-                }).First();
-            }
         }
     }
 }
