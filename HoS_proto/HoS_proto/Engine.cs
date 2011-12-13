@@ -42,6 +42,7 @@ namespace HoS_proto
 
         protected override void Initialize()
         {
+            #region blah blah blah
             spriteBatch = new SpriteBatch(GraphicsDevice);
             triDrawer = new TriangleDrawer(GraphicsDevice);
 
@@ -57,6 +58,7 @@ namespace HoS_proto
                 Environment.Streamer(whereNext.X, whereNext.Y, Environment.GRASS, 14);
             }
             for (int lcv = -1; ++lcv < worldDimRoot2; ) Environment.Streamer(WhereNext().X, WhereNext().Y, Environment.ROCK, 3);
+            #endregion
 
             {
                 int x = -1, y = -1;
@@ -94,7 +96,7 @@ namespace HoS_proto
             }
             if (ModalUpdate == Player.Instance.GetName && !Player.Instance.Pausing)
             {
-                ModalUpdate = Person.UpdateAll;
+                ModalUpdate = () => Person.ForEach(p => p.Update());
                 #region ModalDraw
                 ModalDraw = () =>
                 {
@@ -106,8 +108,7 @@ namespace HoS_proto
                     triDrawer.End();
 
                     spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-                    NPC.Draw();
-                    Player.Instance.Draw();
+                    Person.ForEach(p => p.Draw());
                 };
                 #endregion
             }

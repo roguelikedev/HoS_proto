@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Util;
 using System.Diagnostics;
+using System;
 
 namespace HoS_proto
 {
@@ -63,7 +64,6 @@ namespace HoS_proto
 
         #region object oriented overhead
         static List<Person> all = new List<Person>();
-        public static void UpdateAll() { all.ForEach(a => a.Update()); }
 
         protected Person(int x, int y, Act.Controller ac)
         {
@@ -73,5 +73,7 @@ namespace HoS_proto
             actController = ac;
         }
         #endregion
+
+        public static void ForEach(Action<Person> Lambda) { all.ForEach(p => Lambda(p)); }
     }
 }
