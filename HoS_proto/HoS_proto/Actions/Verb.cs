@@ -41,6 +41,7 @@ namespace HoS_proto
         }
         #endregion
 
+        public override string ToString() { return ToS; }
         public string ToS
         {
             #region get

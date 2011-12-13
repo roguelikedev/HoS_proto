@@ -44,31 +44,19 @@ namespace HoS_proto
             {
                 Debug.Assert(Allocated.Contains(hasHappened));
                 Debug.Assert(!hasHappened.parent || History.Contains(hasHappened.parent));
+
+                if (hasHappened.Happened) return;
                 Debug.Assert(TalkedAbout.Contains(hasHappened));
 
-                hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
                 hasHappened.TimeStamp = nextTimeStamp++;
+                hasHappened.Happened = true;        // Past now finds the current Act, Present doesn't.
                 dependencies[hasHappened] = NO_ACT; // Present now finds the consequent Act, Future doesn't.
             }
 
+            /// <summary> preCondition.Happened => NO_ACT </summary>
             public Act Consequence(Act preCondition)
             {
                 return dependencies[preCondition];
-            }
-
-            void Update(Act act)
-            {
-                switch (act.verb)
-                {
-                    case Verb.GO:
-                        act.Happened = act.subject.Adjacent(act.primaryObject);
-                        break;
-                }
-            }
-
-            public void Update()
-            {
-                TalkedAbout.ForEach(Update);
             }
 
             // this almost certainly doesn't belong here...

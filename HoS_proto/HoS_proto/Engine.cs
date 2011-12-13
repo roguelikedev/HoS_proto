@@ -95,7 +95,6 @@ namespace HoS_proto
             if (ModalUpdate == Player.Instance.GetName && !Player.Instance.Pausing)
             {
                 ModalUpdate = Person.UpdateAll;
-                ModalUpdate += actController.Update;
                 #region ModalDraw
                 ModalDraw = () =>
                 {

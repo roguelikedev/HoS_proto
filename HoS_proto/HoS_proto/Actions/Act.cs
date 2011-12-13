@@ -152,15 +152,19 @@ namespace HoS_proto
                     rval += "?";
                     break;
                 case Verb.TALK:
-                    #region squish
                     if (parent && parent.verb == Verb.ASK_WHY) Cat("because");
 
-                    if (parent)
+                    var about = parent.parent;
+                    if (about)
                     {
-
-                        Cat(RootCause.subject);
-                        Cat(RootCause.verb.ToS);
-                        Cat(RootCause.args.What);
+                        var rationale = about.parent;
+                        if (!rationale) Cat("no reason");
+                        else
+                        {
+                            Cat(rationale.subject);
+                            Cat(rationale.verb.ToS);
+                            Cat(rationale.args.What);
+                        }
                     }
                     else if (subject.Listener && subject.Listener == primaryObject)
                     {
@@ -169,14 +173,10 @@ namespace HoS_proto
                     }
                     else Cat("I'm so confused.");
                     break;
-                    #endregion
                 default:
                     Cat(subject);
                     Cat(verb.ToS);
                     Cat(primaryObject);
-                    Cat("<");
-                    Cat(parent ? parent.verb.ToS : "-");
-                    Cat(">");
                     Cat(secondaryObject);
                     break;
             }

@@ -14,6 +14,11 @@ namespace HoS_proto
         {
             UNINITIALIZED, MOVING, TALKING
         }
+        Dictionary<string, Act> Tutorial = new Dictionary<string, Act>();
+        static readonly string TUTORIAL_MOVE = "use direction keys, numpad, or vi keys to walk.",
+                               TUTORIAL_GOTO = "follow the golden chevron to find someone.",
+                               TUTORIAL_TALK = "press space bar to talk."
+                               ;
 
         #region fields
         public static Player Instance { get; private set; }
@@ -26,6 +31,7 @@ namespace HoS_proto
         public bool Pausing { get; private set; }
 
         List<Notification> popups = new List<Notification>();
+        Menu questLog = new Menu();
         #endregion
 
         public Player(int x, int y, Act.Controller ac) : base (x, y, ac)
@@ -37,6 +43,7 @@ namespace HoS_proto
             Pausing = true;
             Quirks = Quirk.TIGHT_LIPPED;
             name = "man";
+            questLog.DrawBox = () => new Rectangle(0, Engine.SCREEN_WIDTH_PX - 100, Menu.FLEXIBLE, Menu.FLEXIBLE);
         }
         public void GetName()
         {
@@ -144,7 +151,7 @@ namespace HoS_proto
             if (Location == prevLoc) return false;
             else
             {
-                quests.RemoveAll(a => a.verb == Verb.GO && a.args.What == Noun.NOTHING);
+                CompleteQuest(Tutorial[TUTORIAL_MOVE]);
                 textBubble = null;
                 moveDelayElapsed = false;
                 timeSinceMovement.Start();
@@ -153,16 +160,65 @@ namespace HoS_proto
         }
         #endregion
 
+        string QuestDescription(Act a)
+        {
+            if (!a || !Tutorial.ContainsValue(a)) return a;
+            return new List<string>(Tutorial.Keys).Find(s => Tutorial[s] == a);
+        }
+        /// <summary> no side effects if duplicated or arg => false. </summary>
+        bool AcceptQuest(Act act)
+        {
+            if (!act || quests.Contains(act)) return false;
+            quests.Add(act);
+            questLog.Add(QuestDescription(act));
+            return true;
+        }
+
+        /// <summary> no side effects if false. </summary>
+        Act CompleteQuest(Act act)
+        {
+            if (!act) return act;
+
+            {
+                var shouldConfirm = false;
+                switch (act.verb)
+                {
+                    case Verb.TALK:
+                        shouldConfirm = LastInteraction(act.args.Who);
+                        break;
+                    case Verb.GO:
+                        shouldConfirm = Adjacent(act.args.Last);
+                        break;
+                }
+                if (shouldConfirm)
+                {
+                    var followOn = actController.Consequence(act);
+                    actController.Confirm(act);
+                    if (followOn && followOn.subject == this)
+                    {
+                        AcceptQuest(followOn);
+                    }
+                }
+            }
+
+            if (!act.Happened || !quests.Remove(act)) return Act.NO_ACT;
+
+            questLog.Remove(QuestDescription(act));
+            if (Tutorial.ContainsValue(act))
+            {
+                Tutorial[QuestDescription(act)] = Act.NO_ACT;
+            }
+            popups.Add(new Notification("YOU DID SOMETHING! GJ", 13, 13));
+
+            return act;
+        }
+
         bool Enter(State nextState)
         {
             switch (nextState)
             {
                 case State.MOVING:
                     textBubble = null;
-                    if (quests.Exists(a => a.verb == Verb.GO && a.args.What == Noun.NOTHING))
-                    {
-                        MakeTextBubble().Add("use direction keys, numpad, or vi keys to walk.");
-                    }
                     break;
 
                 case State.TALKING:
@@ -199,20 +255,20 @@ namespace HoS_proto
             switch (state)
             {
                 case State.UNINITIALIZED:
-                    quests.Add(actController.FirstCause(this, Verb.GO, Noun.NOTHING));
-                    quests.Add(actController.FirstCause(this, Verb.TALK, nearestNPC));
+                    Tutorial[TUTORIAL_MOVE] = actController.FirstCause(this, Verb.GO, this);
+                    Tutorial[TUTORIAL_GOTO] = Tutorial[TUTORIAL_MOVE].Cause(this, Verb.GO, nearestNPC);
+                    Tutorial[TUTORIAL_TALK] = Tutorial[TUTORIAL_GOTO].Cause(this, Verb.TALK, nearestNPC);
+                    AcceptQuest(Tutorial[TUTORIAL_MOVE]);
                     Enter(State.MOVING);
                     break;
 
                 case State.MOVING:
                     if (Adjacent(nearestNPC))
                     {
-                        if (quests.Exists(a => a.verb == Verb.TALK && a.args.Who == nearestNPC))
-                        {
-                            MakeTextBubble().Add("press space bar to talk");
-                        }
+                        CompleteQuest(Tutorial[TUTORIAL_GOTO]);
                         if (Pressed(Keys.Space))
                         {
+                            CompleteQuest(Tutorial[TUTORIAL_TALK]);
                             Enter(State.TALKING);
                             return;
                         }
@@ -238,13 +294,10 @@ namespace HoS_proto
         {
             if (quests.Count == 0) goto LAST_LINE;
 
+            questLog.Draw();
+
             var q = quests[0];
-            if (q.Happened)
-            {
-                popups.Add(new Notification("YOU DID SOMETHING! GJ", 13, 13));
-                quests.Remove(q);
-            }
-            else
+            if (!q.Happened)
             {
                 if (Engine.OnScreen(q.args.First.Location))
                 {

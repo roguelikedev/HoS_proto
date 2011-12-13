@@ -102,7 +102,7 @@ namespace Util
         public bool Active { get { return Lambda != null && Lambda != Constant.NO_OP; } }
         public bool highlighted;
 
-        readonly string rawText;
+        public readonly string rawText;
         List<string> lines = new List<string>();
         int __backing_field_for_Width = -1;
         #endregion
@@ -195,6 +195,11 @@ namespace Util
             if (contents.Exists(_mi => mi.ToString() == _mi.ToString() && mi.color == _mi.color)) return false;
             Add(text, Lambda);
             return true;
+        }
+
+        public bool Remove(string text)
+        {
+            return contents.RemoveAll(mi => mi.rawText == text) > 0;
         }
 
         public void GoNext()
